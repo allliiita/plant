@@ -46,3 +46,46 @@ B2 settings: train/test organs in {bark, fruit, habit}; within-organ Δ is the c
   Test restricted to species present in the training organ. k ∈ {1,3,10,20}. Same readouts (concat primary, late-fusion robustness), same null-Δ, same 15pp weak flag.
 B2 criterion (H* prediction): within-organ Δ on a rare organ > 0 with CI excluding 0, replicated in B and L, and larger than the flower/leaf within-organ Δ at the same k.
   If met → RQ narrows to "complementarity appears only on organs poorly covered by the text anchor". If not → H* fully falsified for linear readout.
+
+## v5 (2026-11-09) — crossed-pair test: performance parity vs organ (H*). Written BEFORE any crossed-pair result.
+Motivation (exploratory, post hoc, from B/L rows): fusion Δ tracked the accuracy gap (Spearman −0.86, n=20 within-organ k>=10). Organ and gap were confounded.
+Goal: separate "organ" from "gap" with pairs whose gaps differ in the opposite way across organs.
+
+### Pairs
+X1 = (bioclip, dinov3_l)   expected small gap on flower/leaf, negative gap on bark
+X2 = (bioclip2, dinov3_b)  expected large gap everywhere, incl. bark
+B, L (already run) are re-scored with the same gap estimator for the pooled analysis.
+
+### Gap estimation — train split only; test split is used ONLY to compute Δ
+gap(pair, organ, k) = CV-acc(A) − CV-acc(D), estimated by 5-fold cross-validation inside the TRAIN split of that organ,
+  folds grouped by author (no author in both fold-train and fold-val), same probe/λ rule, same k subsampling as the test run.
+No test-set accuracy enters any gap, threshold, or prediction.
+
+### Settings
+Within-organ, organs {flower, leaf, bark, fruit, habit}, k ∈ {10, 20} (k<=3 excluded: readout-capacity regime, shown by null-Δ).
+Readouts: concat probe (primary), late fusion (robustness). 95% paired-bootstrap CI over test images.
+
+### Manipulation check (must pass, else crossed test = INCONCLUSIVE)
+MC1: X1 CV-gap <= 8pp on flower AND leaf at k=20.   MC2: X2 CV-gap >= 15pp on bark at k=20.
+(8pp / 15pp fixed now; 8pp from the exploratory boundary, 15pp = existing weak-model flag.)
+
+### Primary predictions (parity hypothesis P vs organ hypothesis H*)
+T1 (X1, flower & leaf, k=20):  P predicts Δ > 0 with CI excluding 0;  H* predicts Δ CI includes 0 or < 0.
+T2 (X2, bark, k=20):           P predicts Δ upper CI < +1pp;          H* predicts Δ > 0 with CI excluding 0.
+T3 (pooled, 4 pairs × 5 organs × k∈{10,20}, n=40): regression Δ ~ CV-gap + rare_organ(bark/fruit/habit).
+   P: CV-gap coefficient < 0 (CI excl. 0) AND rare_organ coefficient CI includes 0.  H*: rare_organ coefficient > 0 (CI excl. 0) after controlling gap.
+   CIs by bootstrap over the 40 settings' test images is not valid (shared images) → use cluster bootstrap over species (1000 reps).
+Verdict: P supported iff T1 and T2 and T3 all favour P. H* supported iff T2 and T3 favour H*. Otherwise "mixed", reported per test.
+Bullets: P supported → mechanism layer rewritten as "complementarity is governed by performance parity; organ acts through parity".
+
+### Secondary: WHY does the stable organ-invariance difference not become fusion gain? (each pre-specified, all from existing features)
+W1 Redundant discriminative subspace: canonical correlations between the two models' species-discriminant subspaces (LDA top-50 dirs, fit on train) within each organ.
+   Prediction if redundancy explains it: mean top-50 CCA ρ >= 0.7 on flower/leaf, lower on organs/pairs where Δ>0.
+W2 Disagreement is not exploitable: among test images where exactly one model is correct, can the probes' confidences tell which one?
+   AUROC of (maxprob_A − maxprob_D) for "A is the correct one". AUROC ≈ 0.5 → disagreements unexploitable by any confidence-based fusion; high AUROC but no Δ → readout limitation.
+   Oracle-weighted late fusion (weight tuned on train CV) as upper bound of confidence-based fusion.
+W3 Invariance ≠ within-organ information: the invariance index is measured CROSS-organ; fusion gain is measured WITHIN-organ.
+   Test: cross-organ fusion Δ (flower→leaf, leaf→flower) vs within-organ Δ for B/L/X1/X2. If invariance mattered for fusion, cross-organ Δ should be where DINOv3's extra organ-specific info shows up;
+   prediction under "invariance irrelevant to within-organ fusion": within- and cross-organ Δ both governed by the CV-gap (same regression as T3 including a cross-organ indicator, whose coefficient CI includes 0).
+W4 Sample-size bound: Δ vs k slope (k=10→20) per setting; positive slope where gap small → gain may grow with data (stated as limitation, not tested beyond k=20).
+Order: S3 features exist → smoke X1/X2 → full X1/X2 → CV-gap for B, L, X1, X2 → T1–T3 → W1–W4 → report.
