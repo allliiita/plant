@@ -1,0 +1,1106 @@
+[
+ {
+  "gap": "Interactions between spatial and temporal sampling biases in citizen science data are often overlooked, and their effect on trend-model inference is not well characterized.",
+  "evidence": [
+   0
+  ],
+  "why_matters": "If bias interactions distort population trend estimates, conservation decisions based on citizen science trends may be systematically wrong.",
+  "public_data": "eBird",
+  "metric": "Bias in estimated population trends (bias/coverage of trend estimates) under simulated and real bias scenarios",
+  "ml_angle": "Bias-aware/causal-inference modeling and simulation-based calibration of trend estimators",
+  "area": "citizen science",
+  "evidence_titles": [
+   "Estimating sampling biases in citizen science datasets"
+  ]
+ },
+ {
+  "gap": "Integrating large, complex remote sensing data with biased large-scale citizen science data for habitat condition monitoring remains a non-trivial unsolved data-analysis challenge.",
+  "evidence": [
+   2
+  ],
+  "why_matters": "Protected area effectiveness cannot be monitored at high resolution and scale without robust RS-CS fusion.",
+  "public_data": "Sentinel-2; GBIF",
+  "metric": "Habitat condition prediction accuracy and spatial/temporal coverage of protected areas",
+  "ml_angle": "Multimodal geospatial deep learning with bias correction",
+  "area": "citizen science",
+  "evidence_titles": [
+   "Monitoring protected areas by integrating machine learning, remote sensing and citizen science"
+  ]
+ },
+ {
+  "gap": "Fine-tuning integrated RS/CS machine learning models to local conservation priorities is required but not solved.",
+  "evidence": [
+   2
+  ],
+  "why_matters": "Global models may fail to reflect local management needs, limiting practical utility for protected area managers.",
+  "public_data": "Sentinel-2; GBIF",
+  "metric": "Local-priority prediction performance (e.g., per-site accuracy/utility) versus global baseline",
+  "ml_angle": "Transfer learning / domain adaptation / few-shot fine-tuning",
+  "area": "citizen science",
+  "evidence_titles": [
+   "Monitoring protected areas by integrating machine learning, remote sensing and citizen science"
+  ]
+ },
+ {
+  "gap": "Citizen science records are biased toward ornamental species and populated areas, limiting their use for mapping invasive plants.",
+  "evidence": [
+   12,
+   0,
+   11
+  ],
+  "why_matters": "Biased occurrence data can miss early invasions in less-visited areas, undermining early detection.",
+  "public_data": "iNaturalist; GBIF; Mapillary",
+  "metric": "Recall of invasive species occurrences in under-sampled regions; bias-corrected distribution accuracy",
+  "ml_angle": "Sampling-bias correction, importance reweighting, and presence-only distribution models",
+  "area": "citizen science",
+  "evidence_titles": [
+   "Mapping the distribution of an invasive tree using a crowdsourced geospatial data platform and deep learning",
+   "Estimating sampling biases in citizen science datasets",
+   "iNaturalist as a platform for documenting Chilean funga"
+  ]
+ },
+ {
+  "gap": "Detecting objects in images with complex backgrounds (e.g., underwater environments) remains a significant challenge for deep learning wildlife classification.",
+  "evidence": [
+   16
+  ],
+  "why_matters": "Poor detection in complex habitats limits automated monitoring of wide-ranging marine taxa from citizen science imagery.",
+  "public_data": "unknown",
+  "metric": "Detection/segmentation accuracy (e.g., mAP, IoU) on complex-background images",
+  "ml_angle": "Instance segmentation and object detection (e.g., Mask R-CNN, YOLO variants)",
+  "area": "citizen science",
+  "evidence_titles": [
+   "Deep learning-based image classification of sea turtles using object detection and instance segmentation models"
+  ]
+ },
+ {
+  "gap": "Reproducible capture of leaf shape variation by deep learning remains challenging due to the black-box nature of DL models.",
+  "evidence": [
+   10
+  ],
+  "why_matters": "Without interpretable and reproducible shape features, automated plant identification and morphological analysis lack scientific trust.",
+  "public_data": "unknown",
+  "metric": "Agreement between DL-derived features and geometric morphometric shape descriptors; clustering reproducibility",
+  "ml_angle": "Explainable AI (XAI) combined with geometric morphometrics",
+  "area": "citizen science",
+  "evidence_titles": [
+   "Deep learning to capture leaf shape in plant images: Validation by geometric morphometrics"
+  ]
+ },
+ {
+  "gap": "Models trained on lab-style datasets like PlantVillage degrade sharply on real field images with complex backgrounds and multiple leaves, and no standardized benchmark exists to measure this lab-to-field generalization gap.",
+  "evidence": [
+   0,
+   1,
+   3,
+   4,
+   7,
+   14,
+   15,
+   23
+  ],
+  "why_matters": "Field deployment is the actual use case, and reported lab accuracies (95-99%) mask field accuracies of 70-85%, so farmers cannot trust published numbers.",
+  "public_data": "PlantVillage, PlantDoc, FieldPlant, PlantWild",
+  "metric": "Field accuracy / macro-F1 and lab-to-field accuracy drop (delta) under a fixed cross-dataset protocol",
+  "ml_angle": "Domain adaptation and domain generalization (e.g., adversarial or style-transfer-based alignment)",
+  "area": "disease",
+  "evidence_titles": [
+   "Deep Learning for Plant Disease Detection and Classification on Field Images",
+   "A DATASET OF FIELD PLANT IMAGES FOR PLANT DISEASE DETECTION AND CLASSIFICATION WITH DEEP LEARNING",
+   "Plant Species and Disease Detection using Deep Learning on Plant Images Captured in Realistic Natural Field Conditions",
+   "Custom Dataset for \"Plant Species and Disease Detection using Deep Learning on Plant Images Captured in Realistic Natural Field Conditions.\"",
+   "A Review on the Detection of Plant Disease Using Machine Learning and Deep Learning Approaches",
+   "Recent advances in plant disease detection: challenges and opportunities",
+   "From laboratory to field: cross-domain few-shot learning for crop disease identification in the field",
+   "Few-shot Metric Domain Adaptation: Practical Learning Strategies for an Automated Plant Disease Diagnosis"
+  ]
+ },
+ {
+  "gap": "Few-shot and cross-domain few-shot methods are still evaluated mostly with base and novel classes from the same domain, and their performance collapses under true lab-to-field domain shift.",
+  "evidence": [
+   15,
+   16,
+   17,
+   18,
+   19,
+   20,
+   22,
+   23,
+   25,
+   26
+  ],
+  "why_matters": "Rare and emerging diseases have almost no labeled field data, so methods that only work within-domain cannot be deployed where they are most needed.",
+  "public_data": "PlantVillage, PlantWild, FieldPlant",
+  "metric": "Few-shot accuracy on novel field classes at 1/5/10 shots and cross-domain (PlantVillage to field) accuracy",
+  "ml_angle": "Cross-domain few-shot learning, meta-learning, and prompt/adapter tuning of vision-language models",
+  "area": "disease",
+  "evidence_titles": [
+   "From laboratory to field: cross-domain few-shot learning for crop disease identification in the field",
+   "Meta-Transfer Few-Shot Learning with Domain-Adaptive Prototypical Networks for Early Banana Disease Detection",
+   "Plant disease recognition in a low data scenario using few-shot learning",
+   "Real-Field-Ready and Digitally Sustainable Plant Disease Recognition via Federated Multimodal Edge Learning and Few-Shot Domain Adaptation",
+   "FSVT-SL: Few-Shot Vision Transformer with Synthetic Lesion Augmentation for Robust Plant Disease Diagnosis Under Field Conditions",
+   "A Domain-Adapted Lightweight Ensemble for Resource-Efficient Few-Shot Plant Disease Classification",
+   "Deep Learning for Cross-Domain Few-Shot Visual Recognition: A Survey",
+   "Few-shot Metric Domain Adaptation: Practical Learning Strategies for an Automated Plant Disease Diagnosis",
+   "Multiple Stochastic Prompt Tuning for Few-shot Adaptation under Extreme Domain Shift",
+   "Research on Plant Disease Recognition Using Few\u2010Shot Learning"
+  ]
+ },
+ {
+  "gap": "There is no standardized evaluation protocol or benchmark covering multi-crop, unseen-disease, few-shot, and domain-shift settings, so reported results across papers are not comparable.",
+  "evidence": [
+   7,
+   14,
+   22,
+   27
+  ],
+  "why_matters": "Without a common benchmark, claimed improvements cannot be verified and progress on real-world robustness is hard to measure.",
+  "public_data": "Deep-Plant-Disease, PlantVillage, PlantDoc, PlantWild",
+  "metric": "Reproducibility of rankings across a fixed multi-task benchmark suite (accuracy, F1, and per-setting breakdowns)",
+  "ml_angle": "Benchmark design with standardized train/test splits and unified evaluation harnesses",
+  "area": "disease",
+  "evidence_titles": [
+   "A Review on the Detection of Plant Disease Using Machine Learning and Deep Learning Approaches",
+   "Recent advances in plant disease detection: challenges and opportunities",
+   "Deep Learning for Cross-Domain Few-Shot Visual Recognition: A Survey",
+   "Deep-Plant-Disease Dataset Is All You Need for Plant Disease Identification"
+  ]
+ },
+ {
+  "gap": "Hyperspectral and multimodal (RGB + spectral + IoT sensor) detection is promising but economically prohibitive and rarely validated in open-field deployment, leaving a gap between RGB-only and costly HSI systems.",
+  "evidence": [
+   5,
+   14,
+   19
+  ],
+  "why_matters": "Hyperspectral rigs cost 20,000-50,000 USD versus 500-2,000 USD for RGB, so affordable multimodal approaches are needed for real adoption.",
+  "public_data": "unknown",
+  "metric": "Field detection accuracy/F1 per unit cost, and early-stage detection lead time",
+  "ml_angle": "Multimodal fusion (early/late fusion, cross-attention) and sensor fusion with IoT time series",
+  "area": "disease",
+  "evidence_titles": [
+   "Deep Learning-Based Multi-Modal Plant Disease Detection Using Hyperspectral Imaging and IoT Sensor Fusion in Open-Field Environments",
+   "Recent advances in plant disease detection: challenges and opportunities",
+   "FSVT-SL: Few-Shot Vision Transformer with Synthetic Lesion Augmentation for Robust Plant Disease Diagnosis Under Field Conditions"
+  ]
+ },
+ {
+  "gap": "Interpretability and explainability of deep plant-disease models remain underexplored, and it is unclear whether models attend to lesions or to spurious background cues.",
+  "evidence": [
+   11,
+   12,
+   14
+  ],
+  "why_matters": "Growers and pathologists need to trust and act on predictions, and spurious correlations would cause silent failures in new environments.",
+  "public_data": "PlantVillage, PlantDoc, FieldPlant",
+  "metric": "Faithfulness of explanations (e.g., deletion/insertion AUC) and agreement with pathologist lesion annotations",
+  "ml_angle": "Explainable AI (attention rollout, Grad-CAM variants, concept-based explanations)",
+  "area": "disease",
+  "evidence_titles": [
+   "Advances and Challenges in Computer Vision for Image-Based Plant Disease Detection: A Comprehensive Survey of Machine and Deep Learning Approaches",
+   "Deep Learning for Plant Disease Detection: A Systematic Review",
+   "Recent advances in plant disease detection: challenges and opportunities"
+  ]
+ },
+ {
+  "gap": "Edge deployment under resource, privacy, and data-scarcity constraints is identified as a critical constraint, but federated and lightweight models are validated on few datasets and lack uncertainty-aware, on-device evaluation.",
+  "evidence": [
+   7,
+   12,
+   14,
+   18,
+   20
+  ],
+  "why_matters": "Real farms have limited connectivity, cannot share raw data, and need calibrated confidence before acting on a diagnosis.",
+  "public_data": "PlantWild",
+  "metric": "On-device latency/model size at fixed accuracy, plus calibration error (ECE) and federated vs centralized accuracy gap",
+  "ml_angle": "Federated learning, model compression/quantization, and uncertainty quantification (Bayesian or conformal methods)",
+  "area": "disease",
+  "evidence_titles": [
+   "A Review on the Detection of Plant Disease Using Machine Learning and Deep Learning Approaches",
+   "Deep Learning for Plant Disease Detection: A Systematic Review",
+   "Recent advances in plant disease detection: challenges and opportunities",
+   "Real-Field-Ready and Digitally Sustainable Plant Disease Recognition via Federated Multimodal Edge Learning and Few-Shot Domain Adaptation",
+   "A Domain-Adapted Lightweight Ensemble for Resource-Efficient Few-Shot Plant Disease Classification"
+  ]
+ },
+ {
+  "gap": "Fine-grained identification degrades when species share highly similar morphology and images are captured under uncontrolled field conditions (lighting, noise, background, overlap), and no abstract reports systematic robustness evaluation across such conditions.",
+  "evidence": [
+   0,
+   1,
+   9,
+   31
+  ],
+  "why_matters": "Field deployment for biodiversity and agriculture requires reliability outside curated lab datasets, yet most reported accuracies come from controlled or small custom sets.",
+  "public_data": "PlantCLEF 2024/2025 quadrat test sets; PlantDoc",
+  "metric": "Macro-averaged F1 and accuracy under controlled vs. degraded-condition splits (lighting/background/occlusion perturbations)",
+  "ml_angle": "Domain-robust representation learning (strong augmentation, domain adaptation, test-time adaptation)",
+  "area": "fine-grained plant identification",
+  "evidence_titles": [
+   "Automatic Identification of Plants & Their Species: A Deep Learning Perspective",
+   "Deep learning for Ethiopian indigenous medicinal plant species identification and classification",
+   "AI Deep Driven Framework for Automated Identification and Classification of Plant Species from Leaf Images Using Transfer Learning Techniques",
+   "Multi-Class Mangrove Classification Using Transfer Learning with MobileNet-V3 on Multi-Organ Images"
+  ]
+ },
+ {
+  "gap": "Automated identification is severely limited in data-poor and biodiversity-rich tropical regions, where training data are scarce and herbarium records are the main alternative source.",
+  "evidence": [
+   15,
+   26,
+   19
+  ],
+  "why_matters": "The regions with the greatest biodiversity and conservation urgency are precisely those with the least field-photo training data, so global models systematically underperform there.",
+  "public_data": "PlantCLEF 2019 Guiana shield dataset; PlantCLEF 2021 herbarium dataset",
+  "metric": "Top-1/Top-5 accuracy on data-deficient-region test sets vs. North American/Western European species",
+  "ml_angle": "Cross-domain transfer learning and herbarium-to-field domain adaptation",
+  "area": "fine-grained plant identification",
+  "evidence_titles": [
+   "Overview of PlantCLEF 2021: cross-domain plant identification",
+   "Overview of LifeCLEF Plant Identification task 2019: diving into data deficient tropical countries",
+   "Overview of PlantCLEF 2023: Image-based Plant Identification at Global Scale"
+  ]
+ },
+ {
+  "gap": "Global-scale identification with hundreds of thousands of classes is hampered by strongly imbalanced classes, partially erroneous identifications, duplications, and variable visual quality, and no abstract demonstrates these issues are solved.",
+  "evidence": [
+   16,
+   19,
+   15
+  ],
+  "why_matters": "Real-world taxonomic data are inherently noisy and long-tailed, so models trained on them may learn label noise and bias toward common species.",
+  "public_data": "PlantCLEF 2022/2023 global datasets",
+  "metric": "Macro-averaged F1 and per-class recall on rare vs. common species under label-noise conditions",
+  "ml_angle": "Noisy-label learning and long-tailed/class-imbalanced learning",
+  "area": "fine-grained plant identification",
+  "evidence_titles": [
+   "Overview of PlantCLEF 2022: Image-based plant identification at global scale",
+   "Overview of PlantCLEF 2023: Image-based Plant Identification at Global Scale",
+   "Overview of PlantCLEF 2021: cross-domain plant identification"
+  ]
+ },
+ {
+  "gap": "Multi-label identification of all species present in vegetation plot/quadrat images remains hard, with best reported macro-F1 around 0.35, and systems must train on single-label individual-plant images while predicting multiple co-occurring species.",
+  "evidence": [
+   17,
+   18,
+   23,
+   24
+  ],
+  "why_matters": "Ecological monitoring and environmental-law compliance depend on complete species inventories per plot, not single-subject classification.",
+  "public_data": "PlantCLEF 2024 and PlantCLEF 2025 quadrat test sets",
+  "metric": "Macro-averaged multi-label F1 on quadrat images",
+  "ml_angle": "Weakly-supervised multi-label learning with tile-based aggregation and vision transformers",
+  "area": "fine-grained plant identification",
+  "evidence_titles": [
+   "Overview of PlantCLEF 2024: multi-species plant identification in vegetation plot images",
+   "Overview of PlantCLEF 2025: Multi-Species Plant Identification in Vegetation Quadrat Images",
+   "Tile-Based ViT Inference with Visual-Cluster Priors for Zero-Shot Multi-Species Plant Identification",
+   "Multi-Scale ViT Inference with Habitat-Fit Priors and kNN Retrieval for Multi-Species Plant Identification"
+  ]
+ },
+ {
+  "gap": "Venation-pattern features are substantially less discriminative than shape features (57.63% and 67.09% vs. 94.94% validation accuracy), and effective fusion of complementary organ/feature streams is unresolved.",
+  "evidence": [
+   13,
+   27,
+   31
+  ],
+  "why_matters": "Closely related species often differ mainly in venation or other fine organ traits, so weak vein representations cap fine-grained accuracy.",
+  "public_data": "PlantCLEF 2024/2025 individual-plant training images; Leafsnap",
+  "metric": "Validation accuracy and macro-F1 of vein-only vs. shape-only vs. fused models",
+  "ml_angle": "Multi-stream/multimodal fusion with optimal fusion-point search",
+  "area": "fine-grained plant identification",
+  "evidence_titles": [
+   "Dual-stream deep learning for medicinal plant species identification using leaf shape and venation features",
+   "Automatic fused multimodal deep learning for plant identification",
+   "Multi-Class Mangrove Classification Using Transfer Learning with MobileNet-V3 on Multi-Organ Images"
+  ]
+ },
+ {
+  "gap": "Image-only recognition is insufficient for closely related species, and contextual metadata (taxonomy, geography, season, ecology) is proposed as necessary but its systematic benefit over image-only baselines is not established across benchmarks.",
+  "evidence": [
+   38,
+   24,
+   23
+  ],
+  "why_matters": "If metadata priors substantially improve fine-grained accuracy, ignoring them wastes available biodiversity information; if not, effort should focus elsewhere.",
+  "public_data": "PlantCLEF images linked with GBIF occurrence data",
+  "metric": "Accuracy/macro-F1 gain of metadata-augmented models over image-only ResNet50/EfficientNet baselines",
+  "ml_angle": "Multimodal transformers with metadata encoding and geographic/habitat priors",
+  "area": "fine-grained plant identification",
+  "evidence_titles": [
+   "Fine-Grained Plant Species Classification Using Contextual Metadata",
+   "Multi-Scale ViT Inference with Habitat-Fit Priors and kNN Retrieval for Multi-Species Plant Identification",
+   "Tile-Based ViT Inference with Visual-Cluster Priors for Zero-Shot Multi-Species Plant Identification"
+  ]
+ },
+ {
+  "gap": "Plant regulatory genomics remains comparatively underexplored by large-scale sequence-to-function foundation models, which have mostly been built for human and mammalian systems.",
+  "evidence": [
+   0,
+   1
+  ],
+  "why_matters": "Without plant-specific supervised foundation models trained on chromatin accessibility, TF binding, and histone modifications, regulatory variant interpretation in crops and horticultural plants stays extrapolated from animal models.",
+  "public_data": "ENCODE plant cistrome data (e.g., Arabidopsis and rice DNAse-seq, ChIP-seq), PlantRegMap",
+  "metric": "AUROC/AUPRC for chromatin state and TF binding prediction on held-out plant genomes and tissues",
+  "ml_angle": "Supervised sequence-to-function foundation models (convolutional/transformer hybrid) pretrained on multi-assay epigenomic tracks",
+  "area": "genomics",
+  "evidence_titles": [
+   "Deep learning applications advance plant genomics research",
+   "Deep-Plant: a supervised foundation model for plant regulatory genomics"
+  ]
+ },
+ {
+  "gap": "Deep learning genomic prediction studies are mostly limited to small datasets, and DL only beats GBLUP for a subset of traits, so its advantage on moderate-to-large multi-trait datasets is unresolved.",
+  "evidence": [
+   4,
+   2,
+   8
+  ],
+  "why_matters": "Breeders need to know when DL reliably improves prediction accuracy over GBLUP before replacing established pipelines.",
+  "public_data": "CIMMYT Wheat Germplasm Bank genotype-phenotype datasets, Wheat GABI / Triticeae Toolbox",
+  "metric": "Predictive correlation (GP accuracy) under five-fold CV and leave-environment-out validation versus GBLUP",
+  "ml_angle": "Deep learning regression with regularization, transfer learning, and data augmentation compared against linear mixed models",
+  "area": "genomics",
+  "evidence_titles": [
+   "Deep learning methods improve genomic prediction of wheat breeding",
+   "Genomic prediction of plant traits by popular machine learning methods",
+   "Expanding genomic prediction in plant breeding: harnessing big data, machine learning, and advanced software"
+  ]
+ },
+ {
+  "gap": "Genomic prediction accuracy plateaus despite increasing marker density and methodological refinement, because marker-based representations lack DNA sequence grammar.",
+  "evidence": [
+   5,
+   6,
+   12
+  ],
+  "why_matters": "If representational expressivity, not algorithm choice, is the bottleneck, then genomic language model embeddings are the key lever for further genetic gain.",
+  "public_data": "Maize (G2F) and wheat breeding trial genotype-phenotype datasets with reference genomes",
+  "metric": "GP accuracy improvement from GLM sequence embeddings over SNP-based GBLUP across traits and environments",
+  "ml_angle": "Genomic language model embeddings (self-supervised pretrained transformers) feeding downstream prediction heads",
+  "area": "genomics",
+  "evidence_titles": [
+   "Genomic language model-based genomic prediction in plant breeding",
+   "A review of multimodal deep learning methods for genomic-enabled prediction in plant breeding",
+   "Beyond QTL and GWAS: how deep learning, graph models, and multi-omics are reshaping plant genomic prediction analysis"
+  ]
+ },
+ {
+  "gap": "Conventional unimodal deep learning for genomic prediction fails to leverage all available information, and multimodal fusion strategies remain largely untested in plant breeding.",
+  "evidence": [
+   6,
+   12,
+   8
+  ],
+  "why_matters": "Omics layers (transcriptome, metabolome, environment) and GxE interactions carry signal that marker-only models discard, limiting prediction under stress and across environments.",
+  "public_data": "Maize G2F multi-omics and environment data, Arabidopsis 1001 Genomes multi-omics",
+  "metric": "Prediction accuracy and GxE generalization error of multimodal versus unimodal models",
+  "ml_angle": "Multimodal deep learning with early/intermediate/late fusion, graph models, and multi-task learning",
+  "area": "genomics",
+  "evidence_titles": [
+   "A review of multimodal deep learning methods for genomic-enabled prediction in plant breeding",
+   "Beyond QTL and GWAS: how deep learning, graph models, and multi-omics are reshaping plant genomic prediction analysis",
+   "Expanding genomic prediction in plant breeding: harnessing big data, machine learning, and advanced software"
+  ]
+ },
+ {
+  "gap": "Plant-specific genomic features such as repetitive elements and polyploidy are not adequately handled by current genomic language models, and cross-species transfer to non-model plants is hampered by limited ortholog detection and sparse marker genes.",
+  "evidence": [
+   3,
+   21,
+   12
+  ],
+  "why_matters": "Most crop and medicinal plants are polyploid or repeat-rich, so models that ignore these features will misrepresent regulatory logic and fail to transfer from Arabidopsis.",
+  "public_data": "Arabidopsis 1001 Genomes, wheat (polyploid) reference genome and scRNA-seq atlases, Plant Single Cell Atlas",
+  "metric": "Variant effect prediction accuracy and cross-species cell-type label transfer F1/accuracy",
+  "ml_angle": "Repeat-aware tokenization, cross-species domain adaptation, and ortholog-aware transfer learning",
+  "area": "genomics",
+  "evidence_titles": [
+   "Plant Genomic Language Models: Advances and Applications",
+   "Computational Framework and Deep Learning for Cross-Species Comparison in Plant Transcriptomics and Imaging",
+   "Beyond QTL and GWAS: how deep learning, graph models, and multi-omics are reshaping plant genomic prediction analysis"
+  ]
+ },
+ {
+  "gap": "Plant single-cell and spatial transcriptomics lack standardized experimental and analytical procedures, and protoplast-based scRNA-seq introduces dissociation artifacts and cell-type biases while spatial methods struggle with data sparsity and noise.",
+  "evidence": [
+   15,
+   23,
+   20,
+   17
+  ],
+  "why_matters": "Without reproducible, bias-corrected workflows, cross-study comparability and biological interpretation of plant cell atlases remain unreliable.",
+  "public_data": "Plant Single Cell Atlas, Arabidopsis root scRNA-seq datasets, spatial transcriptomics benchmark slices",
+  "metric": "Reproducibility across labs (cluster agreement), spatial domain ARI, and denoising/imputation accuracy",
+  "ml_angle": "Separable representation learning, denoising autoencoders, and label transfer/deconvolution models",
+  "area": "genomics",
+  "evidence_titles": [
+   "Best practices for the execution, analysis, and data storage of plant single-cell/nucleus transcriptomics",
+   "Why \u201cWhere\u201d Matters as Much as \u201cHow Much\u201d: Single-Cell and Spatial Transcriptomics in Plants",
+   "S3RL: Enhancing Spatial Single\u2010Cell Transcriptomics With Separable Representation Learning",
+   "Recent progress in single-cell transcriptomic studies in plants"
+  ]
+ },
+ {
+  "gap": "Species identification models for taxonomically complex groups like Kirganelia remain unreliable for underrepresented species despite class-imbalance strategies.",
+  "evidence": [
+   0,
+   2
+  ],
+  "why_matters": "Rare and minority species are precisely those most in need of automated identification support, so aggregate accuracy hides the failures that matter most.",
+  "public_data": "Kirganelia leaf-image dataset (6475 images, 30 species); ReColNat herbarium images",
+  "metric": "Minority-class recall / macro-averaged F1 and per-species accuracy",
+  "ml_angle": "Long-tailed learning (weighted loss, re-sampling, logit adjustment, few-shot/contrastive learning)",
+  "area": "herbarium",
+  "evidence_titles": [
+   "Deep learning for species identification in Kirganelia using digitized herbarium specimens",
+   "Contrastive learning for the classification of herbarium specimens of the Piperaceae family"
+  ]
+ },
+ {
+  "gap": "It is untested whether segmentation-based background removal consistently improves downstream classification and trait extraction across models and datasets, rather than only in isolated case studies.",
+  "evidence": [
+   7,
+   12,
+   16
+  ],
+  "why_matters": "If raw-image models achieve high accuracy via spurious non-plant cues, reported performance may not generalize to new collections or imaging setups.",
+  "public_data": "ReColNat herbarium images; Herbariograph dataset",
+  "metric": "Accuracy/F1 gain from segmentation plus Grad-CAM interpretability agreement (e.g., pointing-game / deletion metrics)",
+  "ml_angle": "Instance segmentation (YOLO+SAM) combined with explainability analysis (Grad-CAM, attention attribution)",
+  "area": "herbarium",
+  "evidence_titles": [
+   "PlantSAM: An object detection\u2010driven segmentation pipeline for herbarium specimens",
+   "Interpretable Deep Learning for Botanical Traits: A Comparative Study on the Role of Segmentation in Herbarium Image Analysis",
+   "Enhancing plant morphological trait identification in herbarium collections through deep learning\u2013based segmentation"
+  ]
+ },
+ {
+  "gap": "Automated label digitization still produces high omission/commission errors and non-standard field names, and no approach reliably yields Darwin Core-compliant structured records at scale.",
+  "evidence": [
+   15,
+   17,
+   23
+  ],
+  "why_matters": "Label metadata (locality, date, collector) underpins biodiversity informatics and multimodal AI corpora, so transcription errors propagate into all downstream science.",
+  "public_data": "HERBIOME label dataset; GBIF-sourced herbarium label images",
+  "metric": "Per-field precision/recall, omission and commission error rates, Darwin Core schema-compliance rate",
+  "ml_angle": "OCR (TrOCR) + LLM-based structured extraction with schema-constrained decoding and validation",
+  "area": "herbarium",
+  "evidence_titles": [
+   "Automated pipeline for herbarium label digitization",
+   "A comprehensive review of detection, optical character recognition, and structuring methods for herbarium label digitization",
+   "Ensemble automated approaches for producing high\u2010quality herbarium digital records"
+  ]
+ },
+ {
+  "gap": "Scalable open-set recognition of unknown or misidentified specimens remains unsolved, and models treat single-specimen label predictions as final rather than flagging uncertainty or potential misidentifications.",
+  "evidence": [
+   6,
+   9
+  ],
+  "why_matters": "Herbaria contain many undetermined or misidentified specimens; a closed-set classifier silently mislabels them, undermining trust and taxonomic workflows.",
+  "public_data": "Herbariograph dataset; expert-verified herbarium datasets from GBIF",
+  "metric": "Open-set AUROC / unknown-detection rate at fixed false-positive rate; misidentification flag precision-recall",
+  "ml_angle": "Open-set recognition, out-of-distribution detection, and uncertainty calibration (e.g., energy-based, conformal prediction)",
+  "area": "herbarium",
+  "evidence_titles": [
+   "A review of artificial intelligence in herbarium specimen image analysis",
+   "Herbarium specimens in the age of artificial intelligence: from herbarium image identification to Integrative Taxonomic AI"
+  ]
+ },
+ {
+  "gap": "The reliability and transferability of herbarium-derived trait measurements and AI predictions across taxa, regions, and herbaria remain poorly validated, including desiccation-induced trait distortion.",
+  "evidence": [
+   14,
+   20,
+   4
+  ],
+  "why_matters": "Phenology and trait studies built on biased or non-transferable herbarium measurements can yield misleading ecological and climate conclusions.",
+  "public_data": "Neotropical Myrtaceae fresh-vs-dried trait dataset; digitized herbarium phenology records",
+  "metric": "Prediction error (MAE/R\u00b2) of fresh traits from dried specimens; cross-institution/cross-region transfer accuracy",
+  "ml_angle": "Domain adaptation / transfer learning with calibration and bias-aware validation",
+  "area": "herbarium",
+  "evidence_titles": [
+   "The promise of digital herbarium specimens in large\u2010scale phenology research",
+   "Herbarium\u2010based measurements are reliable predictors of fresh plant traits in Neotropical Myrtaceae",
+   "On herbarium specimen images and artificial intelligence"
+  ]
+ },
+ {
+  "gap": "AI-predicted sequencing success from herbarium images and metadata has been trained on only ~2,000 specimens and its generalization across the plant tree of life is untested.",
+  "evidence": [
+   5
+  ],
+  "why_matters": "Destructive sampling of non-replaceable specimens is costly and risky, so a poorly calibrated predictor could waste irreplaceable material or miss viable samples.",
+  "public_data": "Plant and Fungal Trees of Life (PAFTOL) digitized-and-sequenced specimen set",
+  "metric": "AUC / calibration error (Brier score) for sequencing-success prediction on held-out lineages",
+  "ml_angle": "Multimodal deep learning (image + tabular metadata) with cross-lineage validation and probability calibration",
+  "area": "herbarium",
+  "evidence_titles": [
+   "AI-based prediction of herbarium sequencing success across the plant tree of life"
+  ]
+ },
+ {
+  "gap": "Deep learning phenology models have not been systematically benchmarked against process-based models under climate conditions outside the training distribution, leaving their extrapolation ability under climate change untested.",
+  "evidence": [
+   3
+  ],
+  "why_matters": "If DL models fail to extrapolate to novel climates, they cannot be trusted for climate-change impact forecasts on carbon sequestration and tree vitality.",
+  "public_data": "PEP725",
+  "metric": "Out-of-distribution prediction error (RMSE/MAE in days) on held-out warm years or spatially extrapolated sites versus process-model baselines",
+  "ml_angle": "Domain-generalization / causal-structure-informed neural networks with explicit temperature-forcing constraints",
+  "area": "phenology",
+  "evidence_titles": [
+   "Deep learning meets tree phenology modelling: PhenoFormer versus process\u2010based models"
+  ]
+ },
+ {
+  "gap": "Species-level deep learning phenology modelling remains underexplored and has only been demonstrated on a single country-scale dataset, with unclear transferability across species, regions and biomes.",
+  "evidence": [
+   3,
+   14
+  ],
+  "why_matters": "Phenology knowledge is heavily skewed to the northern hemisphere, so models that do not transfer leave major biomes unmonitored.",
+  "public_data": "PEP725; USA-NPN National Phenology Network",
+  "metric": "Cross-species and cross-region transfer error (days) and per-species R\u00b2 when trained on one region/species set and tested on another",
+  "ml_angle": "Transfer learning / multi-task or meta-learning architectures over species embeddings",
+  "area": "phenology",
+  "evidence_titles": [
+   "Deep learning meets tree phenology modelling: PhenoFormer versus process\u2010based models",
+   "Leveraging machine learning and citizen science data to describe flowering phenology across South Africa"
+  ]
+ },
+ {
+  "gap": "Deep learning reconstruction of satellite NDVI time series is limited by the lack of complete and accurate ground-truth training data, and traditional filtering methods degrade under large gaps, irregular noise and frequent fluctuations.",
+  "evidence": [
+   4,
+   1
+  ],
+  "why_matters": "Missing cloudy observations bias phenology metrics (e.g., SOS/EOS) derived from high-resolution satellite records used in regional and global ecology.",
+  "public_data": "Landsat 8 surface reflectance (USGS); MODIS NDVI (NASA)",
+  "metric": "Reconstruction error (RMSE, MAE) against held-out clear-sky observations and downstream phenology-date bias (days)",
+  "ml_angle": "Self-supervised / masked sequence modelling (Bi-LSTM, transformer) with synthetic gap augmentation",
+  "area": "phenology",
+  "evidence_titles": [
+   "A deep learning model-based reconstruction of Landsat NDVI and its application for vegetation phenology monitoring",
+   "Deep Learning for Satellite Image Time-Series Analysis: A review"
+  ]
+ },
+ {
+  "gap": "Automated phenology extraction from citizen-science and opportunistic records has not been rigorously validated against systematic monitoring protocols, leaving data-quality and bias effects on phenology estimates unresolved.",
+  "evidence": [
+   2,
+   5,
+   20
+  ],
+  "why_matters": "Declining volunteer participation threatens systematic networks, so opportunistic data must be proven reliable before substituting for protocol-based records.",
+  "public_data": "iNaturalist observations; Flora Incognita dataset; PEP725",
+  "metric": "Agreement (bias in days, correlation) between ML-derived phenology dates from opportunistic data and protocol-based network observations",
+  "ml_angle": "Weakly supervised / noisy-label learning with bias-correction and uncertainty quantification",
+  "area": "phenology",
+  "evidence_titles": [
+   "Automating Phenological Stage Detection from Citizen Science Images for Plant Phenology Monitoring",
+   "Opportunistic plant observations reveal spatial and temporal gradients in phenology",
+   "Macrophenological dynamics from citizen science plant occurrence data"
+  ]
+ },
+ {
+  "gap": "Image-based phenology and cover models are typically evaluated on single datasets without testing robustness to varying image resolution, capture perspective, or training strategy.",
+  "evidence": [
+   7,
+   10
+  ],
+  "why_matters": "Field and crowd-sourced imagery vary widely in acquisition conditions, so models that fail under such variation cannot be deployed reliably across sites.",
+  "public_data": "iNaturalist; PlantCLEF",
+  "metric": "Phenological-stage classification accuracy/F1 under resolution and viewpoint perturbation, and cross-dataset generalization gap",
+  "ml_angle": "Data augmentation, domain adaptation, and multi-view/multi-scale fusion networks",
+  "area": "phenology",
+  "evidence_titles": [
+   "A deep learning approach for deriving wheat phenology from near-surface RGB image series using spatiotemporal fusion",
+   "Using photographs and deep neural networks to understand flowering phenology and diversity in mountain meadows"
+  ]
+ },
+ {
+  "gap": "Phenology modelling largely ignores belowground and plant-soil phenological coupling, and soil phenology research is identified as a critical gap with little integration into biodiversity-ecosystem functioning frameworks.",
+  "evidence": [
+   8
+  ],
+  "why_matters": "Aboveground-only phenology models may misestimate ecosystem functioning and seasonal carbon/nutrient cycling driven by soil processes.",
+  "public_data": "unknown",
+  "metric": "Predictive accuracy of coupled above-belowground phenology models for ecosystem multifunctionality metrics across seasons",
+  "ml_angle": "Multimodal / multi-target time-series models coupling aboveground and soil sensor data",
+  "area": "phenology",
+  "evidence_titles": [
+   "Linking plant and soil phenology to biodiversity and ecosystem functioning"
+  ]
+ },
+ {
+  "gap": "It remains unknown how well plant subsampling strategies generalize beyond the European network database to other biomes and community types for automated pollinator monitoring.",
+  "evidence": [
+   0
+  ],
+  "why_matters": "Monitoring programs in under-sampled regions may select the wrong plant species and miss key network properties.",
+  "public_data": "unknown",
+  "metric": "Recovery error of pollinator richness and network structure metrics under subsampling across biomes",
+  "ml_angle": "Transfer learning / domain adaptation for sampling-strategy optimization",
+  "area": "pollination/ecology",
+  "evidence_titles": [
+   "Optimizing plant species selection for automated monitoring of plant-pollinator interactions"
+  ]
+ },
+ {
+  "gap": "The causal pathways by which glacier retreat alters interaction diversity and network complexity, versus indirect effects via biodiversity change, are not disentangled.",
+  "evidence": [
+   1
+  ],
+  "why_matters": "Conservation after glacier extinction depends on knowing whether to manage species pools or interaction structure directly.",
+  "public_data": "unknown",
+  "metric": "Path coefficients and explained variance in structural equation or causal models of network metrics",
+  "ml_angle": "Causal inference / structural equation modeling with machine learning",
+  "area": "pollination/ecology",
+  "evidence_titles": [
+   "Glacier retreat triggers changes in biodiversity and plant\u2013pollinator interaction diversity"
+  ]
+ },
+ {
+  "gap": "AI-based pollen grain identification remains challenged by extensive spatial and temporal trait variation, and existing pollen databases lack sufficient variation for real-world samples.",
+  "evidence": [
+   9
+  ],
+  "why_matters": "Reliable pollen identification underpins interaction network reconstruction and pollinator diet analysis at scale.",
+  "public_data": "unknown",
+  "metric": "Classification accuracy/F1 on out-of-site and out-of-year pollen samples",
+  "ml_angle": "Domain generalization / data augmentation for fine-grained image classification",
+  "area": "pollination/ecology",
+  "evidence_titles": [
+   "Multispectral Imaging Flow Cytometry for Spatio\u2010Temporal Pollen Trait Variation Measurements of Insect\u2010Pollinated Plants"
+  ]
+ },
+ {
+  "gap": "Automated camera systems have not been comprehensively benchmarked against manual monitoring across full plant-pollinator communities, including biases toward diurnal interactions and observer effects.",
+  "evidence": [
+   11
+  ],
+  "why_matters": "Adoption of automated monitoring requires evidence that it captures interaction networks without systematic bias.",
+  "public_data": "unknown",
+  "metric": "Agreement (e.g., detection rate, network metric correlation) between automated and manual interaction records",
+  "ml_angle": "Object detection benchmarking and bias analysis (e.g., YOLO variants with error decomposition)",
+  "area": "pollination/ecology",
+  "evidence_titles": [
+   "Comparative assessment of automated and manual monitoring in comprehensive plant\u2013pollinator communities"
+  ]
+ },
+ {
+  "gap": "Research on climate change impacts on boreal plant-pollinator interactions is severely limited, with biased species/area coverage, understudied foundation plants, and neglected pollinator composition and fly pollinators.",
+  "evidence": [
+   4
+  ],
+  "why_matters": "Without interaction data, the resilience of boreal pollination systems to warming cannot be assessed.",
+  "public_data": "unknown",
+  "metric": "Number and coverage of interaction datasets; predictive accuracy of warming-response models",
+  "ml_angle": "Species distribution and interaction prediction models with sparse-data methods",
+  "area": "pollination/ecology",
+  "evidence_titles": [
+   "The effects of climate change on boreal plant-pollinator interactions are largely neglected by science"
+  ]
+ },
+ {
+  "gap": "The tripartite plant-microbiome-pollinator co-adaptation framework is proposed conceptually but lacks empirical integration and testable predictive models linking belowground and aboveground partners.",
+  "evidence": [
+   5
+  ],
+  "why_matters": "Ignoring microbiome-mediated effects may misestimate plant fitness and pollination outcomes under environmental change.",
+  "public_data": "unknown",
+  "metric": "Predictive performance of joint microbiome-pollinator models on plant fitness outcomes",
+  "ml_angle": "Multimodal/multi-omics integration and network modeling",
+  "area": "pollination/ecology",
+  "evidence_titles": [
+   "Integrating Plant-Microbiome and Pollinator Interactions: A Tripartite Co-adaptation Framework"
+  ]
+ },
+ {
+  "gap": "There is no comprehensive review that jointly analyzes unimodal versus multimodal remote sensing data and deep learning methods for tree species classification, leaving the field without a synthesized baseline of what multimodal fusion actually contributes.",
+  "evidence": [
+   0
+  ],
+  "why_matters": "Without a unified synthesis, researchers cannot tell whether reported gains come from multimodal data or from model/benchmark differences, slowing principled method development.",
+  "public_data": "TreeSatAI",
+  "metric": "Systematic meta-analysis of reported F1/accuracy stratified by modality and model family",
+  "ml_angle": "Multimodal fusion (early/late/hybrid) with controlled ablation benchmarking",
+  "area": "remote sensing",
+  "evidence_titles": [
+   "A Review: Tree Species Classification Based on Remote Sensing Data and Classic Deep Learning-Based Methods"
+  ]
+ },
+ {
+  "gap": "Multi-label tree species classification is under-studied because inter-species image differences are small, labeling is hard, and datasets are scarce, so models are rarely tested under realistic multi-label, class-imbalanced forest conditions.",
+  "evidence": [
+   1
+  ],
+  "why_matters": "Real forest stands contain co-occurring species, so single-label benchmarks overstate operational performance.",
+  "public_data": "TreeSatAI",
+  "metric": "Multi-label F1-score, precision, and per-class recall under class imbalance",
+  "ml_angle": "Multi-label / multi-branch deep networks with imbalance-aware losses",
+  "area": "remote sensing",
+  "evidence_titles": [
+   "Multi-branch and multi-label tree species classification using deep learning for UAV aerial photography and Sentinel remote sensing images"
+  ]
+ },
+ {
+  "gap": "Methods that comprehensively capture and fuse spatio-temporal-spectral information from multi-source remote sensing are lacking, and existing fusion relies on fixed rather than dynamically optimized weighting.",
+  "evidence": [
+   2
+  ],
+  "why_matters": "Spatio-temporal-spectral complementarity is the main source of accuracy gains, so weak fusion caps classification performance in heterogeneous forests.",
+  "public_data": "unknown",
+  "metric": "Overall accuracy and macro-F1 versus single-modality and fixed-fusion baselines",
+  "ml_angle": "Deep ensemble learning with dynamic weight optimization / attention-based fusion",
+  "area": "remote sensing",
+  "evidence_titles": [
+   "Forest Tree Species Classification Based on Deep Ensemble Learning by Fusing High-Resolution, Multitemporal, and Hyperspectral Multisource Remote Sensing Data"
+  ]
+ },
+ {
+  "gap": "Establishing high-quality single-tree point cloud datasets remains an open problem, constraining point-cloud deep learning for species identification.",
+  "evidence": [
+   4
+  ],
+  "why_matters": "Point-cloud methods like PointNet++ cannot be fairly evaluated or scaled without standardized, high-quality individual-tree point clouds.",
+  "public_data": "unknown",
+  "metric": "Classification accuracy on standardized single-tree point cloud benchmarks; dataset size/quality statistics",
+  "ml_angle": "Point-cloud deep learning (PointNet++ variants) with up/down-sampling augmentation",
+  "area": "remote sensing",
+  "evidence_titles": [
+   "Tree species classification based on PointNet++ deep learning and true- colour point cloud"
+  ]
+ },
+ {
+  "gap": "Hyperspectral tree species classification is hampered by the curse of dimensionality and scarcity of labeled samples, limiting extraction of joint spatial-spectral features in complex forests.",
+  "evidence": [
+   5,
+   9,
+   23
+  ],
+  "why_matters": "Label scarcity is the binding constraint for operational hyperspectral mapping, so methods that do not address it will not transfer to new forests.",
+  "public_data": "unknown",
+  "metric": "Accuracy/F1 under reduced training-label budgets (few-shot curves)",
+  "ml_angle": "Hybrid CNN + SVM, feature selection, and few-shot / semi-supervised learning",
+  "area": "remote sensing",
+  "evidence_titles": [
+   "A Study on Airborne Hyperspectral Tree Species Classification Based on the Synergistic Integration of Machine Learning and Deep Learning",
+   "A Hybrid convolution neural network for the classification of tree species using hyperspectral imagery",
+   "Deep learning techniques for hyperspectral imaging classification: challenges and opportunities"
+  ]
+ },
+ {
+  "gap": "Operational continental-scale species mapping is limited by heterogeneous sensor characteristics, uneven species distributions, and difficulty linking in-situ inventory plots to multi-sensor imagery.",
+  "evidence": [
+   6,
+   14
+  ],
+  "why_matters": "Continental monitoring requires models robust to sensor heterogeneity and skewed class distributions, which current plot-scale studies do not test.",
+  "public_data": "Sentinel-1, Sentinel-2, National Forest Inventory (Spain)",
+  "metric": "Macro-F1 and per-species recall across regions/sensors; transfer performance",
+  "ml_angle": "Multi-modal deep learning with domain adaptation and long-tailed class handling",
+  "area": "remote sensing",
+  "evidence_titles": [
+   "Linking Forest Inventories and Multi-Modal Deep Learning for Tree Species Classification",
+   "Deep Learning Applications in Remote Sensing for Forest Inventory Methods"
+  ]
+ },
+ {
+  "gap": "Fine-grained segmentation of fine roots and root hairs, and time-series modeling across growth stages, remain underexplored in in situ root phenotyping.",
+  "evidence": [
+   0
+  ],
+  "why_matters": "Fine roots and root hairs drive water and nutrient uptake, so failing to resolve them limits the biological validity of root phenotyping.",
+  "public_data": "unknown",
+  "metric": "Segmentation accuracy/IoU on fine-root and root-hair classes; temporal trait prediction error across growth stages",
+  "ml_angle": "High-resolution segmentation networks combined with temporal sequence models (e.g., recurrent or transformer-based time-series models)",
+  "area": "root/3D",
+  "evidence_titles": [
+   "In situ root image phenotyping research based on deep learning: a review"
+  ]
+ },
+ {
+  "gap": "Automated background removal and standard CV preprocessing misinterpret fine root hairs as noise, causing significant morphological data loss and compounding class imbalance in root-based classification.",
+  "evidence": [
+   1
+  ],
+  "why_matters": "Losing root hairs and struggling with class imbalance directly degrades the reliability of root-morphology-based discrimination such as haploid/diploid selection.",
+  "public_data": "unknown",
+  "metric": "Morphological data retention rate; classification balanced accuracy/F1 under class imbalance",
+  "ml_angle": "Imbalance-aware learning (reweighting, focal loss, augmentation) with hair-preserving segmentation preprocessing",
+  "area": "root/3D",
+  "evidence_titles": [
+   "Challenges in Maize Root Phenotyping: Preprocessing Limits and Class Imbalance in Deep Learning"
+  ]
+ },
+ {
+  "gap": "Small-scale rhizotron/tube studies have not been shown to reliably predict deep rooting in field-grown plants, especially at later developmental stages.",
+  "evidence": [
+   8,
+   12
+  ],
+  "why_matters": "If tube-based phenotyping cannot predict field deep rooting, breeding decisions based on cheaper small-scale methods may be misled.",
+  "public_data": "unknown",
+  "metric": "Genotype-rank correlation between tube and field deep-rooting measurements; prediction error at maturity",
+  "ml_angle": "Cross-domain transfer/domain adaptation and genotype-rank correlation modeling",
+  "area": "root/3D",
+  "evidence_titles": [
+   "Can rhizotron tube studies predict deep rooting in the field? A comparison of root phenotyping methods",
+   "Winter wheat phenotyping for deep root growth and function, reduced water stress and increased uptake of deep N and water"
+  ]
+ },
+ {
+  "gap": "3D point cloud plant phenotyping is hindered by data complexity, limited datasets, and poor model generalization across species and acquisition modalities.",
+  "evidence": [
+   18,
+   19,
+   15
+  ],
+  "why_matters": "Without generalization across species and sensors, 3D phenotyping models cannot be deployed broadly in breeding pipelines.",
+  "public_data": "PLANesT-3D",
+  "metric": "Cross-species/cross-modality segmentation mIoU and accuracy on held-out datasets",
+  "ml_angle": "Domain generalization, self-supervised pretraining, and few-shot transfer for 3D point clouds",
+  "area": "root/3D",
+  "evidence_titles": [
+   "AI-driven 3D point cloud analysis in plant phenotyping: A Systematic Review",
+   "PLANesT-3D: A new annotated dataset for segmentation of 3D plant point clouds",
+   "Delving into the Potential of Deep Learning Algorithms for Point Cloud Segmentation at Organ Level in Plant Phenotyping"
+  ]
+ },
+ {
+  "gap": "3D instance segmentation in cluttered in-field scenes is infeasible with manual annotations, requiring annotation-free approaches whose robustness is not yet established.",
+  "evidence": [
+   24,
+   26
+  ],
+  "why_matters": "Manual labeling of complex field point clouds does not scale, blocking high-throughput in-field 3D phenotyping.",
+  "public_data": "unknown",
+  "metric": "Instance segmentation quality (e.g., mAP/mIoU) without manual training labels versus supervised baselines",
+  "ml_angle": "Zero-shot/foundation-model pipelines (e.g., Grounded SAM) with multi-view 3D-to-2D projection and self-training",
+  "area": "root/3D",
+  "evidence_titles": [
+   "In-Field 3D Wheat Head Instance Segmentation from TLS Point Clouds Using Deep Learning without Manual Labels",
+   "In-Field 3D Wheat Head Instance Segmentation from TLS Point Clouds Using Deep Learning without Manual Labels"
+  ]
+ },
+ {
+  "gap": "Segmentation-based landmark and trait extraction is laborious to annotate and error-prone because derived geometric features are sensitive to instance mask integrity.",
+  "evidence": [
+   5
+  ],
+  "why_matters": "Mask errors propagate into geometric trait estimates, undermining the accuracy of downstream phenotypic measurements.",
+  "public_data": "unknown",
+  "metric": "Landmark localization error and trait estimation accuracy versus segmentation-based baselines",
+  "ml_angle": "Segmentation-free pose estimation / landmark detection and grouping",
+  "area": "root/3D",
+  "evidence_titles": [
+   "Fast and Efficient Root Phenotyping via Pose Estimation"
+  ]
+ },
+ {
+  "gap": "Self-supervised plant disease models are validated on curated or single-crop datasets, leaving cross-dataset and in-field generalization untested.",
+  "evidence": [
+   0,
+   1,
+   2,
+   4
+  ],
+  "why_matters": "Models that only work on lab-curated cotton or CCMT images cannot be trusted for real farm deployment where lighting, background, and disease presentation vary.",
+  "public_data": "PlantVillage, PlantDoc, CCMT",
+  "metric": "Cross-dataset accuracy/F1 drop between lab and in-field test sets",
+  "ml_angle": "Domain-adaptive self-supervised pretraining and domain-generalization objectives",
+  "area": "self-supervised bio",
+  "evidence_titles": [
+   "Self-Supervised Learning for Agricultural Image Classification: Detecting Plant Diseases and Pests in Cotton",
+   "Classification of Plant Leaf Disease Recognition Based on Self-Supervised Learning",
+   "A Unified Self-Supervised Framework for Plant Disease Detection on Laboratory and In-Field Images",
+   "Research on Plant Pest and Disease Classification Based on Self-Supervised Learning"
+  ]
+ },
+ {
+  "gap": "SSL plant models are evaluated almost exclusively on classification accuracy, with no systematic evaluation of segmentation, localization, or regression of continuous traits.",
+  "evidence": [
+   3,
+   5,
+   12
+  ],
+  "why_matters": "Disease detection and growth estimation require pixel-level or continuous outputs, so classification-only benchmarks overstate practical utility.",
+  "public_data": "PlantVillage, Leaf Segmentation Challenge (CVPPP), LUCAS",
+  "metric": "mIoU for lesion segmentation and MAE/RMSE for growth-parameter regression",
+  "ml_angle": "SSL pretraining with dense-prediction pretext tasks (masked image modeling, contrastive dense features)",
+  "area": "self-supervised bio",
+  "evidence_titles": [
+   "Visual harvest: self-supervised learning for lettuce growth analysis",
+   "StateSpace-SSL: Linear-Time Self-supervised Learning for Plant Disease Detection",
+   "Self-Supervised Learning for Image Segmentation: A Comprehensive Survey"
+  ]
+ },
+ {
+  "gap": "Zero-shot and unseen crop-disease recognition remains largely unexplored, and SSL representations have not been shown to transfer to novel disease classes.",
+  "evidence": [
+   6,
+   11
+  ],
+  "why_matters": "Real fields constantly encounter new pathogens, so models that fail on unseen classes have limited practical value.",
+  "public_data": "PlantVillage (held-out classes), PlantDoc",
+  "metric": "Zero-shot top-1 accuracy and harmonic mean on unseen classes",
+  "ml_angle": "Vision-language alignment, attribute-based zero-shot learning, and cross-modal SSL",
+  "area": "self-supervised bio",
+  "evidence_titles": [
+   "Beyond supervision: Harnessing self-supervised learning in unseen plant disease recognition",
+   "Self-supervised learning outperforms supervised learning for crop classification by annotating only 5% of images"
+  ]
+ },
+ {
+  "gap": "Existing SSL backbones (CNNs, ViTs) are poorly matched to agricultural imagery, and linear-time alternatives like state-space models lack independent replication and broad benchmarking.",
+  "evidence": [
+   5,
+   7
+  ],
+  "why_matters": "Architecture mismatch limits capture of continuous lesion structure and high-resolution efficiency, and unreplicated claims hinder adoption.",
+  "public_data": "PlantVillage, PlantDoc, Cassava Leaf Disease",
+  "metric": "Accuracy/F1 at matched compute plus throughput (images/sec) and memory",
+  "ml_angle": "State-space models (Mamba) and efficient long-context SSL encoders",
+  "area": "self-supervised bio",
+  "evidence_titles": [
+   "StateSpace-SSL: Linear-Time Self-supervised Learning for Plant Disease Detection",
+   "StateSpace-SSL: Linear-Time Self-supervised Learning for Plant Disease Detection"
+  ]
+ },
+ {
+  "gap": "SSL methods are rarely compared head-to-head against supervised baselines under identical limited-label budgets across multiple crops and modalities.",
+  "evidence": [
+   11,
+   13
+  ],
+  "why_matters": "Without controlled label-efficiency comparisons, claims that SSL reduces annotation burden remain unverified for agriculture.",
+  "public_data": "LUCAS agricultural subset, PlantVillage",
+  "metric": "Accuracy vs. fraction of labels used (label-efficiency curves)",
+  "ml_angle": "Semi-supervised fine-tuning with pseudo-labeling and contrastive pretraining",
+  "area": "self-supervised bio",
+  "evidence_titles": [
+   "Self-supervised learning outperforms supervised learning for crop classification by annotating only 5% of images",
+   "Self Supervised Learning for Image Classification With Few Labels"
+  ]
+ },
+ {
+  "gap": "Plant foundation models are pretrained and benchmarked on genomic or single-cell data with limited cross-species, cross-modality, and multimodal integration validation.",
+  "evidence": [
+   14,
+   15,
+   18,
+   19,
+   27
+  ],
+  "why_matters": "Claims of transferable plant representations are untested across the polyploid, repetitive, and multimodal diversity of plant data, risking overgeneralization.",
+  "public_data": "PlantCAD2 benchmarks, Arabidopsis scRNA-seq atlases, TreeOfLife-10M",
+  "metric": "Zero-shot and few-shot downstream task performance across held-out species and modalities",
+  "ml_angle": "Multimodal foundation model pretraining and cross-species transfer learning",
+  "area": "self-supervised bio",
+  "evidence_titles": [
+   "AI foundation models in plant biology",
+   "Foundation models in plant molecular biology: advances, challenges, and future directions",
+   "Stomatal biology meets multimodal foundation model-driven AI",
+   "Foundation Model: A New Era for Plant Single-cell Genomics",
+   "PlantCAD2: A DNA foundation model for interpreting genomes across flowering plants"
+  ]
+ },
+ {
+  "gap": "Deep learning models for plant trait retrieval lack reliable uncertainty quantification when deployed on out-of-domain data such as unseen regions, species, biomes, or acquisition modalities.",
+  "evidence": [
+   2
+  ],
+  "why_matters": "Without trustworthy uncertainty estimates, large-scale trait maps cannot be safely used for ecological and environmental decision-making.",
+  "public_data": "unknown",
+  "metric": "Calibration error and OOD detection performance (e.g., expected calibration error, prediction interval coverage) on held-out regions/species.",
+  "ml_angle": "Bayesian deep learning and conformal prediction for calibrated uncertainty under distribution shift.",
+  "area": "traits",
+  "evidence_titles": [
+   "Uncertainty Assessment in Deep Learning-based Plant Trait Retrievals from Hyperspectral data"
+  ]
+ },
+ {
+  "gap": "Deep learning trait models trained on citizen science photos with noisy/weak labels have not been systematically evaluated for label noise robustness and geographic transferability.",
+  "evidence": [
+   14,
+   16,
+   19
+  ],
+  "why_matters": "Citizen science is the main route to global trait coverage, so unvalidated noise handling could propagate biased trait maps.",
+  "public_data": "TRY plant trait database",
+  "metric": "Trait prediction correlation (e.g., R) and bias under controlled label-noise injection and spatial hold-out.",
+  "ml_angle": "Weak supervision and noise-robust learning (e.g., label-noise correction, multi-task uncertainty-aware training).",
+  "area": "traits",
+  "evidence_titles": [
+   "PlantTraitNet: A Multi-Modal, Multi-Task Approach to Learning Global Plant Trait Patterns Using Citizen Science Data and Noisy Labels",
+   "PlantTraitNet: An Uncertainty-Aware Multimodal Framework for Global-Scale Plant Trait Inference from Citizen Science Data",
+   "Crowdsourced biodiversity monitoring fills gaps in global plant trait mapping"
+  ]
+ },
+ {
+  "gap": "Leaf-to-canopy upscaling of traits remains imprecise, and alternative upscaling methods beyond community-weighted means are largely untested, especially in heterogeneous species mixtures.",
+  "evidence": [
+   13
+  ],
+  "why_matters": "Accurate canopy trait prediction is needed for biodiversity conservation and ecosystem monitoring in mixed and wetland systems.",
+  "public_data": "unknown",
+  "metric": "Regression accuracy (R2, RMSE) of canopy mean traits versus ground-truth canopy measurements across upscaling methods.",
+  "ml_angle": "Hybrid physics-informed regression combining PLSR/RF/SVM with geometric-mean upscaling.",
+  "area": "traits",
+  "evidence_titles": [
+   "Prediction of canopy mean traits in herbaceous plants by the UAV multispectral data: The quest for a better leaf-to-canopy upscaling method"
+  ]
+ },
+ {
+  "gap": "Quantitative, continuous phenotyping of complex morphological traits like leaf hairiness is still limited, with prior models outputting only qualitative genotype scores.",
+  "evidence": [
+   1
+  ],
+  "why_matters": "Continuous trichome scores would enable better genetic and environmental dissection of a trait affecting insect resistance and fibre yield.",
+  "public_data": "AnnCoT",
+  "metric": "Segmentation accuracy (IoU/Dice) and correlation of predicted Leaf Trichome Score with ground-truth annotations.",
+  "ml_angle": "Instance/semantic segmentation with multi-module feature extractors and tailored loss functions.",
+  "area": "traits",
+  "evidence_titles": [
+   "HairNet2: deep learning to quantify cotton leaf hairiness, a complex genetic and environmental trait"
+  ]
+ },
+ {
+  "gap": "Deep learning trait extraction from 3D point clouds has only been tested under controlled laboratory conditions, leaving field-scale robustness and generalization unverified.",
+  "evidence": [
+   9
+  ],
+  "why_matters": "Field-deployable 3D phenotyping is needed for practical monitoring of plant health, growth, and yield.",
+  "public_data": "unknown",
+  "metric": "Regression error (MAE/RMSE) for leaf area, width, and length on field-collected point clouds versus lab-trained models.",
+  "ml_angle": "Point-cloud deep learning (PointNet variants) with domain adaptation and field data augmentation.",
+  "area": "traits",
+  "evidence_titles": [
+   "Grapevine Leaf Phenotyping Using Deep Learning Based on Three-Dimensional Point Cloud"
+  ]
+ },
+ {
+  "gap": "Automated extraction of plant functional traits from unstructured text via NLP has not been validated at scale against existing trait databases for accuracy and coverage.",
+  "evidence": [
+   18,
+   22
+  ],
+  "why_matters": "Text mining could fill major global trait knowledge gaps for the ~380,000 vascular plant species, but unvalidated extraction risks propagating errors.",
+  "public_data": "TRY plant trait database",
+  "metric": "Precision, recall, and F1 of extracted trait values against curated database records.",
+  "ml_angle": "Large language model-based information extraction with entity/trait relation extraction and validation.",
+  "area": "traits",
+  "evidence_titles": [
+   "Using large language models to extract plant functional traits from unstructured text",
+   "Gaps in Global Alien Plant Trait Data and How to Fill Them"
+  ]
+ }
+]

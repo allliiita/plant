@@ -142,3 +142,51 @@ Family-level TVD ≤0.10 is infeasible by construction (82 families, 37 singleto
 (multi-species families + pooled singleton stratum): TVD_strata ≤ 0.10 (measured 0.06). Family-level TVD reported as-is.
 Added robustness subset "shared_family": UNSEEN species whose family also has SEEN species (removes taxonomy mismatch); G1 recomputed there (proto, descriptive).
 Reproducibility: full s6 rerun for the two primary backbones (dinov3_b, bioclip) must be byte-identical before reporting; secondary backbones rerun deferred (cost).
+
+=====================================================================
+## v7 (2026-11-10) — NEW PROJECT: Is photo-based plant trait prediction taxonomic recall?  (written before any image result)
+RQ: When predicting plant functional traits from citizen-science photos (species-level TRY labels), how much of the apparent skill is
+recoverable from taxonomy alone, and how does any image-specific signal decay with taxonomic distance?
+No BioCLIP / DINO in this project.
+
+### Data
+- PlantTraitNet release (HF ayushi3536/PlantTraitNet, CC-BY-4.0), train+val CSV; labels = species-level TRY medians (paper: ≥3 TRY obs, 5–99th pct trimmed; NOT gap-filled).
+  Traits: Height, LeafArea, SLA, Leaf_N; analysed on log scale.
+- Species pool: ≥30 photos (2,982 spp). Taxonomy: GBIF species/match; keep rank=SPECIES & confidence ≥90; name audit (100 random spp): 100/100 exact, 8% synonyms.
+  Synonym collision rule: if ≥2 PTN names map to one accepted GBIF species, drop all of them; report count.
+- Photos: 30 per species (seeded rng 0) from iNaturalist open data, medium size. Limitation (stated, not corrected): ≥30-photo filter selects common/photogenic species.
+
+### Organ handling (route 1, replaces hard filtering; no species dropped)
+Frozen organ classifier (/v/organ_clf.pt; ImageNet-1k ViT-B linear probe on PlantCLEF organ tags; diagnostic: PlantCLEF tags agree with our organ definitions ≈47% (n=30, Claude-labelled, non-expert),
+so a 90%-precision hard filter is unattainable). Each photo gets p_leaf, p_habit.
+Primary: species prediction = unweighted mean over its photos. Secondary (same species set): p-weighted mean (Height→p_habit; others→p_leaf) and top-10-by-p mean.
+Organ definitions (for audits): leaf = leaf dominant subject; whole-plant = whole plant or most aboveground parts, mixed flower+leaf+plant scenes → whole-plant; flower/fruit/bark close-ups and branch fragments → excluded class.
+
+### Image model
+Backbone vit_base_patch16_224.augreg_in1k (ImageNet-1k only; contains some plant classes, no TRY/AusTraits species labels). Frozen CLS features.
+Image-level ridge regression to the species log-median; species prediction = mean of its photos' predictions. No species label as input or auxiliary task.
+Ridge alpha chosen by NESTED CV: inside each outer training fold, inner 5-fold grouped by the same taxonomic level; alpha grid 10^[-1..4] (11 values).
+Control (secondary, round 2): small CNN trained from scratch, same protocol, to test dependence of ΔR² on pretraining.
+
+### Cross-validation & taxonomic imputation
+Outer 5-fold CV grouped at level L ∈ {species, genus, family, order}; group→fold by seeded permutation.
+Imputation uses ONLY outer-training species: genus mean (≥2 spp) → family (≥2) → order (≥2) → global; record level used per test species.
+
+### Primary test (per trait, Holm over 4 traits, one-sided α=0.05)
+Unseen-species CV (L=species), stratum "genus-imputed" test species (≈2,030): ΔR² = R²_image − R²_imputation > 0.
+Inference: cluster bootstrap over genera (2,000 reps). Report ΔR², 95% CI, and simulated MDE (power 0.8): Height ~0.03, LeafArea ~0.05, SLA ~0.065, Leaf_N ~0.06 (× ~1.2 for n≈2,030).
+Pre-specified readings: CI includes 0 → "no detectable photo signal beyond genus for this trait (MDE = …)"; significant >0 → quantify and read decay (secondary).
+Each trait reported separately; no averaged ΔR².
+
+### Secondary
+S1 Strata within unseen-species CV: family-imputed, order-or-global-imputed, and pooled; ΔR² each.
+S2 Decay: L = genus, family, order (imputation then starts at family / order / global); ΔR² per level.
+S3 Incremental R²: ridge on image features predicting the imputation residual (nested CV) → ΔR²_incr over imputation.
+S4 Warm-up (not criterion): seen species — species-classifier→lookup vs direct regression.
+S5 Organ control: weighted / top-10 vs unweighted, same species.
+Negative-control-like: Leaf_N. If image beats imputation on N → flag "anomalous, inspect" (background/geography cues; note leaf colour may carry genuine N signal) — not auto-labelled leakage.
+Scale-calibration control: AusTraits leaf aspect ratio (244 spp, strict measured), own CV + imputation, reported separately, not compared numerically with main traits.
+
+### Reliability
+Run on new Modal account (volume plantid-vol2) in a manifest/gated pipeline (traits_pipeline.py): smoke (60 spp) → full → full rerun byte-identical before reporting.
+Gates: name/taxonomy filters applied; photo fetch success ≥98% and every species ≥20 photos; features finite; ridge R² on seen-species warm-up > 0.

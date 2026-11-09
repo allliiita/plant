@@ -1,0 +1,434 @@
+{
+"https://openalex.org/W3188201332": {
+"q": "citizen science enable automated plant trait predictions from photographs",
+"title": "Deep learning and citizen science enable automated plant trait predictions from photographs",
+"year": 2021,
+"cites": 62,
+"doi": "https://doi.org/10.1038/s41598-021-95616-0",
+"venue": "Scientific Reports",
+"abstract": "Plant functional traits ('traits') are essential for assessing biodiversity and ecosystem processes, but cumbersome to measure. To facilitate trait measurements, we test if traits can be predicted through visible morphological features by coupling heterogeneous photographs from citizen science (iNaturalist) with trait observations (TRY database) through Convolutional Neural Networks (CNN). Our results show that image features suffice to predict several traits representing the main axes of plant functioning. The accuracy is enhanced when using CNN ensembles and incorporating prior knowledge on trait plasticity and climate. Our results suggest that these models generalise across growth forms, taxa and biomes around the globe. We highlight the applicability of this approach by producing global trait maps that reflect known macroecological patterns. These findings demonstrate the potential of Big Data derived from professional and citizen science in concert with CNN as powerful tools for an efficient and automated assessment of Earth's plant functional diversity."
+},
+"https://openalex.org/W4403673969": {
+"q": "citizen science enable automated plant trait predictions from photographs",
+"title": "Plant-traits: how citizen science and artificial intelligence can impact natural science",
+"year": 2024,
+"cites": 1,
+"doi": "https://doi.org/10.15439/2024f8703",
+"venue": "Annals of Computer Science and Information Systems",
+"abstract": "Citizen science has emerged as a valuable resource for scientific research, providing large volumes of data for training deep learning models.However, the quality and accuracy of crowd-sourced data pose significant challenges for supervised learning tasks such as plant trait detection.This study investigates the application of AI techniques to address these issues within natural science.We explore the potential of multi-modal data analysis and ensemble methods to improve the accuracy of plant trait classification using citizen science data.Additionally, we examine the effectiveness of transfer learning from authoritative datasets like PlantVillage to enhance model performance on openaccess platforms such as iNaturalist.By analysing the strengths and limitations of AI-driven approaches in this context, we aim to contribute to developing robust and reliable methods for utilising citizen science data in natural science."
+},
+"https://openalex.org/W4416158486": {
+"q": "citizen science enable automated plant trait predictions from photographs",
+"title": "PlantTraitNet: An Uncertainty-Aware Multimodal Framework for Global-Scale Plant Trait Inference from Citizen Science Data",
+"year": 2026,
+"cites": 2,
+"doi": "https://doi.org/10.1609/aaai.v40i46.41272",
+"venue": "Proceedings of the AAAI Conference on Artificial Intelligence",
+"abstract": "Global plant maps of plant traits, such as leaf nitrogen or plant height, are essential for understanding ecosystem processes, including the carbon and energy cycles of the Earth system. However, existing trait maps remain limited by the high cost and sparse geographic coverage of field-based measurements. Citizen science initiatives offer a largely untapped resource to overcome these limitations, with over 50 million geotagged plant photographs worldwide capturing valuable visual information on plant morphology and physiology. In this study, we introduce PlantTraitNet, a multi-modal, multi-task uncertainty-aware deep learning framework that predicts four key plant traits (plant height, leaf area, specific leaf area, and nitrogen content) from citizen science photos using weak supervision. By aggregating individual trait predictions across space, we generate global maps of trait distributions. We validate these maps against independent vegetation survey data (sPlotOpen) and benchmark them against leading global trait products. Our results show that PlantTraitNet consistently outperforms existing trait maps across all evaluated traits, demonstrating that citizen science imagery, when integrated with computer vision and geospatial AI, enables not only scalable but also more accurate global trait mapping. This approach offers a powerful new pathway for ecological research and Eart"
+},
+"https://openalex.org/W4402513235": {
+"q": "citizen science enable automated plant trait predictions from photographs",
+"title": "Global patterns of plant functional traits and their relationships to climate",
+"year": 2024,
+"cites": 98,
+"doi": "https://doi.org/10.1038/s42003-024-06777-3",
+"venue": "Communications Biology",
+"abstract": "Plant functional traits (FTs) determine growth, reproduction and survival strategies of plants adapted to their growth environment. Exploring global geographic patterns of FTs, their covariation and their relationships to climate are necessary steps towards better-founded predictions of how global environmental change will affect ecosystem composition. We compile an extensive global dataset for 16 FTs and characterise trait-trait and trait-climate relationships separately within non-woody, woody deciduous and woody evergreen plant groups, using multivariate analysis and generalised additive models (GAMs). Among the six major FTs considered, two dominant trait dimensions-representing plant size and the leaf economics spectrum (LES) respectively-are identified within all three groups. Size traits (plant height, diaspore mass) however are generally higher in warmer climates, while LES traits (leaf mass and nitrogen per area) are higher in drier climates. Larger leaves are associated principally with warmer winters in woody evergreens, but with wetter climates in non-woody plants. GAM-simulated global patterns for all 16 FTs explain up to three-quarters of global trait variation. Global maps obtained by upscaling GAMs are broadly in agreement with iNaturalist citizen-science FT data. This analysis contributes to the foundations for global trait-based ecosystem modelling by demonstr"
+},
+"https://openalex.org/W7126230012": {
+"q": "citizen science enable automated plant trait predictions from photographs",
+"title": "Crowdsourced biodiversity monitoring fills gaps in global plant trait mapping",
+"year": 2026,
+"cites": 14,
+"doi": "https://doi.org/10.1038/s41467-026-68996-y",
+"venue": "Nature Communications",
+"abstract": "Abstract Plant functional traits are fundamental to ecosystem dynamics and Earth system processes, but their global characterization is limited by available field surveys and trait measurements. Recent expansions in biodiversity data aggregation\u2014including vegetation surveys, citizen science observations, and trait measurements\u2014offer new opportunities to overcome these constraints. Here we demonstrate that combining these diverse data sources with high-resolution Earth observation data enables accurate modeling of key plant traits at up to 1 km 2 resolution. Our approach achieves correlations up to 0.63 (15 of 31 traits exceeding 0.50) and improved spatial transferability, effectively bridging gaps in under-sampled regions. By capturing a broad range of traits with high spatial coverage, these maps can enhance understanding of plant community properties and ecosystem functioning, while serving as tools for modeling global biogeochemical processes and informing conservation efforts. Our framework highlights the power of crowdsourced biodiversity data in addressing longstanding extrapolation challenges in global plant trait modeling, with continued advancements in data collection and remote sensing poised to further refine trait-based understanding of the biosphere."
+},
+"https://openalex.org/W4306941857": {
+"q": "citizen science plant observations encode global trait patterns",
+"title": "Citizen science plant observations encode global trait patterns",
+"year": 2022,
+"cites": 69,
+"doi": "https://doi.org/10.1038/s41559-022-01904-x",
+"venue": "Nature Ecology & Evolution",
+"abstract": ""
+},
+"https://openalex.org/W4400573745": {
+"q": "citizen science plant observations encode global trait patterns",
+"title": "Soil BON Earthworm - A global initiative on earthworm distribution, traits, and spatiotemporal diversity patterns",
+"year": 2024,
+"cites": 11,
+"doi": "https://doi.org/10.25674/362",
+"venue": "HAL",
+"abstract": "Recent research on earthworms has shed light on their global distribution, with high alpha richness in temperate zones and high beta diversity in tropical areas. Climate and agricultural practices, notably plowing and conservation methods, were shown to strongly influence earthworm communities. However, data gaps persist in regions like North Australia, Asia, Russia, and Africa, limiting our understanding of earthworm distribution and their responses to global changes. Understanding changes within earthworm communities is crucial given their profound influence on ecosystem functions such as soil structure, nutrient dynamics, and plant growth. Classifying earthworms into functional groups remains complex, prompting the adoption of a trait-based approach for a more comprehensive classification, but there is no representative global data on earthworm traits. To address these knowledge gaps, the Soil BON Earthworm initiative aims at creating a global community of earthworm experts, standardizing sampling methods and databases, collecting time series data on earthworm communities, and modeling future earthworm distributions under different climate scenarios. The initiative aims to address key questions, such as the dynamic of earthworm communities over time and their response to environmental factors and anthropogenic influences, their impact on ecosystem functioning, and the redefi"
+},
+"https://openalex.org/W4392298704": {
+"q": "PlantTraits",
+"title": "Comparison of Blast, Bacterial Leaf Blight and Brown Plant Hopper Introgressed Lines for Yield and Morphological Traits Over Original Line",
+"year": 2024,
+"cites": 1,
+"doi": "https://doi.org/10.22207/jpam.18.1.34",
+"venue": "Journal of Pure and Applied Microbiology",
+"abstract": "Rice as a staple food for very large population suffers from various biotic and abiotic stresses. Among the biotic stresses, Blast, Bacterial leaf blight and Brown plant hopper (BPH) are considered to most potential threats that significantly affect the rice productivity. The use of chemical usage for controlling these diseases and pest attacks is not environmentally friendly and is expensive. Using Molecular Marker assisted backcross breeding program we have improved one of our hybrid parental line with 5 genes (xa13, Xa21, Pi54, Bph20 and Bph21). We have developed 15 near isogenic lines having similar agronomical characters as of recipient parent, they are promising for their direct induction in breeding program. Our results indicated that out of fifteen lines, Six lines i.e. GK 101-12, GK 101-15, GK 101-9, GK 101-5 and GK 101-2 out-performed in all the three locations tested, they had not only have very high level of resistance to BLB, Blast and BPH but also showed significantly higher yield compared to susceptible check as well as recipient parent. These lines may be used for improvement of our existing hybrid and also for developing of new hybrids with other CMS lines. These lines are also useful for developing new set of restorer lines through (R x R) and also useful for introgression of wide spectrum of resistance to the varieties/hybrid."
+},
+"https://openalex.org/W3133184904": {
+"q": "PlantTraits",
+"title": "Vegetation cover and plant-trait effects on outdoor thermal comfort in a tropical city",
+"year": 2021,
+"cites": 216,
+"doi": "https://doi.org/10.1016/j.buildenv.2021.107733",
+"venue": "Building and Environment",
+"abstract": "An increase in urban vegetation is an often proposed mitigation strategy to reduce urban heat and improve outdoor thermal comfort (OTC). Vegetation can alter urban microclimate through changes in air temperature, mean radiant temperature, humidity, and wind speed. In this study, we model how street tree and ground vegetation cover and their structural, optical, interception, and physiological traits control the diurnal cycle of OTC in different urban densities in a tropical city (Singapore). For this purpose, we perform a variance based sensitivity analysis of the urban ecohydrological model UT&C. Model performance is evaluated through a comparison with local microclimate measurements and OTC is assessed with the Universal Thermal Climate Index (UTCI). We find a pronounced daily cycle of vegetation effects on UTCI. Tree cover fraction is more efficient in decreasing UTCI during daytime, while a higher vegetated ground fraction provides more cooling during night. Generally, increasing vegetation cover fractions do not deter OTC, except in certain urban densities during some periods of the day. An increase in tree and ground vegetation fractions provides a higher average UTCI reduction compared to a change in vegetation traits (0.9 \u2013 2.9 \u00b0C vs. 0.7 \u2013 1.1 \u00b0C during midday, 10 month average). The increase in humidity related to plant transpiration prevents further reduction of UTCI"
+},
+"https://openalex.org/W3100411910": {
+"q": "PlantTraits",
+"title": "Studies on Variability, Heritability and Genetic Advance for Yield and its Related Traits in Rice (Oryza sativa L) Genotypes",
+"year": 2020,
+"cites": 4,
+"doi": "https://doi.org/10.20546/ijcmas.2020.909.393",
+"venue": "International Journal of Current Microbiology and Applied Sciences",
+"abstract": "The panel comprises of landraces, improved varieties, interspecific derivatives (Oryza glaberrima\u00d7 Oryza sativa), aromatic and japonica rice etc. were evaluated during Kharif 2019 used for studying genetic variability, heritability and genetic advance for yield and its related traits in rice. The analysis of variance of 12 different characters of 30 rice genotypes showed differences among the genotypes which revealed that there was genetic variation among the genotypes studied. Phenotypic coefficient of variance was found higher than genotypic coefficient of variance for all studied traits indicate the environmental influence on the expression of these traits. Among the studied traits broad sense heritability ranged from 47.00% (productive tillers) to 94.50% (grain width). The characters plant height, filled grains, total grains, grain length, grain width and grain ratio have high genetic advance as per cent of mean along with high heritability. High heritability with high genetic advance as per cent of mean indicates that these characters are largely controlled by additive gene action would be effective for selecting superior varieties."
+},
+"https://openalex.org/W7223667463": {
+"q": "plant traits iNaturalist photographs",
+"title": "FloralTraits v1.0: colour, pattern, symmetry and shape traits of 787 flowering-plant species from 192,127 citizen-science photographs",
+"year": 2026,
+"cites": 0,
+"doi": "https://doi.org/10.5281/zenodo.23659384",
+"venue": "Zenodo (CERN European Organization for Nuclear Research)",
+"abstract": "Colour, pattern, symmetry and shape traits of 787 flowering-plant species from 192,127 citizen-science photographs. Authors: Ehsan Rahimi (ORCID 0000-0002-8401-472X) and Chuleui Jung, Gyeongkuk National University, Andong, Republic of Korea Licence: Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0); see LICENSE.txt Version: 1.0 (27 October 2026) Citation Please cite the dataset and the GBIF download from which the records were taken: Rahimi, E. & Jung, C. (2026). FloralTraits v1.0: colour, pattern, symmetry and shape traits of 787 flowering-plant species from 192,127 citizen-science photographs (Version 1.0) [Data set]. Zenodo. https://doi.org/10.5281/zenodo.23659385 GBIF.org (20 October 2026) GBIF Occurrence Download https://doi.org/10.15468/dl.5evp9z Content The photographs are research-grade iNaturalist observations of flowering plants (GBIF classes Magnoliopsida and Liliopsida) published through GBIF, recorded within the native range of the species (World Checklist of Vascular Plants) and showing open flowers (iNaturalist annotation Flowers or a PhenoVision flower detection). Families pollinated predominantly by wind or water were excluded. Photographs were selected with a sampling design that spreads each species across its latitudinal range: every species has at least 150 sampling units (one observation per observer, species and H3 hexagon of res"
+},
+"https://openalex.org/W7128485038": {
+"q": "plant traits iNaturalist photographs",
+"title": "Ecological traits as predictors of avian reporting rates and monitoring gaps: a 12-year analysis of iNaturalist in Nigeria",
+"year": 2026,
+"cites": 1,
+"doi": "https://doi.org/10.3389/fbirs.2026.1757541",
+"venue": "Frontiers in Bird Science",
+"abstract": "To prioritise interventions amid the biodiversity crisis, this study applied a vulnerability framework to Nigerian avifauna by analysing 12 years of crowdsourced iNaturalist data (2013\u20132025). We defined vulnerability as a function of species\u2019 sensitivity (extinction risk and specialization) and adaptive capacity (dietary breadth and movement). Analysing 8,751 research-grade records across 631 species, we tested how ecological traits predict IUCN status and reporting rates. Results showed a significant inverse association between adaptability and extinction risk. We identified a specialist penalty and monitoring gap: highly sensitive species contributed only 5% of the dataset, while generalists with high adaptive capacity dominated observations. Despite this bias, the data documented six new country records, including the African Rail ( Rallus caerulescens ) and Ross's Turaco ( Musophaga rossae ), as well as several range extensions. We conclude that while citizen science is a vital tool for monitoring common species and rapid discovery, targeted expert-led surveys remain essential for specialists. This study demonstrates that unstructured iNaturalist data can effectively inform the design of integrated biodiversity monitoring frameworks in West Africa."
+},
+"https://openalex.org/W2809979304": {
+"q": "trait predictions from photographs",
+"title": "Facebook versus Twitter: Differences in Self-Disclosure and Trait Prediction",
+"year": 2018,
+"cites": 46,
+"doi": "https://doi.org/10.1609/icwsm.v12i1.15026",
+"venue": "Proceedings of the International AAAI Conference on Web and Social Media",
+"abstract": "This study compares self-disclosure on Facebook and Twitter through the lens of demographic and psychological traits. Predictive evaluation reveals that language models trained on Facebook posts are more accurate at predicting age, gender, stress, and empathy than those trained on Twitter posts. Qualitative analyses of the underlying linguistic and demographic differences reveal that users are significantly more likely to disclose information about their family, personal concerns, and emotions and provide a more `honest' self-representation on Facebook. On the other hand, the same users significantly preferred to disclose their needs, drives, and ambitions on Twitter. The higher predictive performance of Facebook is also partly due to the greater volume of language on Facebook than Twitter -- Facebook and Twitter are equally good at predicting user traits when the same-sized language samples are used to train language models. We explore the implications of these differences in cross-platform user trait prediction."
+},
+"https://openalex.org/W4296849037": {
+"q": "trait predictions from photographs",
+"title": "Trait-based prediction of extinction risk across terrestrial taxa",
+"year": 2022,
+"cites": 127,
+"doi": "https://doi.org/10.1016/j.biocon.2022.109738",
+"venue": "Biological Conservation",
+"abstract": "Species differ in their biological susceptibility to extinction, but the set of traits determining susceptibility varies across taxa. It is yet unclear which patterns are common to all taxa, and which are taxon-specific, with consequences to conservation practice. In this study we analysed the generality of trait-based prediction of extinction risk across terrestrial (including freshwater) vertebrates, invertebrates and plants at a global scale. For each group, we selected five representative taxa and within each group we explored whether risk can be related to any of 10 potential predictors. We then synthesized outcomes across taxa using a meta-analytic approach. High habitat specificity was a consistent predictor across vertebrates, invertebrates and plants, being a universal predictor of risk. Slow life-history traits \u2013 large relative offspring size, low fecundity, long generation length \u2013, and narrow altitudinal range were also found to be good predictors across most taxa, but their universality needs to be supported with additional data. Poor dispersal ability was a common predictor of extinction risk among invertebrate and plant taxa, but not consistently among vertebrates. The remaining traits (body size, microhabitat verticality, trophic level, and diet breadth) were useful to predict extinction risk but only at lower taxonomical levels. Our study shows that despite the"
+},
+"https://openalex.org/W4409472889": {
+"q": "trait predictions from photographs",
+"title": "Comparing ChatGPT with human judgements of social traits from face photographs",
+"year": 2025,
+"cites": 8,
+"doi": "https://doi.org/10.1016/j.chbah.2025.100156",
+"venue": "Computers in Human Behavior Artificial Humans",
+"abstract": "Facial first impressions of social traits play an influential role in our everyday lives. With the advent of artificial intelligence techniques, researchers have begun to employ such tools in the prediction of human impressions formed from the face alone. ChatGPT's latest version features the ability to interpret images as input, and so begs the question: does the chatbot's judgements of social traits from face images align with human judgements? To this end, I carried out a series of studies utilising a pre-existing face image set and its accompanying norming data. In Study 1a, with a focus on three core trait dimensions (attractiveness, dominance, and trustworthiness), I presented ChatGPT with pairs of faces which had been rated as high versus low on a given trait. For the majority of pairs, the chatbot's responses aligned with human judgements. In Study 1b, I found that ChatGPT's ratings of attractiveness showed medium to large associations with those provided by human observers. Finally, I investigated the possibility of biases in the chatbot's perceptions. While Study 2 found no support for an extreme form of race bias in judgements of social traits, the results of Study 3 providing evidence of an attractiveness halo effect \u2013 more attractive faces were also judged to be more confident, intelligent, and sociable. Taken together, these results suggest that ChatGPT's response"
+},
+"https://openalex.org/W4389204360": {
+"q": "trait predictions from photographs",
+"title": "Weight prediction of intensively reared gilthead seabream Sparus aurata from morphometric traits measured in images",
+"year": 2023,
+"cites": 7,
+"doi": "https://doi.org/10.1007/s10499-023-01343-w",
+"venue": "Aquaculture International",
+"abstract": "Abstract The objective of this study was to establish an accurate body weight (BW) prediction model for gilthead seabream Sparus aurata of 50\u20131000 g. Three thousand three hundred twelve (3312) fish were individually weighed and photographed. Traits measured from the images were total body length (TBL), fork body length (FBL), standard body length (SBL), body height (BH), head length (HL), eye diameter (ED), body area (BA, without fins), head area (HA), and eye area (EA). SBL, BH, BA, BA/SBL, and BA/BH showed a strong association with BW (correlation coefficients, r: 0.96\u20130.99). These traits were selected to proceed with the regression analysis. Simple, multiple linear, and 2nd-order polynomial regressions were applied to the whole data set and three BW subgroups of interest during gilthead seabream rearing (i.e., 50\u2013100 g, 100\u2013500 g, 500\u20131000 g). The prediction of BW from the whole data set was more accurate than from each BW subgroup. The models with the highest coefficient of determination (R2) and the lowest errors (mean absolute percentage error, MAPE) were either the power regression of BW with BA (R2: 99.0%, MAPE: 5.8%) or the multiple linear regression of BW with SBL, BA, BA/SBL, and BA/BH (R2: 98.6%, MAPE: 5.1%) as predictors. The accuracy of the two models is considered quite similar, and for reasons of simplicity, the power regression is advantageous, requiring only o"
+},
+"https://openalex.org/W7172001560": {
+"q": "trait predictions from photographs",
+"title": "Prediction of body weight in buffaloes using conventional and multi-view image-based morphometric traits",
+"year": 2026,
+"cites": 0,
+"doi": "https://doi.org/10.6084/m9.figshare.33134612",
+"venue": "Figshare",
+"abstract": "Accurate body weight estimation is essential for nutritional management, growth monitoring, drug dosage determination, and genetic evaluation in buffalo production systems. However, direct weighing of buffaloes is often labor-intensive and difficult to implement under field conditions. Therefore, this study evaluated the potential of conventional and image-derived morphometric traits for predicting body weight in Khuzestani buffaloes using an Elastic Net (EN) regression framework. A total of 100 female buffaloes were evaluated using manually collected body measurements and image-derived traits extracted from side-view and top-view photographs. EN models were optimized using leave-one-out cross-validation (LOOCV) combined with repeated 10-fold cross-validation for hyperparameter tuning. Both manually measured and image-derived traits showed strong positive associations with body weight. Among manually measured traits, barrel girth (BG), chest girth (CG), and rump girth (RG) showed the highest predictive ability, whereas barrel width (BW) was the most informative image-derived trait. The final EN model based on manually measured traits achieved high prediction accuracy, with an average relative error (ARE) of 3.82%, correlation of 0.985, and R2 of 0.970. Similarly, the image-based EN model showed strong predictive performance, with corresponding values of 4.13%, 0.98, and 0.960, "
+},
+"https://openalex.org/W7171953414": {
+"q": "trait predictions from photographs",
+"title": "Prediction of body weight in buffaloes using conventional and multi-view image-based morphometric traits",
+"year": 2026,
+"cites": 0,
+"doi": "https://doi.org/10.1080/23311932.2026.2710929",
+"venue": "Cogent Food & Agriculture",
+"abstract": "Accurate body weight estimation is essential for nutritional management, growth monitoring, drug dosage determination, and genetic evaluation in buffalo production systems. However, direct weighing of buffaloes is often labor-intensive and difficult to implement under field conditions. Therefore, this study evaluated the potential of conventional and image-derived morphometric traits for predicting body weight in Khuzestani buffaloes using an Elastic Net (EN) regression framework. A total of 100 female buffaloes were evaluated using manually collected body measurements and image-derived traits extracted from side-view and top-view photographs. EN models were optimized using leave-one-out cross-validation (LOOCV) combined with repeated 10-fold cross-validation for hyperparameter tuning. Both manually measured and image-derived traits showed strong positive associations with body weight. Among manually measured traits, barrel girth (BG), chest girth (CG), and rump girth (RG) showed the highest predictive ability, whereas barrel width (BW) was the most informative image-derived trait. The final EN model based on manually measured traits achieved high prediction accuracy, with an average relative error (ARE) of 3.82%, correlation of 0.985, and R2 of 0.970. Similarly, the image-based EN model showed strong predictive performance, with corresponding values of 4.13%, 0.98, and 0.960, "
+},
+"https://openalex.org/W3096461016": {
+"q": "sPlotOpen",
+"title": "sPlotOpen \u2013 An environmentally balanced, open\u2010access, global dataset of vegetation plots",
+"year": 2021,
+"cites": 141,
+"doi": "https://doi.org/10.1111/geb.13346",
+"venue": "Global Ecology and Biogeography",
+"abstract": "Abstract Motivation Assessing biodiversity status and trends in plant communities is critical for understanding, quantifying and predicting the effects of global change on ecosystems. Vegetation plots record the occurrence or abundance of all plant species co\u2010occurring within delimited local areas. This allows species absences to be inferred, information seldom provided by existing global plant datasets. Although many vegetation plots have been recorded, most are not available to the global research community. A recent initiative, called \u2018sPlot\u2019, compiled the first global vegetation plot database, and continues to grow and curate it. The sPlot database, however, is extremely unbalanced spatially and environmentally, and is not open\u2010access. Here, we address both these issues by (a) resampling the vegetation plots using several environmental variables as sampling strata and (b) securing permission from data holders of 105 local\u2010to\u2010regional datasets to openly release data. We thus present sPlotOpen, the largest open\u2010access dataset of vegetation plots ever released. sPlotOpen can be used to explore global diversity at the plant community level, as ground truth data in remote sensing applications, or as a baseline for biodiversity monitoring. Main types of variable contained Vegetation plots (n = 95,104) recording cover or abundance of naturally co\u2010occurring vascular plant species w"
+},
+"https://openalex.org/W4392623899": {
+"q": "sPlotOpen",
+"title": "Global-scale plant trait-environment relationships based on sPlotOpen and TRY data",
+"year": 2024,
+"cites": 0,
+"doi": "https://doi.org/10.5194/egusphere-egu24-15797",
+"venue": "EGU General Assembly Conference Abstracts",
+"abstract": "Relationships between plant functional traits and environmental variables have been intensively studied in the ecological community due to their importance for applications such as generating upscaled trait maps and predicting trait responses due to climate change. However, such relationships have been found to be relatively weak for various potential reasons.We analyzed global-scale trait-environment relationships using plot-level trait estimates based on the sPlotOpen and TRY databases. In addition to the commonly used community weighted mean (CWM), we considered a top-of-canopy weighted mean (TWM) metric that excludes understory vegetation. For both trait metrics, we quantified the change in trait-environment relationships when considering the dominant plant functional type (PFT) of the plot. We found that, overall, TWM combined with PFT had the strongest correlations to environmental variables and TWM also had the strongest increase in correlation when adding PFTs. CWM, in contrast, tended to show slightly higher correlations than TWM when not adding PFTs, but the correlations for CWM combined with PFTs were also substantially higher than CWM without PFTs. Overall, we found stronger trait-environment relationships compared to the existing literature. Our findings confirm the relevance of considering PFT-specific trait-environment relationships and demonstrate the considerab"
+},
+"https://openalex.org/W4400093633": {
+"q": "sPlotOpen",
+"title": "Intercomparison of global foliar trait maps reveals fundamental differences and limitations of upscaling approaches",
+"year": 2024,
+"cites": 34,
+"doi": "https://doi.org/10.1016/j.rse.2024.114276",
+"venue": "Remote Sensing of Environment",
+"abstract": "Foliar traits such as specific leaf area (SLA), leaf nitrogen (N), and phosphorus (P) concentrations play important roles in plant economic strategies and ecosystem functioning. Various global maps of these foliar traits have been generated using statistical upscaling approaches based on in-situ trait observations. Here, we intercompare such global upscaled foliar trait maps at 0.5\u00b0 spatial resolution (six maps for SLA, five for N, three for P), categorize the upscaling approaches used to generate them, and evaluate the maps with trait estimates from a global database of vegetation plots (sPlotOpen). We disentangled the contributions from different plant functional types (PFTs) to the upscaled maps and quantified the impacts of using different plot-level trait metrics on the evaluation with sPlotOpen: community weighted mean (CWM) and top-of-canopy weighted mean (TWM). We found that the global foliar trait maps of SLA and N differ drastically and fall into two groups that are almost uncorrelated (for P only maps from one group were available). The primary factor explaining the differences between these groups is the use of PFT information combined with remote sensing-derived land cover products in one group while the other group mostly relied on environmental predictors alone. The maps that used PFT and corresponding land cover information exhibit considerable similarities in s"
+},
+"https://openalex.org/W4322209447": {
+"q": "sPlotOpen",
+"title": "Comprehensive intercomparison and evaluation of global upscaled foliar trait maps",
+"year": 2023,
+"cites": 0,
+"doi": "https://doi.org/10.5194/egusphere-egu23-13750",
+"venue": "EGU General Assembly Conference Abstracts",
+"abstract": "Global trait maps of specific leaf area (SLA), leaf nitrogen (N) and phosphorus (P) contents have been generated using a wide range of data-driven upscaling approaches. We comprehensively studied their consistency and agreement with sPlotOpen data at 0.5 degee grid cells. For this, we developed approaches to separate the maps into their plant functional type (PFT) components by taking into account within-grid-cell heterogeneity and stratified sPlotOpen data by PFT.We found that despite many differences in the upscaling approaches, the maps fall into two groups: One group using remote sensing based, fractional PFT cover in the upscaling, while the other did not. Spatially, the main differences between the two groups are located in areas of high within-grid-cell trait heterogeneity and these areas dominate global trait variations due to the combined effects of fractional PFT cover and trait differences between-PFTs.The agreement of upscaled maps with sPlotOpen data strongly depends on the way sPlotOpen data are scaled to the grid cell. When using a similar scaling approach as the upscaling approaches a similar level of agreement can be observed for both groups of maps. However, only the maps that used PFT information could capture main features of between-PFT differences, especially the low values of SLA and N in evergreen needleleaf forests. Within-PFT trait variations of upscal"
+},
+"https://openalex.org/W4321500483": {
+"q": "sPlotOpen",
+"title": "Citizen science observations capture global patterns of plant traits",
+"year": 2023,
+"cites": 0,
+"doi": "https://doi.org/10.5194/egusphere-egu23-2415",
+"venue": "EGU General Assembly Conference Abstracts",
+"abstract": "As global change accelerates, the urgency for a solid understanding of biosphere-environment interactions grows. However, we need more data on plant functional traits to test such relationships reliably across ecosystems. The TRY database contains an impressive collection of plant trait measurements for thousands of species already, and there have been some approaches to spatially extrapolate them using geospatial predictors and remote sensing data; however, the original data is spatially sparse so that extrapolations come with substantial uncertainties. At the same time, citizen scientists have collected increasingly dense observations of species occurrences around the globe. Here, we test if we can link species occurrences from the citizen science project iNaturalist with trait observations from TRY to produce global trait maps without the need for spatial extrapolation. We generated spatial grids for 18 traits, calculating a mean for each grid cell by averaging trait values associated with observations within that cell. We compared mean trait values from iNaturalist observations to community-weighted mean traits from sPlotOpen, a globally sampled dataset of vegetation plot data. Our results show correlations between the two datasets of up to r = 0.69, especially in biomes with higher iNaturalist observation density and those not dominated by trees. Also, we show that iNatura"
+},
+"https://openalex.org/W4417034021": {
+"q": "sPlotOpen",
+"title": "VegVault dataset: linking global paleo-, and neo-vegetation data with functional traits and abiotic drivers",
+"year": 2025,
+"cites": 1,
+"doi": "https://doi.org/10.1038/s41597-025-06176-1",
+"venue": "Scientific Data",
+"abstract": "Understanding the dynamics and persistence of biodiversity patterns over short (contemporary) and long (thousands of years) time scales is crucial for predicting ecosystem changes under global climate and land-use changes. A key challenge is integrating currently scattered ecological data to assess complex vegetation dynamics over time. Here, we present VegVault, an interdisciplinary SQLite database that uniquely integrates paleo- and neo-ecological plot-based vegetation data on a global and millennial scale, directly linking them with functional traits, soil, and climate information. VegVault currently comprises data from BIEN, sPlotOpen, TRY, Neotoma, CHELSA, and WoSIS, providing a comprehensive and ready-to-use resource for researchers across various fields to address questions about past and contemporary biodiversity patterns and their abiotic drivers. To further support the usability of the data, VegVault is complemented by the {vaultkeepr} R package, enabling streamlined data access, extraction, and manipulation. This study introduces the structure, content, and diverse applications of VegVault, emphasizing its potential role in advancing ecological research to improve predictions of biodiversity responses to global climate change."
+},
+"https://openalex.org/W4392587112": {
+"q": "sPlotOpen",
+"title": "Combining citizen science and Earth observation data to produce global maps of 31 plant traits",
+"year": 2024,
+"cites": 0,
+"doi": "https://doi.org/10.5194/egusphere-egu24-2477",
+"venue": "EGU General Assembly Conference Abstracts",
+"abstract": "The acceleration of global environmental change underscores the pressing need for a comprehensive understanding of how the biosphere interacts with its environment. To reliably examine these connections across diverse ecosystems, having extensive and spatially comprehensive data on plant functional traits is imperative. The TRY database boasts an extensive repository of plant trait measurements for thousands of species, and, while previous approaches have attempted to spatially extrapolate these traits using environmental predictors and remote sensing data, the scarcity of the original data leads to significant uncertainty in the extrapolations. Meanwhile, citizen scientists have been actively gathering dense observations of species occurrences worldwide, and when matched with trait data, can adequately represent global trait patterns. Here, we explore the use of citizen science and Earth observation data to generate global maps of 31 ecologically relevant plant functional traits. The study utilizes sparse spatial grids created by linking species occurrences from the Global Biodiversity Information Facility (GBIF) with the TRY gap-filled database to generate continuous global trait maps as a function of climate, soil, and remote sensing data. We first evaluated model performance using spatial cross-validation, and they demonstrated up to R2 = 0.53 with a normalized RMSE = 0.21."
+},
+"https://openalex.org/W2983606184": {
+"q": "TRY plant trait database",
+"title": "TRY plant trait database \u2013 enhanced coverage and open access",
+"year": 2019,
+"cites": 2212,
+"doi": "https://doi.org/10.1111/gcb.14904",
+"venue": "Global Change Biology",
+"abstract": "Plant traits-the morphological, anatomical, physiological, biochemical and phenological characteristics of plants-determine how plants respond to environmental factors, affect other trophic levels, and influence ecosystem properties and their benefits and detriments to people. Plant trait data thus represent the basis for a vast area of research spanning from evolutionary biology, community and functional ecology, to biodiversity conservation, ecosystem and landscape management, restoration, biogeography and earth system modelling. Since its foundation in 2007, the TRY database of plant traits has grown continuously. It now provides unprecedented data coverage under an open access data policy and is the main plant trait database used by the research community worldwide. Increasingly, the TRY database also supports new frontiers of trait-based plant research, including the identification of data gaps and the subsequent mobilization or measurement of new data. To support this development, in this article we evaluate the extent of the trait data compiled in TRY and analyse emerging patterns of data coverage and representativeness. Best species coverage is achieved for categorical traits-almost complete coverage for 'plant growth form'. However, most traits relevant for ecology and vegetation modelling are characterized by continuous intraspecific variation and trait-environmental "
+},
+"https://openalex.org/W4392601277": {
+"q": "TRY plant trait database",
+"title": "TRY - Plant Trait Database",
+"year": 2024,
+"cites": 11,
+"doi": "https://doi.org/10.5194/egusphere-egu24-6174",
+"venue": "EGU General Assembly Conference Abstracts",
+"abstract": "The TRY initiative (https://www.try-db.org) was established in 2007 on request from IGBP and DIVERSITAS to develop a joint database of in-situ measured plant traits supporting vegetation modelling and biodiversity research. Based on the mandate from the two initiatives, TRY has received significant contributions of original and integrated datasets from the global research community and achieved unprecedented coverage. The TRY database is regularly updated, and since 2019, data have been publicly available under a CC BY license. Trait data from the TRY database are frequently used to map plant traits at global scales. We here provide an overview of the TRY database, briefly summarise trait mapping approaches highlighting caveats, and provide an outlook on upcoming developments in the context of the TRY database."
+},
+"https://openalex.org/W3083895322": {
+"q": "TRY plant trait database",
+"title": "The TRY Plant Trait Database - enhanced coverage and open access",
+"year": 2020,
+"cites": 106,
+"doi": "https://doi.org/10.5194/egusphere-egu2020-20191",
+"venue": null,
+"abstract": "Plant traits \u2013 the morphological, anatomical, physiological, biochemical and phenological characteristics of plants \u2013 determine how plants respond to environmental factors, affect other trophic levels, and influence ecosystems properties and derived benefits and detriments to people. Plant trait data thus represent the essential basis for a vast area of research spanning evolutionary biology, community and functional ecology, biodiversity conservation, ecosystem and landscape management and restoration, biogeography to earth system modeling. Since its foundation in 2007, the TRY database of plant traits has grown continuously. It now provides unprecedented data coverage under an open access data policy and is the main plant trait database used by the research community. Increasingly the TRY database also supports new frontiers of trait-based research, including identi:cation of data gaps and subsequent mobilization or measurement of new data. To support this development, in this article we take stock of trait data compiled in TRY and analyze emerging patterns of data coverage, representativeness, and gaps. Best species coverage is achieved for categorical traits (stable within species) relevant to determine plant functional types commonly used in global vegetation models. For the trait \u2018plant growth form\u2019 complete species coverage is within reach. However, most traits relevant "
+},
+"https://openalex.org/W4321494519": {
+"q": "TRY plant trait database",
+"title": "Recent developments in the context of the TRY Plant Trait Database",
+"year": 2023,
+"cites": 0,
+"doi": "https://doi.org/10.5194/egusphere-egu23-908",
+"venue": "EGU General Assembly Conference Abstracts",
+"abstract": "Plant traits - morphological, anatomical, biochemical, physiological or phenological features measurable at the level of individuals or their component organs or tissues - reflect the outcome of evolutionary and community assembly processes responding to abiotic and biotic environmental constraints. Therefore, measurements of plant traits and trait syndromes (consistent associations of plant traits) are valuable observations to evaluate models based on eco-evolutionary optimality (EEO) principles. In 2007 the TRY database project (https://www.try-db.org/) was initiated to improve the empirical basis for trait-based ecological studies, trying to bring together the different plant trait databases worldwide. As a result, the TRY Plant Trait Database has constantly been growing and has accomplished unprecedented coverage. Since 2019 the data are publicly available under a CC BY license. This presentation is supposed to provide an update on recent developments in the context of the TRY initiative, i.e. the recently released new version of the TRY database (version 6), the release of the 'Global Spectrum of Plant Form and Function Dataset', and the 'rtry' R package to support preprocessing of trait data retrieved from the TRY database."
+},
+"https://openalex.org/W7135226189": {
+"q": "TRY plant trait database",
+"title": "TRY Plant Trait Database \u2013 the upcoming version and further development",
+"year": 2026,
+"cites": 0,
+"doi": "https://doi.org/10.5194/egusphere-egu26-8942",
+"venue": "EGU General Assembly Conference Abstracts",
+"abstract": "Plant traits - morphological, anatomical, biochemical, physiological, or phenological features measurable at the individual level (Violle et al., 2007) - connect species richness with ecosystem functional diversity. Focusing on traits and trait syndromes is seen as a promising foundation for a more quantitative and predictive approach to biodiversity, ecology, and global change science. Although plant traits have been compiled for many years, a comprehensive database has been lacking. In 2007, the IGBP and DIVERSITAS initiative \u2018Refining Plant Functional Classifications\u2019 asked the Max Planck Institute for Biogeochemistry to develop a global plant trait database to support biodiversity research, functional biogeography, and vegetation modelling. The initiative was named TRY. With contributions of several original datasets and the most extensive integrated datasets at the time, the TRY Database immediately achieved unprecedented data coverage (Kattge et al., 2011). Since 2015, dataset owners have been able to make datasets in TRY public, and since 2019, data in TRY are freely available by default under a CC-BY license (Kattge et al., 2020). Since then, the database has received around 40,000 requests - about 20 per day. In summary, TRY has become a central hub for plant trait data.In the context of TRY, trait data are curated to some extent: taxonomy and trait names are consolida"
+},
+"https://openalex.org/W7134951722": {
+"q": "TRY plant trait database",
+"title": "TRY plant trait database \u2013 the upcoming version and plans for further development",
+"year": 2026,
+"cites": 0,
+"doi": "https://doi.org/10.5194/wbf2026-365",
+"venue": null,
+"abstract": "Plant traits - morphological, anatomical, biochemical, physiological, or phenological characteristics measurable at the individual level (Violle et al., 2007) - connect species richness with ecosystem functional diversity. Focusing on traits and trait syndromes offers a promising foundation for a more quantitative and predictive approach to biodiversity, ecology, and global change science. Although plant traits have been compiled for many years, a comprehensive database has been absent. In 2007, the IGBP and DIVERSITAS initiative \u2018Refining Plant Functional Classifications\u2019 asked the Max Planck Institute for Biogeochemistry to develop a global plant trait database supporting biodiversity research, functional biogeography, and vegetation modelling. This initiative was named TRY. With contributions from several original datasets and the most extensive integrated datasets available at the time, the TRY Database rapidly achieved unprecedented data coverage. Since 2015, dataset owners have been able to make datasets in TRY public, and since 2019, data in TRY are freely available by default under a CC-BY license. Since then, the database has received approximately 40,000 requests - about 20 daily. In summary, TRY has become a central hub for plant trait data.In the context of TRY, trait data are curated to some degree: taxonomy and trait names are consolidated; for continuous traits w"
+},
+"https://openalex.org/W2997212601": {
+"q": "TRY plant trait database",
+"title": "TRY\u2014A plant trait database of databases",
+"year": 2019,
+"cites": 71,
+"doi": "https://doi.org/10.1111/gcb.14869",
+"venue": "Global Change Biology",
+"abstract": "Plant traits, such as height or specific leaf area, are expressions of plant performance and are important indicators of ecosystem function. Here, the TRY plant database is highlighted as the most comprehensive archive of global plant data, with open access to the public. This article is a commentary on Kattge et al., 26, 119-188"
+},
+"https://openalex.org/W2991370929": {
+"q": "TRY plant trait database",
+"title": "TRY - the global database of plant traits: potential and limitations",
+"year": 2018,
+"cites": 0,
+"doi": null,
+"venue": "AGU Fall Meeting Abstracts",
+"abstract": ""
+},
+"https://openalex.org/W3010218013": {
+"q": "TRY plant trait database",
+"title": "The global database of plant traits: TRY version 5.0 - more data, publicly available",
+"year": 2019,
+"cites": 0,
+"doi": null,
+"venue": "EGUGA",
+"abstract": ""
+},
+"https://openalex.org/W4292436430": {
+"q": "TRY plant trait database",
+"title": "FunAndes \u2013 A functional trait database of Andean plants",
+"year": 2022,
+"cites": 29,
+"doi": "https://doi.org/10.1038/s41597-022-01626-6",
+"venue": "Scientific Data",
+"abstract": "We introduce the FunAndes database, a compilation of functional trait data for the Andean flora spanning six countries. FunAndes contains data on 24 traits across 2,694 taxa, for a total of 105,466 entries. The database features plant-morphological attributes including growth form, and leaf, stem, and wood traits measured at the species or individual level, together with geographic metadata (i.e., coordinates and elevation). FunAndes follows the field names, trait descriptions and units of measurement of the TRY database. It is currently available in open access in the FIGSHARE data repository, and will be part of TRY's next release. Open access trait data from Andean plants will contribute to ecological research in the region, the most species rich terrestrial biodiversity hotspot."
+},
+"https://openalex.org/W7125938398": {
+"q": "predicting plant traits from images",
+"title": "Artificial intelligence in plant science: from image-based phenotyping to yield and trait prediction",
+"year": 2026,
+"cites": 24,
+"doi": "https://doi.org/10.3389/fpls.2025.1732979",
+"venue": "Frontiers in Plant Science",
+"abstract": "With the development of artificial intelligence (AI) in complicated imaging and remote sensing technologies, plant research is transitioning from manual measurements to automated data collecting. High-throughput image-based phenotyping enables the precise and automated acquisition of traits across various spatial and temporal scales, ranging from controlled laboratory settings to intricate field. Furthermore, AI facilitates the combination of satellite observations, unmanned aerial vehicle (UAV) imaging, soil and climate data, and spatiotemporal information to enhance the precision of trait monitoring and yield prediction. These advances enhance the ability to evaluate and predict crop performance under variable environmental conditions. This paper offers a cross-disciplinary paradigm for accurate and sustainable modern agriculture by merging AI methodologies with plant phenotyping and yield forecasting."
+},
+"https://openalex.org/W2886013788": {
+"q": "predicting plant traits from images",
+"title": "Machine Learning Using Hyperspectral Data Inaccurately Predicts Plant Traits Under Spatial Dependency",
+"year": 2018,
+"cites": 120,
+"doi": "https://doi.org/10.3390/rs10081263",
+"venue": "Remote Sensing",
+"abstract": "Spectral, temporal and spatial dimensions are difficult to model together when predicting in situ plant traits from remote sensing data. Therefore, machine learning algorithms solely based on spectral dimensions are often used as predictors, even when there is a strong effect of spatial or temporal autocorrelation in the data. A significant reduction in prediction accuracy is expected when algorithms are trained using a sequence in space or time that is unlikely to be observed again. The ensuing inability to generalise creates a necessity for ground-truth data for every new area or period, provoking the propagation of \u201csingle-use\u201d models. This study assesses the impact of spatial autocorrelation on the generalisation of plant trait models predicted with hyperspectral data. Leaf Area Index (LAI) data generated at increasing levels of spatial dependency are used to simulate hyperspectral data using Radiative Transfer Models. Machine learning regressions to predict LAI at different levels of spatial dependency are then tuned (determining the optimum model complexity) using cross-validation as well as the NOIS method. The results show that cross-validated prediction accuracy tends to be overestimated when spatial structures present in the training data are fitted (or learned) by the model."
+},
+"https://openalex.org/W4409523089": {
+"q": "predicting plant traits from images",
+"title": "Predicting plant trait dynamics from genetic markers",
+"year": 2025,
+"cites": 18,
+"doi": "https://doi.org/10.1038/s41477-025-01986-y",
+"venue": "Nature Plants",
+"abstract": "Molecular and physiological changes across crop developmental stages shape the plant phenome and render its prediction from genetic markers challenging. Here we present dynamicGP, an efficient computational approach that combines genomic prediction with dynamic mode decomposition to characterize the temporal changes and to predict genotype-specific dynamics for multiple morphometric, geometric and colourimetric traits scored by high-throughput phenotyping. Using genetic markers and data from high-throughput phenotyping of a maize multiparent advanced generation inter-cross population and an Arabidopsis thaliana diversity panel, we show that dynamicGP outperforms a baseline genomic prediction approach for the multiple traits. We demonstrate that the developmental dynamics of traits whose heritability varies less over time can be predicted with higher accuracy. The approach paves the way for interrogating and integrating the dynamical interactions between genotype and environment over plant development to improve the prediction accuracy of agronomically relevant traits."
+},
+"https://openalex.org/W2894726618": {
+"q": "predicting plant traits from images",
+"title": "Linking root exudates to functional plant traits",
+"year": 2018,
+"cites": 109,
+"doi": "https://doi.org/10.1371/journal.pone.0204128",
+"venue": "PLoS ONE",
+"abstract": "Primary and secondary metabolites exuded by plant roots have mainly been studied under laboratory conditions, while knowledge of root exudate patterns of plants growing in natural communities is very limited. Focusing on ten common European grassland plant species, we asked to which degree exuded metabolite compositions are specific to species or growth forms (forbs and grasses), depend on environments and local neighbourhoods, and reflect traditional plant functional traits. Root exudates were collected under field conditions and analysed using a non-targeted gas chromatography coupled mass spectrometry (GC-MS) approach. In total, we annotated 153 compounds of which 36 were identified by structure and name as metabolites mainly derived from the primary metabolism. Here we show by using variance partitioning, that the composition of exuded polar metabolites was mostly explained by plot identity, followed by plant species identity while plant species composition of the local neighbourhood played no role. Total and root dry biomass explained the largest proportion of variance in exudate composition, with additional variance explained by traditional plant traits. Although the exudate composition was quite similar between the two growth forms, we found some metabolites that occurred only in one of the two growth forms. Our study demonstrated the feasibility of measuring polar exuda"
+},
+"https://openalex.org/W2970584612": {
+"q": "predicting plant traits from images",
+"title": "Machine learning algorithms to infer trait\u2010matching and predict species interactions in ecological networks",
+"year": 2019,
+"cites": 178,
+"doi": "https://doi.org/10.1111/2041-210x.13329",
+"venue": "Methods in Ecology and Evolution",
+"abstract": "Abstract Ecologists have long suspected that species are more likely to interact if their traits match in a particular way. For example, a pollination interaction may be more likely if the proportions of a bee's tongue fit a plant's flower shape. Empirical estimates of the importance of trait\u2010matching for determining species interactions, however, vary significantly among different types of ecological networks. Here, we show that ambiguity among empirical trait\u2010matching studies may have arisen at least in parts from using overly simple statistical models. Using simulated and real data, we contrast conventional generalized linear models (GLM) with more flexible Machine Learning (ML) models (Random Forest, Boosted Regression Trees, Deep Neural Networks, Convolutional Neural Networks, Support Vector Machines, na\u00efve Bayes, and k\u2010Nearest\u2010Neighbor), testing their ability to predict species interactions based on traits, and infer trait combinations causally responsible for species interactions. We found that the best ML models can successfully predict species interactions in plant\u2013pollinator networks, outperforming GLMs by a substantial margin. Our results also demonstrate that ML models can better identify the causally responsible trait\u2010matching combinations than GLMs. In two case studies, the best ML models successfully predicted species interactions in a global plant\u2013pollinator dat"
+},
+"https://openalex.org/W4392196863": {
+"q": "predicting plant traits from images",
+"title": "Functional traits of fossil plants",
+"year": 2024,
+"cites": 38,
+"doi": "https://doi.org/10.1111/nph.19622",
+"venue": "New Phytologist",
+"abstract": "A minuscule fraction of the Earth's paleobiological diversity is preserved in the geological record as fossils. What plant remnants have withstood taphonomic filtering, fragmentation, and alteration in their journey to become part of the fossil record provide unique information on how plants functioned in paleo-ecosystems through their traits. Plant traits are measurable morphological, anatomical, physiological, biochemical, or phenological characteristics that potentially affect their environment and fitness. Here, we review the rich literature of paleobotany, through the lens of contemporary trait-based ecology, to evaluate which well-established extant plant traits hold the greatest promise for application to fossils. In particular, we focus on fossil plant functional traits, those measurable properties of leaf, stem, reproductive, or whole plant fossils that offer insights into the functioning of the plant when alive. The limitations of a trait-based approach in paleobotany are considerable. However, in our critical assessment of over 30 extant traits we present an initial, semi-quantitative ranking of 26 paleo-functional traits based on taphonomic and methodological criteria on the potential of those traits to impact Earth system processes, and for that impact to be quantifiable. We demonstrate how valuable inferences on paleo-ecosystem processes (pollination biology, herb"
+},
+"https://openalex.org/W4360868605": {
+"q": "predicting plant traits from images",
+"title": "Plant functional traits predict heterogeneous distributional shifts in response to climate change",
+"year": 2023,
+"cites": 28,
+"doi": "https://doi.org/10.1111/1365-2435.14308",
+"venue": "Functional Ecology",
+"abstract": "Abstract Climate change is causing the rapid redistribution of vegetation as plant species move to track their climatic optima. Despite a global trend of upward movement in latitude and elevation, there is extensive heterogeneity among species and locations, with few emerging generalizations. Greater generalization may be achieved from considering multidimensional changes in species' distributions as well as incorporating ecologically relevant functional traits into studies of range shifts. To better understand how recent changes in climate are influencing the elevational distribution of plant species and how species' functional traits mediate distributional changes, we resampled a 2438 m elevation transect spanning a distance of 16 km which encompasses desert scrub, pinyon\u2010juniper woodland, chaparral and coniferous forest plant communities. Over the last 42 years, total perennial cover and species' average cover increased at lower elevations and decreased at higher elevations while average elevational leading\u2010edge increased 116 m and elevational rear edge decreased 84 m. Notably, these changes were mediated by species' functional traits, where species exhibiting more conservative traits (lower specific leaf area [SLA], greater \u03b413C, larger seed mass) and taller height shifted upward in their leading\u2010edge range limit, average elevation and trailing edge range limit, while decli"
+},
+"https://openalex.org/W4200630958": {
+"q": "predicting plant traits from images",
+"title": "Simultaneously Predicting Multiple Plant Traits from Multiple Sensors via Deformable CNN Regression",
+"year": 2021,
+"cites": 5,
+"doi": "https://doi.org/10.48550/arxiv.2112.03205",
+"venue": "arXiv (Cornell University)",
+"abstract": "Trait measurement is critical for the plant breeding and agricultural production pipeline. Typically, a suite of plant traits is measured using laborious manual measurements and then used to train and/or validate higher throughput trait estimation techniques. Here, we introduce a relatively simple convolutional neural network (CNN) model that accepts multiple sensor inputs and predicts multiple continuous trait outputs - i.e. a multi-input, multi-output CNN (MIMO-CNN). Further, we introduce deformable convolutional layers into this network architecture (MIMO-DCNN) to enable the model to adaptively adjust its receptive field, model complex variable geometric transformations in the data, and fine-tune the continuous trait outputs. We examine how the MIMO-CNN and MIMO-DCNN models perform on a multi-input (i.e. RGB and depth images), multi-trait output lettuce dataset from the 2021 Autonomous Greenhouse Challenge. Ablation studies were conducted to examine the effect of using single versus multiple inputs, and single versus multiple outputs. The MIMO-DCNN model resulted in a normalized mean squared error (NMSE) of 0.068 - a substantial improvement over the top 2021 leaderboard score of 0.081. Open-source code is provided."
+},
+"https://openalex.org/W4308165712": {
+"q": "predicting plant traits from images",
+"title": "Can the extinction risk of Irish vascular plants be predicted using leaf traits?",
+"year": 2022,
+"cites": 3,
+"doi": "https://doi.org/10.1007/s10531-022-02477-8",
+"venue": "Biodiversity and Conservation",
+"abstract": "Abstract Globally, 39% of vascular plant species are estimated to be threatened with extinction. Many factors are responsible for this figure; however, in numerous regions the primary drivers of plant extinction remain unknown. In this study, leaf traits were examined to determine whether there is an association between any specific leaf trait and extinction risk for the Irish flora. Ireland has a relatively small flora that is influenced by a temperate, oceanic climate. Fourteen leaf traits were measured for 1,029 angiosperm taxa, primarily from online herbarium images. Extinction risk was based on national Red List assessments for the Irish flora. Multivariate analysis of the data showed no correlation between leaf traits and extinction risk for the Irish flora. One-way ANOVA and Pearson\u2019s Chi-squared tests largely supported this result, with some indication that leaf teeth may be associated with extinction risk. The correlation of extinction risk and leaf traits with phylogenetic relatedness was also considered, with the presence of a phylogenetic signal detected for the distribution of extinction risk across the Irish flora and significant phylogenetic signal observed for individual leaf traits. It was concluded that the leaf traits analysed do not significantly correlate with the extinction risk of the Irish flora and that leaf traits are not a good predictor of extinction"
+},
+"https://openalex.org/W7128712944": {
+"q": "global trait maps from citizen science",
+"title": "PlantTraitNet: An Uncertainty-Aware Multimodal Framework for Global-Scale Plant Trait Inference from Citizen Science Data",
+"year": 2026,
+"cites": 0,
+"doi": "https://doi.org/10.48448/rhwq-1b18",
+"venue": "Underline Science Inc.",
+"abstract": "Global plant trait maps are essential for understanding ecosystem processes, including the carbon and energy cycles of the Earth system. However, existing trait maps remain limited by the high cost and sparse geographic coverage of field-based measurements. Citizen science initiatives offer a largely untapped resource to overcome these limitations, with over 50 million geotagged plant photographs worldwide capturing valuable visual information on plant morphology and physiology. In this study, we introduce PlantTraitNet, a multi-modal, multi-task uncertainty-aware deep learning framework that predicts four key plant traits (plant height, leaf area, specific leaf area, and nitrogen content) from citizen science photos using weak supervision. By aggregating individual trait predictions across space, we generate global maps of trait distributions. We validate these maps against independent vegetation survey data (sPlotOpen) and benchmark them against leading global trait products. Our results show that PlantTraitNet consistently outperforms existing trait maps across all evaluated traits, demonstrating that citizen science imagery, when integrated with computer vision and geospatial AI, enables not only scalable but also more accurate global trait mapping. This approach offers a powerful new pathway for ecological research and Earth system modeling."
+},
+"https://openalex.org/W7128674425": {
+"q": "global trait maps from citizen science",
+"title": "32 - PlantTraitNet: An Uncertainty-Aware Multimodal Framework for Global-Scale Plant Trait Inference from Citizen Science Data",
+"year": 2026,
+"cites": 0,
+"doi": "https://doi.org/10.48448/611w-mk59",
+"venue": "Underline Science Inc.",
+"abstract": "Global plant maps of plant traits, such as leaf nitrogen or plant height, are essential for understanding ecosystem processes, including the carbon and energy cycles of the Earth system. However, existing trait maps remain limited by the high cost and sparse geographic coverage of field-based measurements. Citizen science initiatives offer a largely untapped resource to overcome these limitations, with over 50 million geotagged plant photographs worldwide capturing valuable visual information on plant morphology and physiology. In this study, we introduce PlantTraitNet, a multi-modal, multi-task uncertainty-aware deep learning framework that predicts four key plant traits (plant height, leaf area, specific leaf area, and nitrogen content) from citizen science photos using weak supervision. By aggregating individual trait predictions across space, we generate global maps of trait distributions. We validate these maps against independent vegetation survey data (sPlotOpen) and benchmark them against leading global trait products. Our results show that PlantTraitNet consistently outperforms existing trait maps across all evaluated traits, demonstrating that citizen science imagery, when integrated with computer vision and geospatial AI, enables not only scalable but also more accurate global trait mapping. This approach offers a powerful new pathway for ecological research and Eart"
+},
+"https://openalex.org/W2982583741": {
+"q": "global trait maps from citizen science",
+"title": "Accumulating crop functional trait data with citizen science",
+"year": 2019,
+"cites": 37,
+"doi": "https://doi.org/10.1038/s41598-019-51927-x",
+"venue": "Scientific Reports",
+"abstract": "Trait-based ecology is greatly informed by large datasets for the analyses of inter- and intraspecific trait variation (ITV) in plants. This is especially true in trait-based agricultural research where crop ITV is high, yet crop trait data remains limited. Based on farmer-led collections, we developed and evaluated the first citizen science plant trait initiative. Here we generated a dataset of eight leaf traits for a commercially important crop species (Daucus carota), sampled from two distinct regions in Canada, which is 25-fold larger than datasets available in existing trait databases. Citizen-collected trait data supported analyses addressing theoretical and applied questions related to (i) intraspecific trait dimensionality, (ii) the extent and drivers of ITV, and (iii) the sampling intensity needed to derive accurate trait values. Citizen science is a viable means to enhance functional trait data coverage across terrestrial ecosystems, and in doing so, can directly support theoretical and applied trait-based analyses of plants."
+},
+"https://openalex.org/W7165391658": {
+"q": "plant trait regression vision transformer",
+"title": "Automated stomatal traits measurement in melon (Cucumis melo L.) based on vision transformers with dynamically composable multi-head attention",
+"year": 2026,
+"cites": 0,
+"doi": "https://doi.org/10.1186/s13007-026-01558-x",
+"venue": "Plant Methods",
+"abstract": "Stomatal trait analysis is essential for optimizing crop photosynthesis and transpiration, yet deep learning studies have focused mainly on monocotyledons, leaving dicotyledonous crops such as melon (Cucumis melo L.) understudied. To bridge this gap, we established a dedicated melon stomatal dataset comprising 5,708 training images, 1,631 validation images, and 815 test images. On this basis, we developed an improved Mask R-CNN framework using Vision Transformer (ViT) as the backbone. Specifically, standard Multi-Head Attention (MHA) was replaced with Dynamically Composable Multi-Head Attention (DCMHA), which enhances information exchange across attention heads and alleviates the low-rank limitation of conventional attention. In addition, a modified effective Squeeze-and-Excitation (eSE) module was incorporated into the Feature Pyramid Network (FPN) to strengthen channel dependency modeling and multi-scale feature representation. On the melon dataset, the proposed model achieved a mean average precision (mAP) of 72.40 \u00b1 0.09%, with AP50 and AP75 of 91.93 \u00b1 0.14% and 84.59 \u00b1 0.19%, respectively. Repeated-run statistical analyses showed that eSE significantly and consistently improved the main detection metrics across backbones, whereas DCMHA provided a more moderate gain within the ViT-based setting, with clearer support for AP50 than for mAP or AP75 under the baseline FPN setti"
+}
+}

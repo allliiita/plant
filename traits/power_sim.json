@@ -1,0 +1,74 @@
+{
+ "Height": {
+  "n_species": 2982,
+  "between_logvar": 2.982470663528066,
+  "within_logvar_iqr": 0.0026793158343254167,
+  "icc": 0.9991024518523864,
+  "Species_imputation_r2": 0.764,
+  "Species_MDE_dR2_power80": {
+   "rho0.3": 0.03,
+   "rho0.5": 0.03,
+   "rho0.7": 0.025
+  },
+  "genus_imputation_r2": 0.456,
+  "genus_MDE_dR2_power80": {
+   "rho0.3": 0.06,
+   "rho0.5": 0.055,
+   "rho0.7": 0.045
+  }
+ },
+ "LeafArea": {
+  "n_species": 2982,
+  "between_logvar": 1.6526689351728046,
+  "within_logvar_iqr": 0.003070708625260634,
+  "icc": 0.998145415774296,
+  "Species_imputation_r2": 0.483,
+  "Species_MDE_dR2_power80": {
+   "rho0.3": 0.06,
+   "rho0.5": 0.055,
+   "rho0.7": 0.045
+  },
+  "genus_imputation_r2": 0.103,
+  "genus_MDE_dR2_power80": {
+   "rho0.3": 0.09,
+   "rho0.5": 0.085,
+   "rho0.7": 0.075
+  }
+ },
+ "SLA": {
+  "n_species": 2982,
+  "between_logvar": 0.15829157451751785,
+  "within_logvar_iqr": 0.0005715271713845698,
+  "icc": 0.9964023919632151,
+  "Species_imputation_r2": 0.355,
+  "Species_MDE_dR2_power80": {
+   "rho0.3": 0.07,
+   "rho0.5": 0.065,
+   "rho0.7": 0.06
+  },
+  "genus_imputation_r2": 0.063,
+  "genus_MDE_dR2_power80": {
+   "rho0.3": 0.095,
+   "rho0.5": 0.09,
+   "rho0.7": 0.075
+  }
+ },
+ "Leaf_N": {
+  "n_species": 2982,
+  "between_logvar": 0.07692325660781638,
+  "within_logvar_iqr": 0.00017623341060659119,
+  "icc": 0.9977142078298511,
+  "Species_imputation_r2": 0.449,
+  "Species_MDE_dR2_power80": {
+   "rho0.3": 0.065,
+   "rho0.5": 0.06,
+   "rho0.7": 0.05
+  },
+  "genus_imputation_r2": 0.221,
+  "genus_MDE_dR2_power80": {
+   "rho0.3": 0.08,
+   "rho0.5": 0.075,
+   "rho0.7": 0.065
+  }
+ }
+}

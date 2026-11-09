@@ -1,0 +1,189 @@
+{
+ "n_img": 307300,
+ "n_species": 4984,
+ "tax_matched": 4984,
+ "pool_ge30": 2982,
+ "pool_taxa": {
+  "genera": 956,
+  "families": 169,
+  "orders": 50
+ },
+ "pool_species_in_genus_with_>=2sp": 2502,
+ "genuss_with_>=3sp": 309,
+ "pool_species_in_family_with_>=2sp": 2949,
+ "familys_with_>=3sp": 110,
+ "pool_species_in_order_with_>=2sp": 2973,
+ "orders_with_>=3sp": 37,
+ "var_components": {
+  "Height": {
+   "n": 2982,
+   "between_logvar": 2.982470663528066,
+   "within_log_approx": 0.02114428669557884,
+   "icc_approx": 0.9929603870516077
+  },
+  "LeafArea": {
+   "n": 2982,
+   "between_logvar": 1.6526689351728046,
+   "within_log_approx": 219.9500958973669,
+   "icc_approx": 0.007457799258153163
+  },
+  "SLA": {
+   "n": 2982,
+   "between_logvar": 0.15829157451751785,
+   "within_log_approx": 0.0076631779574257005,
+   "icc_approx": 0.9538236908365568
+  },
+  "Leaf_N": {
+   "n": 2982,
+   "between_logvar": 0.07692325660781638,
+   "within_log_approx": 0.0011433449218435409,
+   "icc_approx": 0.9853542372866181
+  }
+ },
+ "imputation_r2": {
+  "Height": {
+   "Species": [
+    0.7637607119699305,
+    {
+     "genus": 2030,
+     "family": 857,
+     "order": 76,
+     "global": 19
+    },
+    2982
+   ],
+   "genus": [
+    0.4561435062504495,
+    {
+     "family": 2682,
+     "order": 267,
+     "global": 33
+    },
+    2982
+   ],
+   "family": [
+    -0.07435477584972028,
+    {
+     "order": 2867,
+     "global": 115
+    },
+    2982
+   ],
+   "order": [
+    -0.10617046253421392,
+    {
+     "global": 2982
+    },
+    2982
+   ]
+  },
+  "LeafArea": {
+   "Species": [
+    0.48282680813521317,
+    {
+     "genus": 2030,
+     "family": 857,
+     "order": 76,
+     "global": 19
+    },
+    2982
+   ],
+   "genus": [
+    0.10230357809209667,
+    {
+     "family": 2682,
+     "order": 267,
+     "global": 33
+    },
+    2982
+   ],
+   "family": [
+    -0.277439611790145,
+    {
+     "order": 2867,
+     "global": 115
+    },
+    2982
+   ],
+   "order": [
+    -0.06378524939713226,
+    {
+     "global": 2982
+    },
+    2982
+   ]
+  },
+  "SLA": {
+   "Species": [
+    0.354505186696368,
+    {
+     "genus": 2030,
+     "family": 857,
+     "order": 76,
+     "global": 19
+    },
+    2982
+   ],
+   "genus": [
+    0.06261369653733506,
+    {
+     "family": 2682,
+     "order": 267,
+     "global": 33
+    },
+    2982
+   ],
+   "family": [
+    -0.11510606280289348,
+    {
+     "order": 2867,
+     "global": 115
+    },
+    2982
+   ],
+   "order": [
+    -0.010901722125197466,
+    {
+     "global": 2982
+    },
+    2982
+   ]
+  },
+  "Leaf_N": {
+   "Species": [
+    0.44838966892766585,
+    {
+     "genus": 2030,
+     "family": 857,
+     "order": 76,
+     "global": 19
+    },
+    2982
+   ],
+   "genus": [
+    0.2205533889854192,
+    {
+     "family": 2682,
+     "order": 267,
+     "global": 33
+    },
+    2982
+   ],
+   "family": [
+    -0.195246735499629,
+    {
+     "order": 2867,
+     "global": 115
+    },
+    2982
+   ],
+   "order": [
+    -0.027202695388958364,
+    {
+     "global": 2982
+    },
+    2982
+   ]
+  }
+ }
+}

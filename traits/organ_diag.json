@@ -1,0 +1,129 @@
+{
+ "plantclef_test_n": 11552,
+ "th0.0": {
+  "leaf": {
+   "precision": 0.552,
+   "recall": 0.584
+  },
+  "flower": {
+   "precision": 0.578,
+   "recall": 0.549
+  },
+  "fruit": {
+   "precision": 0.526,
+   "recall": 0.57
+  },
+  "bark": {
+   "precision": 0.718,
+   "recall": 0.645
+  },
+  "habit": {
+   "precision": 0.549,
+   "recall": 0.562
+  }
+ },
+ "th0.5": {
+  "leaf": {
+   "precision": 0.631,
+   "recall": 0.462
+  },
+  "flower": {
+   "precision": 0.656,
+   "recall": 0.45
+  },
+  "fruit": {
+   "precision": 0.608,
+   "recall": 0.474
+  },
+  "bark": {
+   "precision": 0.81,
+   "recall": 0.59
+  },
+  "habit": {
+   "precision": 0.626,
+   "recall": 0.449
+  }
+ },
+ "th0.7": {
+  "leaf": {
+   "precision": 0.722,
+   "recall": 0.248
+  },
+  "flower": {
+   "precision": 0.725,
+   "recall": 0.272
+  },
+  "fruit": {
+   "precision": 0.707,
+   "recall": 0.307
+  },
+  "bark": {
+   "precision": 0.914,
+   "recall": 0.497
+  },
+  "habit": {
+   "precision": 0.708,
+   "recall": 0.246
+  }
+ },
+ "th0.8": {
+  "leaf": {
+   "precision": 0.756,
+   "recall": 0.137
+  },
+  "flower": {
+   "precision": 0.75,
+   "recall": 0.175
+  },
+  "fruit": {
+   "precision": 0.753,
+   "recall": 0.222
+  },
+  "bark": {
+   "precision": 0.945,
+   "recall": 0.44
+  },
+  "habit": {
+   "precision": 0.776,
+   "recall": 0.166
+  }
+ },
+ "confusion_rows_true_cols_pred": {
+  "leaf": [
+   1402,
+   221,
+   215,
+   166,
+   396
+  ],
+  "flower": [
+   233,
+   1318,
+   422,
+   108,
+   319
+  ],
+  "fruit": [
+   225,
+   308,
+   1122,
+   159,
+   154
+  ],
+  "bark": [
+   262,
+   152,
+   209,
+   1548,
+   229
+  ],
+  "habit": [
+   420,
+   283,
+   167,
+   175,
+   1339
+  ]
+ },
+ "acc": 0.5824965238571167
+}

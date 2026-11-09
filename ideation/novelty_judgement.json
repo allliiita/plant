@@ -1,0 +1,112 @@
+{
+ "00": {
+  "closest": [
+   0,
+   9,
+   10
+  ],
+  "overlap": "none",
+  "what_is_already_done": "Prior work predicts plant traits from images or omics and separately performs species recognition, but none ablates species identity to quantify how much apparent trait signal is species-identity-mediated.",
+  "remaining_novel_angle": "The species-identity ablation design\u2014comparing trait regression, label-free species-class-to-mean-trait transfer, and adversarial species-identity removal across seen/unseen species with a species-mean oracle variance decomposition\u2014is a distinct diagnostic not addressed by the retrieved hits.",
+  "novelty_score": 4,
+  "closest_titles": [
+   "Prediction of plant complex traits via integration of multi-omics data",
+   "Deep learning as a tool for ecology and evolution",
+   "DeepWheat: Estimating Phenotypic Traits from Crop Images with Deep Learning"
+  ]
+ },
+ "01": {
+  "closest": [
+   0,
+   "PlantTraitNet"
+  ],
+  "overlap": "partial",
+  "what_is_already_done": "CNN prediction of plant functional traits from iNaturalist photos coupled with TRY data has been demonstrated, with claims of cross-taxa generalisation, and multimodal uncertainty-aware trait inference is being pursued in PlantTraitNet.",
+  "remaining_novel_angle": "The specific contribution is a phylogenetically blocked (leave-one-family-out / leave-one-order-out) evaluation protocol that quantifies the optimism of random splits and tests whether phylogeny-aware contrastive augmentation recovers generalisation to unseen clades.",
+  "novelty_score": 3,
+  "closest_titles": [
+   "Deep learning and citizen science enable automated plant trait predictions from photographs",
+   "PlantTraitNet"
+  ]
+ },
+ "02": {
+  "closest": [
+   3,
+   8,
+   11
+  ],
+  "overlap": "partial",
+  "what_is_already_done": "Prior work predicts intraspecific trait variation spatially (e.g., California grasses) and estimates individual-level plant traits at scale, while CNN+TRY studies predict species-level traits from images.",
+  "remaining_novel_angle": "Framing a formal identifiability/prediction-ceiling result\u2014that species-mean labels cannot yield positive within-species deviation R\u00b2 regardless of model capacity\u2014and testing a variance-aware loss against this ceiling is not addressed by the retrieved hits.",
+  "novelty_score": 3,
+  "closest_titles": [
+   "Predicting intraspecific trait variation among California's grasses",
+   "Estimating individual\u2010level plant traits at scale",
+   "Deep learning and citizen science enable automated plant trait predictions from photographs"
+  ]
+ },
+ "03": {
+  "closest": [
+   2,
+   0,
+   9
+  ],
+  "overlap": "partial",
+  "what_is_already_done": "Self-supervised contrastive and masked-autoencoder pretraining have been benchmarked for image-based plant phenotyping and hyperspectral trait prediction, and MAE has been applied to plant variety classification, but not as a controlled head-to-head of contrastive vs regression vs reconstruction objectives on the same trait task with seen/unseen species splits.",
+  "remaining_novel_angle": "The specific objective-identifiability comparison\u2014contrastive vs supervised regression vs MAE vs species classification, evaluated on seen/unseen species trait R^2 and per-trait identifiability curves\u2014appears unaddressed as a unified controlled experiment.",
+  "novelty_score": 3,
+  "closest_titles": [
+   "Benchmarking Self-Supervised Contrastive Learning Methods for Image-Based Plant Phenotyping",
+   "Band- and Label-Efficient Hyperspectral Plant Trait Prediction: reproducibility package",
+   "Advancing Image-Based Grapevine Variety Classification with a New Benchmark and Evaluation of Masked Autoencoders"
+  ]
+ },
+ "07": {
+  "closest": [
+   "PlantTraitNet (AAAI 2026)",
+   "Schiller et al. 2021 Sci Rep",
+   "Wolf et al. 2022 Nat Ecol Evol"
+  ],
+  "overlap": "partial",
+  "what_is_already_done": "Multimodal citizen-science photo models already predict plant traits across species with weak supervision and reported cross-taxa generalisation, but none of the cited work quantifies within-species prediction variance versus between-species prior variance or runs an image-shuffle diagnostic to test whether images are actually used.",
+  "remaining_novel_angle": "The prior-recall index plus within-species image-shuffle test as a diagnostic for prior-dominated trait prediction, and a prior-debiasing loss penalising prediction-species-mean correlation, appear unaddressed in the known core work and search hits.",
+  "novelty_score": 3,
+  "closest_titles": [
+   "PlantTraitNet (AAAI 2026)",
+   "Schiller et al. 2021 Sci Rep",
+   "Wolf et al. 2022 Nat Ecol Evol"
+  ]
+ },
+ "10": {
+  "closest": [
+   3,
+   2,
+   "PlantTraitNet"
+  ],
+  "overlap": "partial",
+  "what_is_already_done": "Few-shot CNN adaptation has been applied to leaf trait segmentation and population-scale phenotyping in a single species (Populus trichocarpa), and few-shot meta-learning has been used for species range estimation, while PlantTraitNet already does multimodal trait inference from citizen-science photos.",
+  "remaining_novel_angle": "The specific test of whether few-shot fine-tuning (5-20 photos) on unseen species improves functional-trait regression over zero-shot and whether gains scale with morphological distinctiveness rather than species frequency appears unaddressed.",
+  "novelty_score": 3,
+  "closest_titles": [
+   "Few-Shot Learning Enables Population-Scale Analysis of Leaf Traits in Populus trichocarpa",
+   "Feedforward Few-shot Species Range Estimation",
+   "PlantTraitNet"
+  ]
+ },
+ "12": {
+  "closest": [
+   0,
+   1,
+   2
+  ],
+  "overlap": "partial",
+  "what_is_already_done": "Prior work uses citizen-science photos and ML to classify or map flower color (e.g., Convolvulus color polymorphism, HSV/k-means petal color pipelines) and to predict traits across taxa with CNNs, but does not systematically decompose color vs shape identifiability under seen-vs-unseen species splits.",
+  "remaining_novel_angle": "The explicit seen-vs-unseen species evaluation isolating color identifiability from species-confounded shape/symmetry traits, plus a color-constancy augmentation ablation, is a distinct diagnostic framing not covered by the cited hits.",
+  "novelty_score": 3,
+  "closest_titles": [
+   "Deep learning increases the availability of organism photographs taken by citizens in citizen science programs",
+   "Spatial patterns of flower colour variation in native and introduced ranges ofConvolvulus arvensis(Convolvulaceae) revealed by citizen\u2010science data and machine learning",
+   "An automated pipeline for supervised classification of petal color from citizen science photographs"
+  ]
+ }
+}
