@@ -41,8 +41,10 @@ def _read_man(mode, stage):
     p = _man_path(mode, stage)
     return json.load(open(p)) if os.path.exists(p) else None
 def _src(fn):
-    raw = getattr(fn, "get_raw_f", None)
-    return inspect.getsource(raw() if raw else fn)
+    name = fn if isinstance(fn, str) else getattr(fn, "__name__", None) or fn.tag
+    text = open(__file__).read(); i = text.index(f"\ndef {name}(")
+    j = min([x for x in (text.find("\n@app", i + 1), text.find("\ndef ", i + 1), text.find("\n# ---", i + 1)) if x > 0] + [len(text)])
+    return text[i:j]
 def _key(stage_fn, mode, inputs):
     return {"code": _h(_src(stage_fn)), "cfg": _h(CFG), "mode": mode, "inputs": inputs}
 def _valid(mode, stage, key):
@@ -64,7 +66,7 @@ def _in(mode, stage): m = _read_man(mode, stage); assert m and m["status"] == "P
 def s0_env(mode):
     vol.reload()
     import torch, open_clip, timm, numpy, pandas, PIL, sys
-    key = _key(s0_env, mode, {})
+    key = _key("s0_env", mode, {})
     if _valid(mode, "s0", key): return "SKIP"
     vers = {"python": sys.version.split()[0], "torch": torch.__version__, "open_clip": open_clip.__version__, "timm": timm.__version__,
             "numpy": numpy.__version__, "pandas": pandas.__version__, "pillow": PIL.__version__, "cuda": torch.cuda.is_available(),
@@ -79,7 +81,7 @@ def s0_env(mode):
 def s1_select(mode):
     vol.reload()
     import pandas as pd, numpy as np
-    key = _key(s1_select, mode, {"s0": _in(mode, "s0")})
+    key = _key("s1_select", mode, {"s0": _in(mode, "s0")})
     if _valid(mode, "s1", key): return "SKIP"
     m = pd.read_csv(f"{V}/{CFG['meta_csv']}", sep=';', usecols=['image_name', 'organ', 'species_id', 'obs_id', 'author', 'species', 'dataset', 'url'], dtype=str)
     m = m[m.organ.isin(CFG["organs"])].copy(); m['author'] = m.author.fillna('NA')
@@ -139,7 +141,7 @@ def s2_fetch(mode, crash_after_shards: int = -1):
     import pandas as pd, pyarrow as pa, pyarrow.parquet as pq, io, glob, urllib.request, urllib.error, random
     from concurrent.futures import ThreadPoolExecutor
     from PIL import Image
-    key = _key(s2_fetch, mode, {"s1": _in(mode, "s1")})
+    key = _key("s2_fetch", mode, {"s1": _in(mode, "s1")})
     if _valid(mode, "s2", key): return "SKIP"
     d = _dir(mode, "s2"); sel = pd.read_parquet(f"{_dir(mode,'s1')}/sel.parquet")
     names = sel.image_name.tolist(); dl = dict(zip(sel.image_name, sel.dl)); S = CFG["shard"][mode]
@@ -202,7 +204,7 @@ def s3_features(mode, model, sample_n: int = 0, tag: str = ""):
     torch.manual_seed(0); torch.backends.cudnn.deterministic = True; torch.backends.cudnn.benchmark = False
     torch.backends.cuda.matmul.allow_tf32 = False; torch.backends.cudnn.allow_tf32 = False
     stage = f"s3_{model}{tag}"
-    key = _key(s3_features, mode, {"s2": _in(mode, "s2"), "model": model, "sample_n": sample_n})
+    key = _key("s3_features", mode, {"s2": _in(mode, "s2"), "model": model, "sample_n": sample_n})
     if _valid(mode, stage, key): return "SKIP"
     kind, mid, pt = CFG["models"][model]; dev = "cuda"
     if kind == "oc":
@@ -267,7 +269,7 @@ def s4_probes(mode, pair, tag: str = ""):
     torch.manual_seed(0); torch.use_deterministic_algorithms(True)
     torch.backends.cuda.matmul.allow_tf32 = False; torch.backends.cudnn.allow_tf32 = False
     A, D = CFG["pairs"][pair]; stage = f"s4_{pair}{tag}"
-    key = _key(s4_probes, mode, {"A": _in(mode, f"s3_{A}"), "D": _in(mode, f"s3_{D}"), "s1": _in(mode, "s1"), "lr": _h(inspect.getsource(lr_fit))})
+    key = _key("s4_probes", mode, {"A": _in(mode, f"s3_{A}"), "D": _in(mode, f"s3_{D}"), "s1": _in(mode, "s1"), "lr": _h(_src("lr_fit"))})
     if _valid(mode, stage, key): return "SKIP"
     def load(n):
         Z = np.load(f"{_dir(mode, 's3_'+n)}/feats.npz"); Ls = sorted({k for k in Z.files if k.endswith('_cls')}, key=lambda s: int(s[1:].split('_')[0]))
