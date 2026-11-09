@@ -1,0 +1,67 @@
+{
+ "n_img": 1408033,
+ "n_species": 7806,
+ "n_obs": 1151904,
+ "organ": {
+  "flower": 389251,
+  "habit": 355732,
+  "leaf": 340852,
+  "fruit": 165855,
+  "bark": 88507,
+  "branch": 59632,
+  "scan": 8204
+ },
+ "dataset": {
+  "plantnet": 1102483,
+  "gbif": 305550
+ },
+ "learn_tag": {
+  "train": 1308899,
+  "val": 51194,
+  "test": 47940
+ },
+ "imgs_per_obs_mean": 1.2223527307831208,
+ "obs_multi_img_frac": 0.1313199711087035,
+ "obs_spanning_splits": 0,
+ "species_per_split": {
+  "test": 5912,
+  "train": 7806,
+  "val": 6670
+ },
+ "test_species_not_in_train": 0,
+ "full4_species_by_min_obs": {
+  "5": 2701,
+  "10": 1700,
+  "20": 939,
+  "30": 668
+ },
+ "flower&leaf_species_by_min_obs": {
+  "5": 4776,
+  "10": 4099,
+  "20": 3432,
+  "30": 2999
+ },
+ "bark_species_by_min_obs": {
+  "5": 2934,
+  "10": 1890,
+  "20": 1063
+ },
+ "fruit_species_by_min_obs": {
+  "5": 3861,
+  "10": 2933,
+  "20": 2041
+ },
+ "habit_species_by_min_obs": {
+  "5": 6119,
+  "10": 5460,
+  "20": 4578
+ },
+ "full4@20obs_median_obs_per_organ": {
+  "flower": 100.0,
+  "leaf": 100.0,
+  "bark": 49.0,
+  "fruit": 93.0,
+  "habit": 100.0
+ },
+ "author_imgs_frac_top1pct": 0.3967151338072332
+}

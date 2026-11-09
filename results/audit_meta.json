@@ -1,0 +1,52 @@
+{
+ "n_img": 306146,
+ "n_species": 1081,
+ "n_obs": 306146,
+ "organ_counts": {
+  "flower": 176531,
+  "leaf": 110784,
+  "fruit": 11277,
+  "habit": 4445,
+  "bark": 2076,
+  "other": 993,
+  "branch": 37,
+  "scan": 2,
+  "none": 1
+ },
+ "sp_bark>=5": 111,
+ "sp_fruit>=5": 169,
+ "sp_habit>=5": 201,
+ "sp_flower>=5": 704,
+ "sp_leaf>=5": 652,
+ "sp_flower>=5&leaf>=5": 476,
+ "split_aware_sp_per_organ(>=5tr,>=3te)": {
+  "bark": 18,
+  "flower": 399,
+  "fruit": 61,
+  "habit": 47,
+  "leaf": 355,
+  "other": 2
+ },
+ "split_aware_flower&leaf": 221,
+ "FL_set(>=30tr,>=6te both)": 140,
+ "sp_with_>=1rare_organ_and_flower_or_leaf": 87,
+ "species_per_split": {
+  "test": 1081,
+  "train": 1081,
+  "val": 1081
+ },
+ "species_overlap_train_test": 1081,
+ "species_only_in_test": 0,
+ "test_frac_per_species_mean_sd": [
+  0.13246694149820332,
+  0.04395028777203869
+ ],
+ "obs_spanning_>1_split": 0,
+ "obs_multi_img": 0,
+ "test_imgs_whose_obs_in_train": 0,
+ "test_imgs_total": 31112,
+ "frac_test_obs_leak": 0.0,
+ "frac_test_imgs_same_author_species_in_train": 0.2416430959115454,
+ "obs_leak_frac_test_flower": 0.0,
+ "obs_leak_frac_test_leaf": 0.0
+}
