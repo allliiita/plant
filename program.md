@@ -130,3 +130,10 @@ New stage s6_adapter in pipeline.py with manifest + gates (split gates above, fi
 smoke first (5+5 species); full run executed twice → byte-identical results.json required before reporting.
 Outcome → bullets: GO → method bullet (+Y pp over frozen backbones, +Z pp over LEACE/centering, unseen species, reproducible);
                    G4 fail → "metric-learning transfer" bullet; NO-GO → negative-result bullet + mechanism bullet (invariance ⟂ fusion).
+### v6.1 amendment (before any v6 result): taxonomy-stratified species split
+Replaces "rng(0) random 150/150". Within each family (families with 1 species pooled into one 'other' stratum), species sorted by id,
+permuted with rng(0), assigned alternately SEEN/UNSEEN (odd remainder → the currently smaller side, tie → SEEN).
+VAL (30) = systematic stratified sample of SEEN: sort SEEN by (family, permuted order), take every 5th.
+New gate: total-variation distance between SEEN and UNSEEN family distributions ≤ 0.10 (full mode).
+Rationale: G1 is paired (same queries), so main-effect difficulty cancels; stratification removes taxonomy × adapter interaction confounds.
+Smoke for s6 = full features restricted to the first 20 species (sorted id) and a 1-config grid; gates on split/finite only.
