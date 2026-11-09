@@ -147,7 +147,7 @@ def t4_analysis(mode, tag: str = ""):
     _write(mode, st, key, [out], [_gate("warmup_seen_regression_r2>0", round(w0, 4), w0 > 0)], {"n_species": res["n_species"], "seconds": res["seconds"]}); return "PASS"
 
 @app.function(image=IMG, volumes={V: vol}, timeout=20 * 3600)
-def orchestrate(mode, upto="t4"):
+def orchestrate(mode, upto="all"):
     log = []
     for nm, fn in (("t1", t1_select), ("t2", t2_fetch), ("t3", t3_features), ("t4", t4_analysis)):
         r = fn.remote(mode); log.append(f"{nm}:{r}"); print(nm, r, flush=True); vol.reload()
@@ -166,6 +166,6 @@ def status(mode):
     return "\n".join(out)
 
 @app.local_entrypoint()
-def main(mode: str = "smoke", upto: str = "t4", show: int = 0):
+def main(mode: str = "smoke", upto: str = "all", show: int = 0):
     if show: print(status.remote(mode)); return
     print("RUN", orchestrate.remote(mode, upto))
