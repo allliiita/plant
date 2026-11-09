@@ -26,3 +26,4 @@
 - v7.3 decided autonomously per user instruction.
 - smoke T4 crash: bootstrap on empty sensitivity stratum (path untested: synthetic dead rates were constant). Guard + test t_small_and_varied + mutation M14.
 - orchestrate default upto=t4 skipped the byte-identical rerun (conservative failure: pilot never triggered). Fixed default to all.
+- t4_rep not byte-identical: 276 diffs at ~1e-15 (different Modal CPUs, float summation order). Criterion: structure equal + max|Δ|≤1e-9; reported as such (not 'byte-identical').

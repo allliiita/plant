@@ -1,0 +1,1159 @@
+{
+ "stage": "t2",
+ "key": {
+  "code": "9c70437bf1bd0342",
+  "core": "e6d0c044e031899b",
+  "cfg": "938f9928e8cee1cb",
+  "mode": "full",
+  "inputs": {
+   "t1": "543e27437b1f9593:aa7a0aa39a78019b"
+  }
+ },
+ "status": "PASS",
+ "time": "2026-11-09T22:07:46",
+ "outputs": [
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00000.parquet",
+   "sha": "762f7b970d963662"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00001.parquet",
+   "sha": "930e8350d2bf86c7"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00002.parquet",
+   "sha": "cdb00c73df500257"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00003.parquet",
+   "sha": "9d55324f40d7e88a"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00004.parquet",
+   "sha": "76558d3c53ef05a8"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00005.parquet",
+   "sha": "ecd223d62cbdb3a0"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00006.parquet",
+   "sha": "be10c21b71561df7"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00007.parquet",
+   "sha": "3b9ecd1f72f3a6be"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00008.parquet",
+   "sha": "97dec41aeb14bbe8"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00009.parquet",
+   "sha": "6d01047063f7b40f"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00010.parquet",
+   "sha": "1bd0fd5ed51dca66"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00011.parquet",
+   "sha": "03acaef080fdef5e"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00012.parquet",
+   "sha": "1aa7d3ee4e33afef"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00013.parquet",
+   "sha": "e430311be6ddc915"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00014.parquet",
+   "sha": "39900b1a58223520"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00015.parquet",
+   "sha": "f90dd4ab75b53e37"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00016.parquet",
+   "sha": "aa25b53bddba53f7"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00017.parquet",
+   "sha": "5b59205aed30ca32"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00018.parquet",
+   "sha": "a50097ed55b1fa41"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00019.parquet",
+   "sha": "7a46b0a7d6c62058"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00020.parquet",
+   "sha": "c81dda36c66b7e33"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00021.parquet",
+   "sha": "b40306616ea97aa1"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00022.parquet",
+   "sha": "649cfea1bfaac91c"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00023.parquet",
+   "sha": "c188746624b2ad76"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00024.parquet",
+   "sha": "d57362bebd8c354d"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00025.parquet",
+   "sha": "ced04d2c2f60edca"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00026.parquet",
+   "sha": "1eeb3cdd89278448"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00027.parquet",
+   "sha": "ac4bbb283433fb80"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00028.parquet",
+   "sha": "2c1e284623110d0b"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00029.parquet",
+   "sha": "dd53930cc36523fc"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00030.parquet",
+   "sha": "97784a3da2db157c"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00031.parquet",
+   "sha": "1065d15cd9d3d8a7"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00032.parquet",
+   "sha": "be875559d171d9c4"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00033.parquet",
+   "sha": "f9cf11b0fd11f158"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00034.parquet",
+   "sha": "c8c8ef14544d38ad"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00035.parquet",
+   "sha": "98d295083d6daadb"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00036.parquet",
+   "sha": "32b77d37dd7335aa"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00037.parquet",
+   "sha": "e84f7e91edf11c67"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00038.parquet",
+   "sha": "eadbf957aca3d97e"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00039.parquet",
+   "sha": "5fb9dc3b6cbdbf2e"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00040.parquet",
+   "sha": "c93cf8f00faca425"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00041.parquet",
+   "sha": "2720954f21a0de8d"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00042.parquet",
+   "sha": "6b5e2bf8f29fdd5e"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00043.parquet",
+   "sha": "654175ba84c58edc"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00044.parquet",
+   "sha": "21c2a88188a3cea3"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00045.parquet",
+   "sha": "1d6c90813862a4fc"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00046.parquet",
+   "sha": "c8b05544030f1b66"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00047.parquet",
+   "sha": "7ceb777250dc42d2"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00048.parquet",
+   "sha": "ca5e0d59c691bbaf"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00049.parquet",
+   "sha": "b034161ab279ef1b"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00050.parquet",
+   "sha": "0670f3b493a61b91"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00051.parquet",
+   "sha": "d711e6421ff22e7d"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00052.parquet",
+   "sha": "c589b17691a52650"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00053.parquet",
+   "sha": "0403ef82a6ba4b34"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00054.parquet",
+   "sha": "6372ecfece2e2009"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00055.parquet",
+   "sha": "74bc4336dc659368"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00056.parquet",
+   "sha": "4f184166508a2cd5"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00057.parquet",
+   "sha": "1727f247de56043a"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00058.parquet",
+   "sha": "a3b5817dc42265cd"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00059.parquet",
+   "sha": "b4e6b7ec7ef65b49"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00060.parquet",
+   "sha": "f421467ce9da3596"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00061.parquet",
+   "sha": "096cb425fbab4c74"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00062.parquet",
+   "sha": "5fe7f79898f41411"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00063.parquet",
+   "sha": "4ac0b4f8767e60b5"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00064.parquet",
+   "sha": "fc887bdbed1072c0"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00065.parquet",
+   "sha": "57b2919228caace9"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00066.parquet",
+   "sha": "566d26d3c15251ad"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00067.parquet",
+   "sha": "e1f8b29e4d7c6784"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00068.parquet",
+   "sha": "a80de84268f33826"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00069.parquet",
+   "sha": "a71ddd40cb9e30c0"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00070.parquet",
+   "sha": "46aee303815ee45a"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00071.parquet",
+   "sha": "797d13a964945aec"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00072.parquet",
+   "sha": "ee6445481c9a2579"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00073.parquet",
+   "sha": "7cd6cefa13b2c9cb"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00074.parquet",
+   "sha": "c9a0421083f5eb5c"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00075.parquet",
+   "sha": "cb4572becd72315e"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00076.parquet",
+   "sha": "dc225b309704d0fc"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00077.parquet",
+   "sha": "4e1b7e09d7b7001d"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00078.parquet",
+   "sha": "006f5c1b9d1fc81d"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00079.parquet",
+   "sha": "ce97658da9e60d7f"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00080.parquet",
+   "sha": "2f621545cfe99c32"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00081.parquet",
+   "sha": "c638e2224795b1cd"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00082.parquet",
+   "sha": "3814cae95dc820dc"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00083.parquet",
+   "sha": "bf13f06f128f83a6"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00084.parquet",
+   "sha": "dc31c3e989b43700"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00085.parquet",
+   "sha": "1cc5e158217c95a0"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00086.parquet",
+   "sha": "32b130cb163cba91"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00087.parquet",
+   "sha": "e2eb93faf9538a34"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00088.parquet",
+   "sha": "4fb56ccaed66c279"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00089.parquet",
+   "sha": "cb92cf2b39c2e5fc"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00090.parquet",
+   "sha": "3cd9a56782b73baf"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00091.parquet",
+   "sha": "7f96552072831039"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00092.parquet",
+   "sha": "88c1873732c406c0"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00093.parquet",
+   "sha": "9d4e7938a258224c"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00094.parquet",
+   "sha": "8eadce469558ce3e"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00095.parquet",
+   "sha": "f27f496a61531dc3"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00096.parquet",
+   "sha": "3bddbd53615f156c"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00097.parquet",
+   "sha": "12e487c8e00fb435"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00098.parquet",
+   "sha": "0011be632df21206"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00099.parquet",
+   "sha": "4874755d80d7c164"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00100.parquet",
+   "sha": "e6e7b611a532ae23"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00101.parquet",
+   "sha": "6f859eb80f8c3909"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00102.parquet",
+   "sha": "0a1236381434cd99"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00103.parquet",
+   "sha": "71b2d074af4b3553"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00104.parquet",
+   "sha": "039475a7de2ff918"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00105.parquet",
+   "sha": "72983158c02c1013"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00106.parquet",
+   "sha": "654656546ef3c3cb"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00107.parquet",
+   "sha": "1ac96443b69a7250"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00108.parquet",
+   "sha": "882ab19493137638"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00109.parquet",
+   "sha": "e13d07505ea7c215"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00110.parquet",
+   "sha": "53bbfdf5ad53a547"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00111.parquet",
+   "sha": "5c20bf58abfe53c3"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00112.parquet",
+   "sha": "639576a2f83f1f8f"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00113.parquet",
+   "sha": "d4ebf047a07d4d57"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00114.parquet",
+   "sha": "77c25ece5a74502c"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00115.parquet",
+   "sha": "0704df6edac8d155"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00116.parquet",
+   "sha": "3f1d35bcab10ee59"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00117.parquet",
+   "sha": "30ce196e3b7b3694"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00118.parquet",
+   "sha": "f6b9846637ca5d33"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00119.parquet",
+   "sha": "2a1f673ca422773f"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00120.parquet",
+   "sha": "0df19e2433fd44e2"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00121.parquet",
+   "sha": "7ed50b432a4e81b2"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00122.parquet",
+   "sha": "4b8208d2173eec3e"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00123.parquet",
+   "sha": "6124ae89327f9dbd"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00124.parquet",
+   "sha": "af787f577cf334b6"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00125.parquet",
+   "sha": "78ad23716d6bcfc3"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00126.parquet",
+   "sha": "14b54258f3ec4445"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00127.parquet",
+   "sha": "dff069c959fde0af"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00128.parquet",
+   "sha": "8484594aa3e8efdb"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00129.parquet",
+   "sha": "4b849ad17798a79c"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00130.parquet",
+   "sha": "0a63dc444c290f53"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00131.parquet",
+   "sha": "beeec7312399102d"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00132.parquet",
+   "sha": "bcdd74e81ea10ce2"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00133.parquet",
+   "sha": "24d899ca5ab339c9"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00134.parquet",
+   "sha": "b057e4f34f4ad576"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00135.parquet",
+   "sha": "af569f3d43f366a0"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00136.parquet",
+   "sha": "3f65d9a390e9680a"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00137.parquet",
+   "sha": "88e1ee4cf8fd7818"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00138.parquet",
+   "sha": "1845a3e12c54fdd6"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00139.parquet",
+   "sha": "e13c33118113a600"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00140.parquet",
+   "sha": "555272bf58372a2e"
+  },
+  {
+   "path": "/v/traits/full/t2/tier1_shard_00141.parquet",
+   "sha": "1ffa5035215e020f"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00000.parquet",
+   "sha": "9c61874f65bcbaa7"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00001.parquet",
+   "sha": "04f38ca256649ae1"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00002.parquet",
+   "sha": "2495f235aaa53a44"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00003.parquet",
+   "sha": "04f65c8c0d5a45f2"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00004.parquet",
+   "sha": "5f540ae1893bd306"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00005.parquet",
+   "sha": "47475b972aba55c0"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00006.parquet",
+   "sha": "5351f0e7dace77ec"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00007.parquet",
+   "sha": "d89d68fdbe86b549"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00008.parquet",
+   "sha": "2c01efab9a334d2f"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00009.parquet",
+   "sha": "e8ccfb305cf91427"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00010.parquet",
+   "sha": "80b8b01326518065"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00011.parquet",
+   "sha": "0c54b127824008e5"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00012.parquet",
+   "sha": "667cf6e66de3cfa1"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00013.parquet",
+   "sha": "0869829aaacb01bb"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00014.parquet",
+   "sha": "ca66946f47cc6e87"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00015.parquet",
+   "sha": "aa4ef426074781a8"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00016.parquet",
+   "sha": "c2675cc8ea4b5e94"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00017.parquet",
+   "sha": "36bf474c48b9aa81"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00018.parquet",
+   "sha": "e3c38aab57a534fd"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00019.parquet",
+   "sha": "89f62d33d174d6f3"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00020.parquet",
+   "sha": "8861fd86f1ef79fd"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00021.parquet",
+   "sha": "8a1d58e5c244b288"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00022.parquet",
+   "sha": "4c035f7f6835413c"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00023.parquet",
+   "sha": "2b9352e47c19f5f5"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00024.parquet",
+   "sha": "e5b6591a54e038e1"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00025.parquet",
+   "sha": "e51d18998810eb17"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00026.parquet",
+   "sha": "1b02388c3566ba6f"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00027.parquet",
+   "sha": "ac9fc56e8c6f42c0"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00028.parquet",
+   "sha": "32de8c735552a0da"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00029.parquet",
+   "sha": "8a843a360561d5ce"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00030.parquet",
+   "sha": "042599e3f78484bb"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00031.parquet",
+   "sha": "3a9e920bc7963742"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00032.parquet",
+   "sha": "c12ff343e11d97d7"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00033.parquet",
+   "sha": "c93b2ae9c08ab67e"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00034.parquet",
+   "sha": "9d1b006c3784e415"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00035.parquet",
+   "sha": "b713a121337912d3"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00036.parquet",
+   "sha": "cf5accab74ca0780"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00037.parquet",
+   "sha": "eedf9fdefc7e13cf"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00038.parquet",
+   "sha": "03ca03379c7d5827"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00039.parquet",
+   "sha": "0c1644437d84bbd4"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00040.parquet",
+   "sha": "1ae8b113b6b0e77b"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00041.parquet",
+   "sha": "2e6baf0ed0f639e5"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00042.parquet",
+   "sha": "307dc498388736da"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00043.parquet",
+   "sha": "dc5d285b3f6d86d9"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00044.parquet",
+   "sha": "5f6839534baf5c69"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00045.parquet",
+   "sha": "9dd6842d79e486ba"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00046.parquet",
+   "sha": "1746f64c1e54f0ad"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00047.parquet",
+   "sha": "1b9bd813bfc621e8"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00048.parquet",
+   "sha": "3b138e9ec366f0ec"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00049.parquet",
+   "sha": "2e5071493e9f7a1c"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00050.parquet",
+   "sha": "1b2de1e54d6bc65a"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00051.parquet",
+   "sha": "d9b28c81c84e25f8"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00052.parquet",
+   "sha": "fa42363fbf9f54ed"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00053.parquet",
+   "sha": "cce1442e35f4a2d8"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00054.parquet",
+   "sha": "215f8510263c9588"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00055.parquet",
+   "sha": "6b3f39a05be38933"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00056.parquet",
+   "sha": "10e9fb74b9c426b2"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00057.parquet",
+   "sha": "dbf5a89185efc1da"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00058.parquet",
+   "sha": "c3fa02a1ea5bd7c3"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00059.parquet",
+   "sha": "9b035790241672e0"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00060.parquet",
+   "sha": "0d0055ede1dc4b88"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00061.parquet",
+   "sha": "fdb04a2d4e13e626"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00062.parquet",
+   "sha": "8298d88feecebd62"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00063.parquet",
+   "sha": "39f5c162815817f1"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00064.parquet",
+   "sha": "a7cce6f6ae3b935c"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00065.parquet",
+   "sha": "71f390349737c93b"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00066.parquet",
+   "sha": "09b0f493bf627519"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00067.parquet",
+   "sha": "c979fc524bfb05d2"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00068.parquet",
+   "sha": "93f3237d444087a5"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00069.parquet",
+   "sha": "9d2c4e2050a9a514"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00070.parquet",
+   "sha": "64092619a13fffd5"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00071.parquet",
+   "sha": "83c0e17e6aad67b2"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00072.parquet",
+   "sha": "9d6ea72e1425f6fb"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00073.parquet",
+   "sha": "6588072d606f6d9e"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00074.parquet",
+   "sha": "22bf14f700c79b33"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00075.parquet",
+   "sha": "796d79abd33fae2c"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00076.parquet",
+   "sha": "11868550c5abc1e3"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00077.parquet",
+   "sha": "ce4159fc6998b8fc"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00078.parquet",
+   "sha": "fb967a2842b1c187"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00079.parquet",
+   "sha": "a6b9cf8eeb987f9c"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00080.parquet",
+   "sha": "d3d2c858d60710bd"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00081.parquet",
+   "sha": "f68c73178814ab65"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00082.parquet",
+   "sha": "ec2e4a2987eff4c0"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00083.parquet",
+   "sha": "5497cb60c1c933b1"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00084.parquet",
+   "sha": "24ab9c5338fba1ad"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00085.parquet",
+   "sha": "ccd21036b7f83738"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00086.parquet",
+   "sha": "9597ed3d6699655f"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00087.parquet",
+   "sha": "33d8d236dcffa0f6"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00088.parquet",
+   "sha": "d6c6d2d896a81594"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00089.parquet",
+   "sha": "ad01a8d3306f58d6"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00090.parquet",
+   "sha": "91fe86d682dd79f3"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00091.parquet",
+   "sha": "bb646e44e3a2fdbe"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00092.parquet",
+   "sha": "2a9df396d2bbc19c"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00093.parquet",
+   "sha": "b5ac0f2cb9176deb"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00094.parquet",
+   "sha": "9b522d6abb8b2d92"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00095.parquet",
+   "sha": "03dbee6c43a65601"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00096.parquet",
+   "sha": "61560e2acbaa5a29"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00097.parquet",
+   "sha": "bc110267c786bbcd"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00098.parquet",
+   "sha": "1c7feed0e90ffe1d"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00099.parquet",
+   "sha": "126d1152cb038816"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00100.parquet",
+   "sha": "a0e403b19d9b35fe"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00101.parquet",
+   "sha": "72420d10f7d4c102"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00102.parquet",
+   "sha": "f2155dc72dac39cf"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00103.parquet",
+   "sha": "36ade74f940782a9"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00104.parquet",
+   "sha": "f71e4185f986a8b4"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00105.parquet",
+   "sha": "d69761db03039739"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00106.parquet",
+   "sha": "45123bb1afc36cd9"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00107.parquet",
+   "sha": "1d19cd4097720f3f"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00108.parquet",
+   "sha": "b6af88fdc86cb696"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00109.parquet",
+   "sha": "f34c8c4088192284"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00110.parquet",
+   "sha": "ce13c44c1cba6704"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00111.parquet",
+   "sha": "ce2997cf9c68909a"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00112.parquet",
+   "sha": "0c0f8a08bea09d58"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00113.parquet",
+   "sha": "7558670394a5d12f"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00114.parquet",
+   "sha": "51a157a39c5c41b9"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00115.parquet",
+   "sha": "491cf5207233e505"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00116.parquet",
+   "sha": "22dc18d8716d2471"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00117.parquet",
+   "sha": "875c369f2799e69f"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00118.parquet",
+   "sha": "c097ce5947edcade"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00119.parquet",
+   "sha": "b12f5f2e9a095dcc"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00120.parquet",
+   "sha": "3356547fa5536199"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00121.parquet",
+   "sha": "afeecad768cba39b"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00122.parquet",
+   "sha": "2d0815ee407ef3c5"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00123.parquet",
+   "sha": "8bcfd3d625bc82b5"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00124.parquet",
+   "sha": "5d68f7fba12ca593"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00125.parquet",
+   "sha": "f0c41194eef91610"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00126.parquet",
+   "sha": "0c3770ea464c9864"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00127.parquet",
+   "sha": "cbd2364dffff6782"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00128.parquet",
+   "sha": "7ed24c6e91346ad1"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00129.parquet",
+   "sha": "d9f8b1e11d4f1235"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00130.parquet",
+   "sha": "68e84aa09f5d5dd7"
+  },
+  {
+   "path": "/v/traits/full/t2/tier2_shard_00131.parquet",
+   "sha": "532366ce7659ec18"
+  }
+ ],
+ "gates": [
+  {
+   "name": "transient_failures",
+   "value": 0,
+   "ok": true
+  },
+  {
+   "name": "excluded_species_frac<=0.05",
+   "value": 0.0042,
+   "ok": true
+  }
+ ],
+ "extra": {
+  "n_failed": 0,
+  "tier1_failed_before_retry": 0,
+  "dead_rate": 0.11793647879566733,
+  "n_tried": 136175,
+  "frac_species_lt30": 0.044585987261146494,
+  "n_excluded_lt20": 10,
+  "excluded_frac": 0.004246284501061571,
+  "min_photos_any_species": 3,
+  "excluded_vs_retained": {
+   "Height": {
+    "excluded_mean_log": 1.497779620323413,
+    "retained_mean_log": 0.5313461536573367
+   },
+   "LeafArea": {
+    "excluded_mean_log": 3.1079523624553826,
+    "retained_mean_log": 2.2254668950255905
+   },
+   "SLA": {
+    "excluded_mean_log": 2.655720361171565,
+    "retained_mean_log": 2.6585655753802446
+   },
+   "Leaf_N": {
+    "excluded_mean_log": 2.996952505083665,
+    "retained_mean_log": 3.0221838780220045
+   }
+  },
+  "dead_vs_trait_spearman": {
+   "Height": 0.19475594809224173,
+   "LeafArea": 0.15034124415878003,
+   "SLA": -0.060663092683600144,
+   "Leaf_N": -0.06807835617450611
+  },
+  "seconds": 3193.4
+ }
+}
