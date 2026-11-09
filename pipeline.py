@@ -29,6 +29,7 @@ CFG = {
 }
 
 # ---------------------------------------------------------------- manifest utilities
+def base(mode): return "full" if mode.startswith("full") else "smoke"
 def _h(obj): return hashlib.sha256(json.dumps(obj, sort_keys=True, default=str).encode()).hexdigest()[:16]
 def _fsha(p):
     h = hashlib.sha256()
@@ -113,7 +114,7 @@ def s1_select(mode):
     fl = list(feas); ov = [s for s in fl if bins[s] in bio]; rest = [s for s in fl if s not in set(ov)]
     np.random.default_rng(0).shuffle(rest); chosen = (ov + rest)[:CFG["n_species"]]
     ntr, nte = NTR, NTE
-    if mode == "smoke": chosen = chosen[:CFG["smoke"]["n_species"]]; ntr, nte = CFG["smoke"]["n_train"], CFG["smoke"]["n_test"]
+    if base(mode) == "smoke": chosen = chosen[:CFG["smoke"]["n_species"]]; ntr, nte = CFG["smoke"]["n_train"], CFG["smoke"]["n_test"]
     rows = []
     for sid in chosen:
         test, ok = feas[sid]; g = pn[pn.species_id == sid]
@@ -126,7 +127,7 @@ def s1_select(mode):
     cell = sel.groupby(['species_id', 'organ', 'split']).size()
     leak = sum(len(set(g[g.split == 'train'].author) & set(g[g.split == 'test'].author)) for _, g in sel.groupby('species_id'))
     exp = {"train": ntr, "test": nte}
-    gates = [_gate("n_species", int(sel.species_id.nunique()), sel.species_id.nunique() == len(chosen) and len(chosen) >= (5 if mode == "smoke" else 250)),
+    gates = [_gate("n_species", int(sel.species_id.nunique()), sel.species_id.nunique() == len(chosen) and len(chosen) >= (5 if base(mode) == "smoke" else 250)),
              _gate("cell_sizes_exact", int((cell != [exp[s] for s in cell.index.get_level_values('split')]).sum()), all(cell.values == [exp[s] for s in cell.index.get_level_values('split')])),
              _gate("author_leak", leak, leak == 0), _gate("dup_image", int(sel.image_name.duplicated().sum()), not sel.image_name.duplicated().any()),
              _gate("dup_obs", int(sel.obs_id.duplicated().sum()), not sel.obs_id.duplicated().any())]
@@ -144,9 +145,9 @@ def s2_fetch(mode, crash_after_shards: int = -1):
     key = _key("s2_fetch", mode, {"s1": _in(mode, "s1")})
     if _valid(mode, "s2", key): return "SKIP"
     d = _dir(mode, "s2"); sel = pd.read_parquet(f"{_dir(mode,'s1')}/sel.parquet")
-    names = sel.image_name.tolist(); dl = dict(zip(sel.image_name, sel.dl)); S = CFG["shard"][mode]
+    names = sel.image_name.tolist(); dl = dict(zip(sel.image_name, sel.dl)); S = CFG["shard"][base(mode)]
     legacy = {}
-    if os.path.exists(f"{V}/pc_sel.parquet"):                     # legacy cache: idx -> image_name
+    if os.path.exists(f"{V}/pc_sel.parquet") and not mode.endswith("_nocache"):                     # legacy cache: idx -> image_name
         old = pd.read_parquet(f"{V}/pc_sel.parquet"); want = set(names)
         idx2name = {i: n for i, n in zip(old.index, old.image_name) if n in want}
         for f in sorted(glob.glob(f"{V}/pcimg/*.parquet")):
@@ -188,7 +189,7 @@ def s2_fetch(mode, crash_after_shards: int = -1):
         ok_names |= {n for n, b in zip(t['image_name'], t['bytes']) if b is not None}
     succ = len(ok_names) / len(names)
     sel['ok'] = sel.image_name.isin(ok_names)
-    exp = {"train": CFG["n_train"] if mode == "full" else CFG["smoke"]["n_train"], "test": CFG["n_test"] if mode == "full" else CFG["smoke"]["n_test"]}
+    exp = {"train": CFG["n_train"] if base(mode) == "full" else CFG["smoke"]["n_train"], "test": CFG["n_test"] if base(mode) == "full" else CFG["smoke"]["n_test"]}
     cf = sel.groupby(['species_id', 'organ', 'split']).ok.sum().reset_index(); cf['min'] = cf.split.map(exp) * CFG["cell_min_frac"]
     bad_cells = int((cf.ok < cf['min']).sum())
     gates = [_gate("success_rate", round(succ, 5), succ >= CFG["fetch_min_success"]), _gate("cells_below_90pct", bad_cells, bad_cells == 0),
@@ -247,7 +248,7 @@ def s3_features(mode, model, sample_n: int = 0, tag: str = ""):
     fz = feats["final"]
     if not sample_n:
         m = sel.reset_index(drop=True); fl = (m.organ == 'flower').values
-        sp = sorted(m.species_id.unique())[:20 if mode == "full" else 5]
+        sp = sorted(m.species_id.unique())[:20 if base(mode) == "full" else 5]
         msk = fl & m.species_id.isin(sp).values; tr = msk & (m.split == 'train').values; te = msk & (m.split == 'test').values
         z = fz / np.linalg.norm(fz, axis=1, keepdims=True)
         mu = np.stack([z[tr & (m.species_id == s).values].mean(0) for s in sp])
@@ -257,7 +258,7 @@ def s3_features(mode, model, sample_n: int = 0, tag: str = ""):
     gates = [_gate("finite", finite, finite), _gate("nonzero_std", min(stds.values()), min(stds.values()) > 1e-6),
              _gate("n_rows", len(names), len(names) == len(sel))]
     if acc is not None:
-        fac = 3 if mode == "full" else 2
+        fac = 3 if base(mode) == "full" else 2
         gates.append(_gate(f"mini_probe_acc_vs_{fac}x_chance", [round(acc, 3), round(fac * chance, 3)], acc >= fac * chance))
     _write_man(mode, stage, key, [out], gates, {"layers": [i + 1 for i in idx], "dim": int(fz.shape[1]), "std_final": stds["final"]}); return "PASS"
 
@@ -280,8 +281,8 @@ def s4_probes(mode, pair, tag: str = ""):
     M = sel.organ.isin(['flower', 'leaf']).values; m = sel[M].reset_index(drop=True)
     F = {'A': fa[M], 'D': fd[M], 'AD': np.hstack([fa[M], fd[M]]), 'Anull': np.hstack([fa[M], aa[M]]), 'Dnull': np.hstack([fd[M], ad[M]])}
     tr = (m.split == 'train').values; y = m.species_id.values; corr = {}
-    for k in CFG["k_grid"][mode]:
-        nmax = CFG["n_train"] if mode == "full" else CFG["smoke"]["n_train"]
+    for k in CFG["k_grid"][base(mode)]:
+        nmax = CFG["n_train"] if base(mode) == "full" else CFG["smoke"]["n_train"]
         for seed in (range(3) if k < nmax else [0]):
             for o1 in ['flower', 'leaf']:
                 pool = m[tr & (m.organ == o1).values]
@@ -293,7 +294,7 @@ def s4_probes(mode, pair, tag: str = ""):
                         cl, pr = lr_fit(X[idx], y[idx], X[te], lams=lams, seed=seed)
                         P[f] = pr; corr.setdefault((k, o1, o2, f), []).append(cl[pr.argmax(1)] == y[te])
                     corr.setdefault((k, o1, o2, 'late'), []).append(cl[(P['A'] + P['D']).argmax(1)] == y[te])
-    rng_seed = 0; NB = CFG["n_boot"][mode]
+    rng_seed = 0; NB = CFG["n_boot"][base(mode)]
     def bd(c1, c2):
         r = np.random.default_rng(rng_seed); d = [c1[i].mean() - c2[i].mean() for i in (r.integers(0, len(c1), len(c1)) for _ in range(NB))]
         return [float(c1.mean() - c2.mean()), float(np.percentile(d, 2.5)), float(np.percentile(d, 97.5))]
@@ -308,7 +309,7 @@ def s4_probes(mode, pair, tag: str = ""):
     chance = 1 / m.species_id.nunique()
     out = f"{_dir(mode, stage)}/rows.json"; json.dump(rows, open(out, "w"), indent=1, sort_keys=True)
     accs = [r[x] for r in rows for x in ('accA', 'accD')]
-    kmax = max(r['k'] for r in rows); fac = 3 if mode == "full" else 2
+    kmax = max(r['k'] for r in rows); fac = 3 if base(mode) == "full" else 2
     easy = [r[x] for r in rows if r['within'] and r['k'] == kmax for x in ('accA', 'accD')]
     gates = [_gate("all_finite", bool(np.isfinite(accs).all()), np.isfinite(accs).all()),
              _gate(f"easy_setting_acc_vs_{fac}x_chance", [round(min(easy), 4), round(fac * chance, 4)], min(easy) > fac * chance + 1e-9)]
@@ -361,6 +362,20 @@ def status(mode):
         if m: out.append(f"{st:16s} {m['status']:4s} {m['time']}  " + " | ".join(f"{g['name']}={g['value']}" for g in m['gates']))
         else: out.append(f"{st:16s} INCOMPLETE")
     return "\n".join(out)
+
+@app.function(image=IMG, volumes={V: vol}, timeout=600)
+def compare_s2(mode_a, mode_b):
+    vol.reload(); import glob, pyarrow.parquet as pq
+    def h(mode):
+        out = {}
+        for p in sorted(glob.glob(f"{_dir(mode,'s2')}/shard_*.parquet")):
+            t = pq.read_table(p).to_pydict()
+            for n, b, st in zip(t['image_name'], t['bytes'], t['status']): out[n] = (hashlib.sha256(b).hexdigest() if b else None, st)
+        return out
+    a, b = h(mode_a), h(mode_b)
+    return {"n_a": len(a), "n_b": len(b), "same_keys": set(a) == set(b), "byte_identical": sum(a[k][0] == b.get(k, (None,))[0] for k in a),
+            "status_a": {s: sum(v[1] == s for v in a.values()) for s in ("cache", "net", "404", "fail")}, "status_b": {s: sum(v[1] == s for v in b.values()) for s in ("cache", "net", "404", "fail")},
+            "man_a": (_read_man(mode_a, "s2") or {}).get("status"), "man_b": (_read_man(mode_b, "s2") or {}).get("status")}
 
 @app.local_entrypoint()
 def main(mode: str = "smoke", upto: str = "s4", crash_after_shards: int = -1, show: int = 0):
