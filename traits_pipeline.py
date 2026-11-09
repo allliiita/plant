@@ -9,7 +9,7 @@ IMG = (modal.Image.debian_slim(python_version="3.11")
        .pip_install("torch==2.5.1", "torchvision==0.20.1", "timm==1.0.20", "huggingface_hub==0.34.4", "numpy==1.26.4",
                     "pandas==2.2.3", "pyarrow==17.0.0", "pillow==10.4.0", "scipy==1.13.1"))
 TRAITS = ["Height", "LeafArea", "SLA", "Leaf_N"]
-CFG = {"min_photos": 30, "n_photos": 30, "n_cand": 45, "conf_min": 90, "smoke_species": 60, "shard": 500, "threads": 48, "t1_min_species": 2000,
+CFG = {"min_photos": 30, "n_photos": 30, "n_cand": None, "max_excluded_frac": 0.05, "conf_min": 90, "smoke_species": 60, "shard": 500, "threads": 48, "t1_min_species": 2000,
        "retry_rounds": 3, "min_photos_after_fetch": 20, "alphas": [10 ** (x / 2) for x in range(-2, 9)],
        "n_boot": {"full": 2000, "smoke": 100}, "backbone": "vit_base_patch16_224.augreg_in1k"}
 
@@ -82,7 +82,7 @@ def t1_select(mode):
     rows = []
     for s in sp:
         x = d[d.Species == s].drop_duplicates("pid").sort_values("pid")
-        c = x.iloc[np.random.default_rng(0).permutation(len(x))[:CFG["n_cand"]]][["Species", "pid"]].copy(); c["rank"] = np.arange(len(c)); rows.append(c)
+        c = x.iloc[np.random.default_rng(0).permutation(len(x))][["Species", "pid"]].copy(); c["rank"] = np.arange(len(c)); rows.append(c)
     sel = pd.concat(rows).merge(g[["Species", "genus", "family", "order", "speciesKey"]], on="Species").merge(lab, left_on="Species", right_index=True)
     sel["link_group"] = sel.Species.map(link_group)
     sel = sel.sort_values(["Species", "rank"]).reset_index(drop=True)
@@ -159,8 +159,12 @@ def t2_fetch(mode):
     t1 = sel[sel["rank"] < CFG["n_photos"]].groupby("Species").agg(dead=("status", lambda x: (x == "deleted").mean()), **{t: (f"{t}_median", "first") for t in TRAITS})
     from scipy.stats import spearmanr
     dead_vs_trait = {t: float(spearmanr(t1.dead, np.log(t1[t])).correlation) for t in TRAITS}
-    gates = [_gate("transient_failures", n_failed, n_failed == 0), _gate("min_photos_per_species", mn, mn >= CFG["min_photos_after_fetch"])]
-    _write(mode, "t2", key, shards, gates, {"dead_rate": round(dead, 4), "n_tried": len(tried), "frac_species_lt30": round(float((per < CFG["n_photos"]).mean()), 4),
+    excl = per[per < CFG["min_photos_after_fetch"]].index; ex_frac = float(len(excl) / len(per))
+    lab_ = sel.drop_duplicates("Species").set_index("Species")
+    ex_cmp = {t: {"excluded_mean_log": float(np.log(lab_.loc[excl, f"{t}_median"]).mean()) if len(excl) else None,
+                  "retained_mean_log": float(np.log(lab_.drop(index=excl)[f"{t}_median"]).mean())} for t in TRAITS}
+    gates = [_gate("transient_failures", n_failed, n_failed == 0), _gate("excluded_species_frac<=0.05", round(ex_frac, 4), ex_frac <= CFG["max_excluded_frac"])]
+    _write(mode, "t2", key, shards, gates, {"n_excluded_lt20": int(len(excl)), "excluded_vs_retained": ex_cmp, "min_photos_any_species": mn, "dead_rate": round(dead, 4), "n_tried": len(tried), "frac_species_lt30": round(float((per < CFG["n_photos"]).mean()), 4),
                                             "dead_vs_trait_spearman": dead_vs_trait, "tier1_failed_before_retry": n_fail1}); return "PASS"
 
 # ------------------------------------------------------------------ T3 features + organ probabilities
@@ -173,11 +177,16 @@ def t3_features(mode):
     torch.backends.cuda.matmul.allow_tf32 = False; torch.backends.cudnn.allow_tf32 = False
     key = _key("t3_features", mode, {"t2": _in(mode, "t2"), "organ": _fsha(f"{V}/organ_clf.pt")})
     if _valid(mode, "t3", key): return "SKIP"
-    B = {}
+    B, ST = {}, {}
     for p in sorted(glob.glob(f"{_d(mode,'t2')}/tier*_shard_*.parquet")):
         t = pq.read_table(p).to_pydict(); B.update({a: b for a, b, c in zip(t["pid"], t["bytes"], t["status"]) if c == "ok"})
+        if "/tier1_" in p: ST.update(zip(t["pid"], t["status"]))
     sel = pd.read_parquet(f"{_d(mode,'t1')}/sel.parquet"); sel = sel[sel.pid.isin(B)].sort_values(["Species", "rank"])
     sel = sel.groupby("Species").head(CFG["n_photos"]).reset_index(drop=True)
+    cnt = sel.groupby("Species").size(); keep = cnt[cnt >= CFG["min_photos_after_fetch"]].index; n_excl = int((cnt < CFG["min_photos_after_fetch"]).sum())
+    sel = sel[sel.Species.isin(keep)].reset_index(drop=True)
+    s1 = pd.read_parquet(f"{_d(mode,'t1')}/sel.parquet"); s1 = s1[s1["rank"] < CFG["n_photos"]]; s1["st"] = s1.pid.map(ST)
+    dead = s1.groupby("Species").st.apply(lambda x: float((x == "deleted").mean())).reindex(sorted(keep))
     net = timm.create_model(CFG["backbone"], pretrained=True, num_classes=0).cuda().eval().float()
     pre = timm.data.create_transform(**timm.data.resolve_data_config({}, model=net))
     class DS(torch.utils.data.Dataset):
@@ -188,9 +197,9 @@ def t3_features(mode):
         for x in torch.utils.data.DataLoader(DS(), batch_size=128, num_workers=4, shuffle=False): F.append(net(x.cuda()).float().cpu())
     F = torch.cat(F); oc = torch.load(f"{V}/organ_clf.pt")
     P = torch.softmax(((F - oc["mu"]) / oc["sd"]) @ oc["W"] + oc["b"], 1).numpy(); F = F.numpy().astype(np.float32)
-    out = f"{_d(mode,'t3')}/feats.npz"; np.savez(out, pid=sel.pid.values, X=F, p_leaf=P[:, oc["classes"].index("leaf")], p_habit=P[:, oc["classes"].index("habit")])
+    out = f"{_d(mode,'t3')}/feats.npz"; np.savez(out, pid=sel.pid.values, X=F, dead_species=np.array(dead.index), dead_rate=dead.values, p_leaf=P[:, oc["classes"].index("leaf")], p_habit=P[:, oc["classes"].index("habit")])
     gates = [_gate("finite", bool(np.isfinite(F).all()), np.isfinite(F).all()), _gate("n_rows", len(F), len(F) == len(sel))]
-    _write(mode, "t3", key, [out], gates, {"dim": int(F.shape[1]), "mean_p_leaf": float(P[:, 0].mean())}); return "PASS"
+    _write(mode, "t3", key, [out], gates, {"n_species_kept": int(len(keep)), "n_species_excluded_lt20": n_excl, "dim": int(F.shape[1]), "mean_p_leaf": float(P[:, 0].mean())}); return "PASS"
 
 # ------------------------------------------------------------------ T4 analysis
 def _ridge_fit(X, Y, alphas):
@@ -207,7 +216,7 @@ def t4_analysis(mode, tag: str = ""):
     st = f"t4{tag}"
     key = _key("t4_analysis", mode, {"t1": _in(mode, "t1"), "t3": _in(mode, "t3"), "ridge": _h(_src("_ridge_fit"))})
     if _valid(mode, st, key): return "SKIP"
-    with np.load(f"{_d(mode,'t3')}/feats.npz", allow_pickle=True) as z: pid, X, pl, ph = z["pid"], z["X"].astype(np.float64), z["p_leaf"], z["p_habit"]
+    with np.load(f"{_d(mode,'t3')}/feats.npz", allow_pickle=True) as z: pid, X, pl, ph, dsp, drate = z["pid"], z["X"].astype(np.float64), z["p_leaf"], z["p_habit"], z["dead_species"], z["dead_rate"]
     assert len(set(pid)) == len(pid), "duplicate pids in features"
     sel = pd.read_parquet(f"{_d(mode,'t1')}/sel.parquet").set_index("pid").loc[pid].reset_index()
     sp = sorted(sel.Species.unique()); si = sel.Species.map({s: i for i, s in enumerate(sp)}).values
@@ -307,6 +316,11 @@ def t4_analysis(mode, tag: str = ""):
         w, b = _ridge_fit(Xs[tr], Yimg[tr], [100.0])[100.0]; Pr[te] = Xs[te] @ w + b
     res["warmup_seen"] = {t: {"r2_lookup_img": float(1 - ((Yimg[:, j] - Pl[:, j]) ** 2).sum() / ((Yimg[:, j] - Yimg[:, j].mean()) ** 2).sum()),
                               "r2_regress_img": float(1 - ((Yimg[:, j] - Pr[:, j]) ** 2).sum() / ((Yimg[:, j] - Yimg[:, j].mean()) ** 2).sum())} for j, t in enumerate(TRAITS)}
+    # sensitivity (v7.3): primary stratum restricted to species with tier-1 dead rate <= median (same out-of-fold predictions)
+    dr = pd.Series(drate, index=dsp).reindex(sp).values; low = dr <= np.nanmedian(dr); S0 = store["Species"]; gmask = S0["used"] == "genus"
+    res["sensitivity_low_dead"] = {t: {"n": int((gmask & low).sum()), "d_img_minus_imp": boot_diff(S0["img"], S0["imp"], gmask & low, j)} for j, t in enumerate(TRAITS)}
+    from scipy.stats import spearmanr
+    res["dead_vs_trait_spearman_full"] = {t: float(spearmanr(dr, Y[:, j]).correlation) for j, t in enumerate(TRAITS)}
     # primary test: Species-level CV, genus-imputed stratum, Holm over 4 traits (one-sided bootstrap p)
     pv = {t: res["Species"][f"genus_imputed|{t}"]["d_img_minus_imp"][3] for t in TRAITS if f"genus_imputed|{t}" in res["Species"]}
     order_ = sorted(pv, key=pv.get); verdict = {}; stop = False

@@ -209,3 +209,9 @@ Height rule: genus imputation already explains R² .88. If Height ΔR² CI exclu
 Leaf_N rule unchanged (anomalous → inspect).
 Deferred to round 2 and stated as limitations in the report: no scratch-trained CNN control (cannot fully exclude plant signal inherited from ImageNet pretraining);
 no AusTraits aspect-ratio control (cannot separate "images uninformative" from "photos lack scale").
+### v7.3 amendment (2026-11-10; before any analysis result)
+Smoke: deletions are clustered (whole observers), not independent: dead 10.4%, 11.7% spp <30 photos, min 14; dead rate vs log trait Spearman (n=60): Height .29, LA .16, N .12, SLA .01.
+Changes: tier-2 uses ALL remaining photos of short species (seeded order; ranks 0–44 unchanged). Species with <20 photos after tier-2 are EXCLUDED (pre-registered rule);
+gate: excluded fraction ≤5% (else stop). Report excluded vs retained mean log traits.
+Selection-bias checks (mandatory): dead-rate vs trait Spearman on full set; sensitivity = primary stratum restricted to species with tier-1 dead rate ≤ median
+(same out-of-fold predictions, no refit). If any |ρ| > 0.1, the report contains a dedicated selection-bias paragraph.
