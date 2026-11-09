@@ -193,6 +193,7 @@ def analyze(pid, X, pl, ph, dead_species, dead_rate, sel, cfg, n_boot):
     rng = np.random.default_rng(0); BW = [np.bincount(rng.integers(0, len(ug), len(ug)), minlength=len(ug)) for _ in range(n_boot)]
     def r2(p, m, j): y = Y[m, j]; return float(1 - ((y - p[m, j]) ** 2).sum() / ((y - y.mean()) ** 2).sum())
     def boot_diff(pa, pb, m, j):
+        if m.sum() < 10: return [None, None, None, None]               # too few species: not estimated
         y = Y[:, j]; ea = (y - pa[:, j]) ** 2; eb = (y - pb[:, j]) ** 2; out = []
         for w in BW:
             ws = w[gidx] * m
@@ -230,7 +231,8 @@ def analyze(pid, X, pl, ph, dead_species, dead_rate, sel, cfg, n_boot):
     from scipy.stats import spearmanr
     res["dead_vs_trait_spearman_full"] = {t: float(spearmanr(dr, Y[:, j]).correlation) for j, t in enumerate(TRAITS)}
     # internal Holm (used only to trigger checks; reporting uses ΔR², CI, MDE)
-    pv = {t: res["Species"][f"genus_imputed|{t}"]["d_img_minus_imp"][3] for t in TRAITS if f"genus_imputed|{t}" in res["Species"]}
+    pv = {t: res["Species"][f"genus_imputed|{t}"]["d_img_minus_imp"][3] for t in TRAITS
+          if f"genus_imputed|{t}" in res["Species"] and res["Species"][f"genus_imputed|{t}"]["d_img_minus_imp"][3] is not None}
     verdict, stop = {}, False
     for i, t in enumerate(sorted(pv, key=lambda k: (pv[k], k))):
         thr = 0.05 / (len(pv) - i); sig = (not stop) and pv[t] <= thr; stop = stop or not sig

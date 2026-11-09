@@ -161,6 +161,16 @@ def t_known_answer_complementary(C):
         assert e["d_inc_minus_imp"][1] > 0.1, f"stacking misses complementary signal ({t}: {e['d_inc_minus_imp']})"
         assert e["r2_inc"] > e["r2_img"] + 0.1, f"stacking not better than image-only when images lack genus info ({t})"
 
+def t_small_and_varied(C):
+    """few species, one per genus mostly (tiny genus-imputed stratum), varied dead rates: must not crash; tiny strata reported as None"""
+    pid, X, pl, ph, dsp, dr, sel = synth_analysis("signal", n_genus=14, per_genus=2, imgs=6)
+    dr = np.linspace(0, 0.5, len(dsp))
+    res, *_ = C.analyze(pid, X, pl, ph, dsp, dr, sel, CFG, n_boot=50)
+    for t in T:
+        v = res["sensitivity_low_dead"][t]["d_img_minus_imp"]
+        assert v[0] is None or len(v) == 4
+    json.dumps(res, default=str)
+
 def t_analysis_deterministic(C):
     a = json.dumps(C.analyze(*synth_analysis("signal", n_genus=30), CFG, n_boot=100)[0], sort_keys=True, default=str)
     b = json.dumps(C.analyze(*synth_analysis("signal", n_genus=30), CFG, n_boot=100)[0], sort_keys=True, default=str)
@@ -173,7 +183,7 @@ def t_duplicate_pid_rejected(C):
     raise AssertionError("duplicate pids accepted")
 
 TESTS = [t_select_rules, t_select_hashseed, t_fetch_resume_identical, t_fetch_transient_retried, t_fetch_stale_and_legacy, t_exclusion,
-         t_impute_no_leak, t_folds_links, t_known_answer_taxonomy_only, t_known_answer_signal, t_known_answer_complementary, t_analysis_deterministic, t_duplicate_pid_rejected]
+         t_impute_no_leak, t_folds_links, t_known_answer_taxonomy_only, t_known_answer_signal, t_known_answer_complementary, t_small_and_varied, t_analysis_deterministic, t_duplicate_pid_rejected]
 
 def run(C, tests=TESTS, quiet=False):
     fails = []
@@ -196,6 +206,7 @@ MUTATIONS = {
     "M10 no <20 exclusion": ('keep = sorted(cnt[cnt >= cfg["min_photos_after_fetch"]].index)', 'keep = sorted(cnt.index)'),
     "M11 duplicate pids accepted": ('assert len(set(pid)) == len(pid), "duplicate pids in features"', 'pass'),
     "M13 incremental without imputation covariate": ('pr, _ = fit_predict(tr, te, level, Y, Zsp); P_inc += pr', 'pr, _ = fit_predict(tr, te, level, Y); P_inc += pr'),
+    "M14 bootstrap on tiny strata": ('        if m.sum() < 10: return [None, None, None, None]               # too few species: not estimated\n', ''),
     "M12 transient treated as deleted": ('rr = map_fn(getter, [chunk[i] for i in bad])', 'rr = [(chunk[i], None, "deleted") for i in bad]'),
 }
 
