@@ -23,3 +23,4 @@
 - POST HOC (user-approved, flagged): adapter+proto vs strongest training-free baseline (M1+LR) with shared cluster bootstrap; computed by rerunning primaries with tag _ph after the main run; main numbers must reproduce exactly.
 - STOP (user): secondary backbones, byte reruns, and _ph rerun cancelled. Post hoc strongest-baseline CI computed from summaries as conservative unpaired approximation (independence assumption).
 - smoke T2 crash: stale legacy shards; also tier2 'short' set could include stale tier2 results (nondeterminism). Fixed: decide from tier1 statuses only; delete shards without status column.
+- v7.3 decided autonomously per user instruction.
