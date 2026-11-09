@@ -8,3 +8,4 @@
   Deviation (flagged, not pre-registered): add late-fusion Δ (mean of the two softmax outputs) as robustness readout; concat-Δ stays the pre-registered primary.
 - D2: matched cells = 2 → infeasible in main subset (as predicted); side-set deferred.
 - Pipeline gate fix: S4 chance-gate scoped to easiest setting (within-organ, max k); hard settings (k=1 cross-organ) legitimately near chance on 10-image smoke test. Threshold unchanged (2x smoke / 3x full).
+- R2 found S1 nondeterminism (author tie order via Python str hash; PYTHONHASHSEED env ineffective). Fix: explicit sorted+seeded order; new S1 gate re-runs selection in subprocess with PYTHONHASHSEED=12345 and requires identical hash.
