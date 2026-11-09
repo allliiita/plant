@@ -647,7 +647,10 @@ def split_check(mode="full"):
     fs = pd.Series([fam[x] for x in seen]).value_counts(normalize=True); fu = pd.Series([fam[x] for x in unseen]).value_counts(normalize=True)
     tvd = 0.5 * sum(abs(fs.get(f, 0) - fu.get(f, 0)) for f in set(fs.index) | set(fu.index))
     vc = pd.Series([fam[x] for x in allsp]).value_counts()
-    return {"n_fam": len(vc), "singleton_fams": int((vc == 1).sum()), "tvd": tvd, "n_seen": len(seen), "n_unseen": len(unseen)}
+    st = lambda x: fam[x] if vc[fam[x]] > 1 else "_other"
+    ss = pd.Series([st(x) for x in seen]).value_counts(normalize=True); su = pd.Series([st(x) for x in unseen]).value_counts(normalize=True)
+    tvd_st = 0.5 * sum(abs(ss.get(f, 0) - su.get(f, 0)) for f in set(ss.index) | set(su.index))
+    return {"tvd_strata": tvd_st, "n_fam": len(vc), "singleton_fams": int((vc == 1).sum()), "tvd": tvd, "n_seen": len(seen), "n_unseen": len(unseen)}
 
 @app.local_entrypoint()
 def main(mode: str = "smoke", upto: str = "s4", crash_after_shards: int = -1, show: int = 0, cmp: str = ""):
