@@ -378,6 +378,7 @@ def compare_s2(mode_a, mode_b):
             "man_a": (_read_man(mode_a, "s2") or {}).get("status"), "man_b": (_read_man(mode_b, "s2") or {}).get("status")}
 
 @app.local_entrypoint()
-def main(mode: str = "smoke", upto: str = "s4", crash_after_shards: int = -1, show: int = 0):
+def main(mode: str = "smoke", upto: str = "s4", crash_after_shards: int = -1, show: int = 0, cmp: str = ""):
     if show: print(status.remote(mode)); return
+    if cmp: print(json.dumps(compare_s2.remote(mode, cmp))); return
     print(orchestrate.remote(mode, upto, crash_after_shards))
