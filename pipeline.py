@@ -406,8 +406,26 @@ def compare_s2(mode_a, mode_b):
             "status_a": {s: sum(v[1] == s for v in a.values()) for s in ("cache", "net", "404", "fail")}, "status_b": {s: sum(v[1] == s for v in b.values()) for s in ("cache", "net", "404", "fail")},
             "man_a": (_read_man(mode_a, "s2") or {}).get("status"), "man_b": (_read_man(mode_b, "s2") or {}).get("status")}
 
+@app.function(image=IMG, volumes={V: vol}, timeout=6 * 3600)
+def reliability(mode="full"):
+    import numpy as np
+    out = {}
+    for p in CFG["pairs"]:                                    # R3: rerun S4 into a separate stage, compare bytes
+        s4_probes.remote(mode, p, "_r3"); vol.reload()
+        a, b = f"{_dir(mode, 's4_'+p)}/rows.json", f"{_dir(mode, 's4_'+p+'_r3')}/rows.json"
+        out[f"R3_{p}_identical"] = _fsha(a) == _fsha(b)
+    for mdl in ["bioclip", "dinov3_l"]:                      # R4: extract 500 imgs twice, compare to each other and to full run
+        for t in ("_r4a", "_r4b"): s3_features.remote(mode, mdl, 500, t)
+        vol.reload()
+        A = np.load(f"{_dir(mode, 's3_'+mdl+'_r4a')}/feats.npz"); B = np.load(f"{_dir(mode, 's3_'+mdl+'_r4b')}/feats.npz"); F = np.load(f"{_dir(mode, 's3_'+mdl)}/feats.npz")
+        out[f"R4_{mdl}_maxdiff_rerun"] = float(max(np.abs(A[k] - B[k]).max() for k in A.files if k != "names"))
+        out[f"R4_{mdl}_maxdiff_vs_full"] = float(max(np.abs(A[k] - F[k][:500]).max() for k in A.files if k != "names"))
+        out[f"R4_{mdl}_finite"] = bool(all(np.isfinite(A[k]).all() for k in A.files if k != "names"))
+    json.dump(out, open(f"{V}/runs/{mode}/reliability.json", "w"), indent=1); vol.commit(); return out
+
 @app.local_entrypoint()
 def main(mode: str = "smoke", upto: str = "s4", crash_after_shards: int = -1, show: int = 0, cmp: str = ""):
     if show: print(status.remote(mode)); return
     if cmp: print(json.dumps(compare_s2.remote(mode, cmp))); return
+    if upto == "rel": print("REL", json.dumps(reliability.remote(mode))); return
     print(orchestrate.remote(mode, upto, crash_after_shards))
