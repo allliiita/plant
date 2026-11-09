@@ -195,17 +195,22 @@ def s2_fetch(mode, crash_after_shards: int = -1):
     stats = {"cache": 0, "net": 0, "404": 0, "fail": 0}; written = 0
     for si in range(0, len(names), S):
         p = f"{d}/shard_{si // S:05d}.parquet"
-        if os.path.exists(p):                                    # resume: shard already complete
-            t = pq.read_table(p, columns=['image_name', 'status']).to_pydict()
-            for s in t['status']: stats[s] += 1
-            continue
         chunk = names[si:si + S]
+        if os.path.exists(p):                                    # resume only if shard belongs to THIS input slice
+            t = pq.read_table(p, columns=['image_name', 'status']).to_pydict()
+            if t['image_name'] == chunk:
+                for s in t['status']: stats[s] += 1
+                continue
+            os.remove(p); stats.setdefault("stale_shards_rewritten", 0); stats["stale_shards_rewritten"] += 1
         with ThreadPoolExecutor(CFG["fetch_threads"]) as ex: res = list(ex.map(get, chunk))
         tbl = pa.table({'image_name': [r[0] for r in res], 'bytes': [r[1] for r in res], 'short': [r[2] for r in res], 'status': [r[3] for r in res]})
         pq.write_table(tbl, p + ".tmp"); os.replace(p + ".tmp", p); vol.commit()
         for r in res: stats[r[3]] += 1
         written += 1
         if crash_after_shards >= 0 and written > crash_after_shards: os._exit(1)   # fault injection: hard crash, no cleanup
+    nsh = -(-len(names) // S)
+    for p in sorted(glob.glob(f"{d}/shard_*.parquet")):           # remove shards beyond this input's range
+        if int(p[-13:-8]) >= nsh: os.remove(p)
     shards = sorted(glob.glob(f"{d}/shard_*.parquet"))
     ok_names = set()
     for p in shards:
