@@ -469,19 +469,19 @@ def s6_adapter(mode, model, smoke: int = 0, tag: str = ""):
                 loss = sup(same) if not cross else 0.5 * sup(same & (os_[:, None] != os_[None])) + 0.5 * sup(same)
                 opt.zero_grad(); loss.backward(); opt.step()
         with torch.no_grad(): return net(Xt).cpu().numpy().astype(np.float64)
+    IX = {kk: np.sort(v) for kk, v in sel.groupby(['species_id', 'organ', 'split']).indices.items()}
     def evaluate(Zf, species, ks, seeds_lt, clf="proto", pairs=None):
         """returns dict pair -> (per-species correct sums, counts) averaged over seeds, per k"""
-        Zn = Zf / np.linalg.norm(Zf, axis=1, keepdims=True); out = {}
+        Zn = Zf / np.linalg.norm(Zf, axis=1, keepdims=True); out = {}; spset = set(species)
         for k in ks:
             seeds = range(seeds_lt) if k < CFG["n_train"] else [0]
             for A, B in (pairs or itertools.product(ORG, ORG)):
-                sa = set(sp[np.isin(sp, species) & tr & (org == A)]); sb = set(sp[np.isin(sp, species) & ~tr & (org == B)])
-                cls = sorted(sa & sb)
+                cls = sorted(c for c in spset if (c, A, 'train') in IX and (c, B, 'test') in IX)
                 if len(cls) < 2: continue
-                q = np.where(np.isin(sp, cls) & ~tr & (org == B))[0]; acc = np.zeros(len(q))
+                q = np.concatenate([IX[(c, B, 'test')] for c in cls]); acc = np.zeros(len(q))
                 for sd_ in seeds:
                     r = np.random.default_rng(sd_)
-                    sup_idx = [r.choice(np.where((sp == c) & tr & (org == A))[0], min(k, ((sp == c) & tr & (org == A)).sum()), replace=False) for c in cls]
+                    sup_idx = [r.choice(IX[(c, A, 'train')], min(k, len(IX[(c, A, 'train')])), replace=False) for c in cls]
                     if clf == "proto":
                         Pm = np.stack([Zn[i].mean(0) for i in sup_idx]); Pm /= np.linalg.norm(Pm, axis=1, keepdims=True)
                         pred = np.array(cls)[(Zn[q] @ Pm.T).argmax(1)]
@@ -512,19 +512,21 @@ def s6_adapter(mode, model, smoke: int = 0, tag: str = ""):
     seen_gen = {gen[x] for x in seen}; gdis = [x for x in unseen if gen[x] not in seen_gen]
     results = {"split": {"n_seen": len(seen), "n_unseen": len(unseen), "n_val": len(val), "family_tvd": tvd, "n_genus_disjoint": len(gdis)}, "hp": sel_log}
     for subset_name, subset in [("unseen", unseen)] + ([("genus_disjoint", gdis)] if len(gdis) >= 40 else []):
-        R = {(m, clf): evaluate(Zs[m], subset, ks, 5, clf) for m in Zs for clf in (["proto", "lr"] if subset_name == "unseen" else ["proto"])}
+        R = {(m, "proto"): evaluate(Zs[m], subset, ks, 5, "proto") for m in Zs}
+        if subset_name == "unseen":                      # secondary classifier: k=5, core methods only (cost control, pre-declared as secondary)
+            for m in ("M0", "M1", "M3", "M3a"): R[(m, "lr")] = evaluate(Zs[m], subset, [5], 5, "lr")
         spl = sorted(subset); rng = np.random.default_rng(0); W_ = [np.bincount(rng.integers(0, len(spl), len(spl)), minlength=len(spl)) for _ in range(NB)]
         def boot(res, k, cross):
             keys = [kk for kk in res if kk[0] == k and ((kk[1] != kk[2]) == cross)]
             Sm = np.zeros((len(spl), len(keys))); Cn = np.zeros_like(Sm); pos = {s: i for i, s in enumerate(spl)}
             for j, kk in enumerate(keys):
-                df = res[kk]
-                for s_, row in df.iterrows(): Sm[pos[s_], j] = row['sum']; Cn[pos[s_], j] = row['count']
+                df = res[kk]; ii = [pos[s_] for s_ in df.index]
+                Sm[ii, j] = df['sum'].values; Cn[ii, j] = df['count'].values
             pt = np.mean(Sm.sum(0) / Cn.sum(0)); bs = np.array([np.mean((w @ Sm) / np.maximum(w @ Cn, 1e-9)) for w in W_])
             return pt, bs
         out = {}
         for (m, clf), res in R.items():
-            for k in ks:
+            for k in sorted({kk[0] for kk in res}):
                 for cross in (True, False):
                     pt, bs = boot(res, k, cross); out[(m, clf, k, cross)] = (pt, bs)
         summ = {}
@@ -534,6 +536,7 @@ def s6_adapter(mode, model, smoke: int = 0, tag: str = ""):
             for clf in (["proto", "lr"] if subset_name == "unseen" else ["proto"]):
                 for k in ks:
                     for cross in (True, False):
+                        if (a, clf, k, cross) not in out or (b, clf, k, cross) not in out: continue
                         d = out[(a, clf, k, cross)][1] - out[(b, clf, k, cross)][1]; pt = out[(a, clf, k, cross)][0] - out[(b, clf, k, cross)][0]
                         summ[f"{a}-{b}|{clf}|k{k}|{'cross' if cross else 'within'}"] = [pt, float(np.percentile(d, 2.5)), float(np.percentile(d, 97.5))]
         # per target organ (k=5 proto cross)
