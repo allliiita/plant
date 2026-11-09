@@ -543,6 +543,15 @@ def s6_adapter(mode, model, smoke: int = 0, tag: str = ""):
                         if (a, clf, k, cross) not in out or (b, clf, k, cross) not in out: continue
                         d = out[(a, clf, k, cross)][1] - out[(b, clf, k, cross)][1]; pt = out[(a, clf, k, cross)][0] - out[(b, clf, k, cross)][0]
                         summ[f"{a}-{b}|{clf}|k{k}|{'cross' if cross else 'within'}"] = [pt, float(np.percentile(d, 2.5)), float(np.percentile(d, 97.5))]
+        if subset_name == "unseen":                      # POST HOC (not pre-registered): cross-classifier comparisons vs strongest training-free baseline
+            ph = {}
+            for (a, ca), (b, cb) in [(("M3", "proto"), ("M1", "lr")), (("M3", "proto"), ("M0", "lr")), (("M3", "proto"), ("M3a", "lr")),
+                                     (("M3a", "proto"), ("M1", "lr")), (("M3", "proto"), ("M3", "lr")), (("M3", "lr"), ("M1", "lr"))]:
+                for cross in (True, False):
+                    if (a, ca, 5, cross) in out and (b, cb, 5, cross) in out:
+                        d = out[(a, ca, 5, cross)][1] - out[(b, cb, 5, cross)][1]; pt = out[(a, ca, 5, cross)][0] - out[(b, cb, 5, cross)][0]
+                        ph[f"{a}|{ca} - {b}|{cb}|k5|{'cross' if cross else 'within'}"] = [pt, float(np.percentile(d, 2.5)), float(np.percentile(d, 97.5))]
+            results["posthoc_NOT_PREREGISTERED"] = ph
         # per target organ (k=5 proto cross)
         for m in ("M3", "M1"):
             res = R[(m, "proto")]
@@ -671,6 +680,9 @@ def split_check(mode="full"):
 def main(mode: str = "smoke", upto: str = "s4", crash_after_shards: int = -1, show: int = 0, cmp: str = ""):
     if show: print(status.remote(mode)); return
     if cmp: print(json.dumps(compare_s2.remote(mode, cmp))); return
+    if upto == "s6posthoc":
+        for mdl in ["dinov3_b", "bioclip"]: print("S6PH", mdl, s6_adapter.remote(mode, mdl, 0, "_ph"), flush=True)
+        return
     if upto == "s6full": print("S6FULL", json.dumps(s6_orchestrate.remote(mode))); return
     if upto == "splitcheck": print("SPLIT", json.dumps(split_check.remote(mode))); return
     if upto.startswith("s6"):

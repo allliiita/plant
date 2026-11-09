@@ -19,3 +19,4 @@
 - EXPLORATORY (post hoc, not pre-registered): across all within-organ k>=10 settings (n=20), fusion Δ vs accuracy gap (accA−accD): Spearman −0.86 (p=1e-6); all k>=10 settings n=52: −0.90.
   Gain appears only when gap <= ~8pp. Competing account to H*: complementarity governed by performance parity, organ acts via parity.
 - s6 cost control: precomputed index; secondary LR classifier restricted to k=5 × {M0,M1,M3,M3a} (go criteria use proto only; unchanged).
+- Early stop (agreed): G1 is AND over primaries → evaluate dinov3_b first; if G1 fails, stop (NO-GO), rerun dinov3_b only for byte-check; bioclip optional for write-up.
