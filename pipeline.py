@@ -344,6 +344,60 @@ def s4_probes(mode, pair, tag: str = ""):
              _gate(f"easy_setting_acc_vs_{fac}x_chance", [round(min(easy), 4), round(fac * chance, 4)], min(easy) > fac * chance + 1e-9)]
     _write_man(mode, stage, key, [out], gates, {"n_rows": len(rows)}); return "PASS"
 
+@app.function(image=IMG, volumes={V: vol}, gpu="T4", timeout=6 * 3600, memory=32768)
+def s5_b2(mode, pair, tag: str = ""):
+    """B2: same protocol as s4_probes on rare organs; test restricted to species seen in the training organ."""
+    vol.reload()
+    import torch, numpy as np, pandas as pd
+    torch.manual_seed(0); torch.use_deterministic_algorithms(True)
+    torch.backends.cuda.matmul.allow_tf32 = False; torch.backends.cudnn.allow_tf32 = False
+    A, D = CFG["pairs"][pair]; stage = f"s5_b2_{pair}{tag}"; ORG = ['bark', 'fruit', 'habit']
+    key = _key("s5_b2", mode, {"A": _in(mode, f"s3_{A}"), "D": _in(mode, f"s3_{D}"), "s1": _in(mode, "s1"), "lr": _h(_src("lr_fit"))})
+    if _valid(mode, stage, key): return "SKIP"
+    def load(n):
+        Z = np.load(f"{_dir(mode, 's3_'+n)}/feats.npz"); Ls = sorted({k for k in Z.files if k.endswith('_cls')}, key=lambda s: int(s[1:].split('_')[0]))
+        return Z['names'], Z['final'], Z[Ls[-2]]
+    na, fa, aa = load(A); nd, fd, ad = load(D)
+    assert (na == nd).all(), "row order mismatch between models"
+    sel = pd.read_parquet(f"{_dir(mode,'s1')}/sel.parquet").set_index('image_name').loc[na].reset_index()
+    M = sel.organ.isin(ORG).values; m = sel[M].reset_index(drop=True)
+    F = {'A': fa[M], 'D': fd[M], 'AD': np.hstack([fa[M], fd[M]]), 'Anull': np.hstack([fa[M], aa[M]]), 'Dnull': np.hstack([fd[M], ad[M]])}
+    tr = (m.split == 'train').values; y = m.species_id.values; corr = {}
+    nmax = CFG["n_train"] if base(mode) == "full" else CFG["smoke"]["n_train"]
+    for k in CFG["k_grid"][base(mode)]:
+        for seed in (range(3) if k < nmax else [0]):
+            for o1 in ORG:
+                pool = m[tr & (m.organ == o1).values]
+                if len(pool) == 0: continue
+                idx = np.sort(pool.groupby('species_id').sample(n=k, random_state=seed).index.values) if k < nmax else pool.index.values
+                lams = (1e-2,) if k < 10 else (1e-4, 1e-3, 1e-2); seen = set(pool.species_id)
+                for o2 in ORG:
+                    te = np.where(~tr & (m.organ == o2).values & m.species_id.isin(seen).values)[0]
+                    if len(te) == 0: continue
+                    P = {}
+                    for f, X in F.items():
+                        cl, pr = lr_fit(X[idx], y[idx], X[te], lams=lams, seed=seed)
+                        P[f] = pr; corr.setdefault((k, o1, o2, f), []).append(cl[pr.argmax(1)] == y[te])
+                    corr.setdefault((k, o1, o2, 'late'), []).append(cl[(P['A'] + P['D']).argmax(1)] == y[te])
+    NB = CFG["n_boot"][base(mode)]
+    def bd(c1, c2):
+        r = np.random.default_rng(0); d = [c1[i].mean() - c2[i].mean() for i in (r.integers(0, len(c1), len(c1)) for _ in range(NB))]
+        return [float(c1.mean() - c2.mean()), float(np.percentile(d, 2.5)), float(np.percentile(d, 97.5))]
+    rows = []
+    for (k, o1, o2, f) in sorted(x for x in corr if x[3] == 'A'):
+        g = lambda f: np.mean(corr[(k, o1, o2, f)], 0)
+        a, d_, ad_, an, dn, lt = g('A'), g('D'), g('AD'), g('Anull'), g('Dnull'), g('late'); best = a if a.mean() >= d_.mean() else d_
+        ca = np.array(corr[(k, o1, o2, 'A')]); cd = np.array(corr[(k, o1, o2, 'D')])
+        rows.append(dict(pair=pair, k=k, train=o1, test=o2, within=o1 == o2, accA=float(a.mean()), accD=float(d_.mean()), accAD=float(ad_.mean()),
+                         d_concat=bd(ad_, best), d_late=bd(lt, best), null_A=bd(an, a), null_D=bd(dn, d_), weak=bool(d_.mean() < a.mean() - 0.15),
+                         only_one=float((ca ^ cd).mean()), oracle=float((ca | cd).mean()), n_test=int(len(a)), n_species=int(len(set(y[tr & (m.organ == o1).values])))))
+    out = f"{_dir(mode, stage)}/rows.json"; json.dump(rows, open(out, "w"), indent=1, sort_keys=True)
+    accs = [r[x] for r in rows for x in ('accA', 'accD')]; kmax = max(r['k'] for r in rows); fac = 3 if base(mode) == "full" else 2
+    easy = [(r[x], 1 / r['n_species']) for r in rows if r['within'] and r['k'] == kmax for x in ('accA', 'accD')]
+    gates = [_gate("all_finite", bool(np.isfinite(accs).all()), np.isfinite(accs).all()),
+             _gate(f"easy_setting_acc_vs_{fac}x_chance", [round(min(a for a, _ in easy), 4)], all(a > fac * c for a, c in easy))]
+    _write_man(mode, stage, key, [out], gates, {"n_rows": len(rows)}); return "PASS"
+
 def lr_fit(Xtr, ytr, Xte, lams=(1e-4, 1e-3, 1e-2), iters=150, seed=0):
     """standardised multinomial logistic regression (full-batch L-BFGS); lambda picked on a seeded 20% holdout. Returns (classes, probs)."""
     import torch, numpy as np
@@ -427,5 +481,8 @@ def reliability(mode="full"):
 def main(mode: str = "smoke", upto: str = "s4", crash_after_shards: int = -1, show: int = 0, cmp: str = ""):
     if show: print(status.remote(mode)); return
     if cmp: print(json.dumps(compare_s2.remote(mode, cmp))); return
+    if upto == "b2":
+        for p in CFG["pairs"]: print("B2", p, s5_b2.remote(mode, p))
+        return
     if upto == "rel": print("REL", json.dumps(reliability.remote(mode))); return
     print(orchestrate.remote(mode, upto, crash_after_shards))

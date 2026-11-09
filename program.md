@@ -39,3 +39,10 @@ M2 downgrade: if LEACE erasure lowers DINOv3's own species accuracy by >3pp, con
    "organ subspace also carries species information"; may NOT claim "complementarity comes from organ-specific detail".
 BioImages external check: wording limited to "directionally consistent"; never "replicated" (only 2 species with >=5 distinct individuals for both flower & leaf).
 Order: download → D1 → features → P1 + M1 (+D2, cheap) → report → decide M2/B2 → M3 last.
+
+## v4 (2026-11-09) — B2 pre-registration (after R1 results; before any B2 result)
+Author audit (frozen split): species with >=5 train & >=3 test distinct authors: bark 300, fruit 246, habit 297 → all >=150 → all in main criterion.
+B2 settings: train/test organs in {bark, fruit, habit}; within-organ Δ is the criterion; rare↔rare cross reported descriptively.
+  Test restricted to species present in the training organ. k ∈ {1,3,10,20}. Same readouts (concat primary, late-fusion robustness), same null-Δ, same 15pp weak flag.
+B2 criterion (H* prediction): within-organ Δ on a rare organ > 0 with CI excluding 0, replicated in B and L, and larger than the flower/leaf within-organ Δ at the same k.
+  If met → RQ narrows to "complementarity appears only on organs poorly covered by the text anchor". If not → H* fully falsified for linear readout.
