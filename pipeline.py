@@ -40,8 +40,11 @@ def _man_path(mode, stage): return f"{V}/runs/{mode}/{stage}/manifest.json"
 def _read_man(mode, stage):
     p = _man_path(mode, stage)
     return json.load(open(p)) if os.path.exists(p) else None
+def _src(fn):
+    raw = getattr(fn, "get_raw_f", None)
+    return inspect.getsource(raw() if raw else fn)
 def _key(stage_fn, mode, inputs):
-    return {"code": _h(inspect.getsource(stage_fn)), "cfg": _h(CFG), "mode": mode, "inputs": inputs}
+    return {"code": _h(_src(stage_fn)), "cfg": _h(CFG), "mode": mode, "inputs": inputs}
 def _valid(mode, stage, key):
     m = _read_man(mode, stage)
     if not m or m.get("status") != "PASS" or m.get("key") != key: return False
