@@ -471,10 +471,12 @@ def reliability(mode="full"):
     for mdl in ["bioclip", "dinov3_l"]:                      # R4: extract 500 imgs twice, compare to each other and to full run
         for t in ("_r4a", "_r4b"): s3_features.remote(mode, mdl, 500, t)
         vol.reload()
-        A = np.load(f"{_dir(mode, 's3_'+mdl+'_r4a')}/feats.npz"); B = np.load(f"{_dir(mode, 's3_'+mdl+'_r4b')}/feats.npz"); F = np.load(f"{_dir(mode, 's3_'+mdl)}/feats.npz")
-        out[f"R4_{mdl}_maxdiff_rerun"] = float(max(np.abs(A[k] - B[k]).max() for k in A.files if k != "names"))
-        out[f"R4_{mdl}_maxdiff_vs_full"] = float(max(np.abs(A[k] - F[k][:500]).max() for k in A.files if k != "names"))
-        out[f"R4_{mdl}_finite"] = bool(all(np.isfinite(A[k]).all() for k in A.files if k != "names"))
+        def ld(p):
+            with np.load(p) as z: return {k: z[k] for k in z.files}        # copy + close: open files block vol.reload()
+        A = ld(f"{_dir(mode, 's3_'+mdl+'_r4a')}/feats.npz"); B = ld(f"{_dir(mode, 's3_'+mdl+'_r4b')}/feats.npz"); F = ld(f"{_dir(mode, 's3_'+mdl)}/feats.npz")
+        out[f"R4_{mdl}_maxdiff_rerun"] = float(max(np.abs(A[k] - B[k]).max() for k in A if k != "names"))
+        out[f"R4_{mdl}_maxdiff_vs_full"] = float(max(np.abs(A[k] - F[k][:500]).max() for k in A if k != "names"))
+        out[f"R4_{mdl}_finite"] = bool(all(np.isfinite(A[k]).all() for k in A if k != "names"))
     json.dump(out, open(f"{V}/runs/{mode}/reliability.json", "w"), indent=1); vol.commit(); return out
 
 @app.local_entrypoint()
