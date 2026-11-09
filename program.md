@@ -89,3 +89,44 @@ W3 Invariance ≠ within-organ information: the invariance index is measured CRO
    prediction under "invariance irrelevant to within-organ fusion": within- and cross-organ Δ both governed by the CV-gap (same regression as T3 including a cross-organ indicator, whose coefficient CI includes 0).
 W4 Sample-size bound: Δ vs k slope (k=10→20) per setting; positive slope where gap small → gain may grow with data (stated as limitation, not tested beyond k=20).
 Order: S3 features exist → smoke X1/X2 → full X1/X2 → CV-gap for B, L, X1, X2 → T1–T3 → W1–W4 → report.
+
+## v6 (2026-11-09) — METHOD pilot: organ-invariance adapter for cross-organ few-shot ID of UNSEEN species. Written BEFORE any v6 result.
+Task: support images of an unseen species from organ A, query images from organ B (A≠B); identify species among all unseen species having both organs.
+Assumption (stated): organ label of each image is known at test time (Pl@ntNet users tag the organ).
+
+### Splits (all seeded, fixed now)
+- Species: 300 → sorted ids, rng(0) permutation → 150 SEEN / 150 UNSEEN. Of SEEN, 30 → VAL-species (hyper-parameter selection only), 120 → FIT-species.
+- Images: only TRAIN-split images of SEEN species are used for fitting anything (adapter, organ means, LEACE).
+- UNSEEN evaluation: support = TRAIN split of organ A; query = TEST split of organ B (author-disjoint from support by construction).
+- Gates: |SEEN ∩ UNSEEN| = 0; no UNSEEN image or species in any fit/selection; VAL ∩ FIT = 0.
+- Robustness (not in go criterion): genus-disjoint variant (UNSEEN species whose genus is absent from SEEN), reported if ≥40 such species.
+
+### Methods (on frozen final features; each backbone separately)
+M0 raw (standardized with SEEN statistics).
+M1 organ-conditional centering (C5): subtract per-organ mean estimated on SEEN train images. Training-free.
+M2 LEACE: closed-form erasure of the 5-way organ concept, fit on SEEN train images.
+M3a generic adapter (control): same architecture/training as M3 but SupCon positives = same species, ANY organ, no cross-organ emphasis.
+M3  cross-organ adapter (ours): linear projection d→256 (primary) + 2-layer MLP (ablation); loss = 0.5·SupCon(positives = same species, DIFFERENT organ) + 0.5·SupCon(positives = same species, any organ).
+    Hyper-parameter grid (fixed now): lr ∈ {1e-3, 3e-3}, epochs ∈ {50, 200}, temperature ∈ {0.05, 0.1}; selected by VAL-species mean cross-organ accuracy (k=5). Same grid & rule for M3a.
+Classifier: cosine nearest-prototype (primary, no tuning); L2 logistic probe (secondary).
+
+### Evaluation
+Organ pairs: all 20 ordered A≠B pairs (primary = macro mean over pairs); 5 within-organ pairs A=B (harm check only).
+k ∈ {1, 5, 20}; primary k = 5. Support sampling seeds: 5 (k<20), 1 (k=20).
+CIs: cluster bootstrap over UNSEEN species (1000 reps).
+Backbones: primary dinov3_b and bioclip; secondary replication dinov3_l and bioclip2.
+
+### GO criteria (pilot; all four required)
+G1  M3 − M1 ≥ +3pp with CI excluding 0 (macro cross-organ, k=5, prototype classifier) on BOTH dinov3_b and bioclip.
+G2  M3 > M1 on ≥3 of 5 target organs (B) for each primary backbone.
+G3  within-organ accuracy of M3 ≥ M0 − 1pp (macro over 5 organs, k=5).
+G4  M3 − M3a > 0 with CI excluding 0 on both primary backbones; if G1–G3 pass but G4 fails → claim downgraded to
+    "metric learning on seen plant species transfers to unseen species", NOT "organ invariance".
+NO-GO: G1 fails, or gains vanish on UNSEEN while present on VAL (shortcut). Then fall back to C1 (parity router) or mechanism-only write-up.
+Multiplicity: only k=5 macro is confirmatory; all else descriptive.
+
+### Reliability (same standards as R1–R4)
+New stage s6_adapter in pipeline.py with manifest + gates (split gates above, finite outputs, raw-M0 within-organ acc > 3×chance);
+smoke first (5+5 species); full run executed twice → byte-identical results.json required before reporting.
+Outcome → bullets: GO → method bullet (+Y pp over frozen backbones, +Z pp over LEACE/centering, unseen species, reproducible);
+                   G4 fail → "metric-learning transfer" bullet; NO-GO → negative-result bullet + mechanism bullet (invariance ⟂ fusion).
