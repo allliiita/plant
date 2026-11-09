@@ -11,3 +11,10 @@
 - R2 found S1 nondeterminism (author tie order via Python str hash; PYTHONHASHSEED env ineffective). Fix: explicit sorted+seeded order; new S1 gate re-runs selection in subprocess with PYTHONHASHSEED=12345 and requires identical hash.
 - Speed: froze legacy author-disjoint split (pc_sel.parquet, sha-pinned in CFG) as full-mode S1 input instead of recomputing; validated by same S1 gates. Fresh S1 algorithm (deterministic) kept for smoke + future data. Avoids ~2h re-download; parallelism unchanged.
 - R-bug: S2 resume trusted shard existence; shards from an aborted run with a different S1 were reused (87 imgs missing) → caught by S2 gate. Fix: shard reused only if its image list equals the expected slice; stale/out-of-range shards rewritten/removed. Gate unchanged.
+- reliability(): lazy np.load kept files open → vol.reload ConflictError. Fix: load-copy-close. R3/R4 stages already completed are reused via manifests.
+- RELIABILITY: R1 pass; R2 pass (after S1 determinism fix; 150/150 byte-identical after 2 injected crashes); R3 pass (S4 B and L rows.json byte-identical);
+  R4 pass as defined (same 500 imgs extracted twice: max diff 0.0 for bioclip and dinov3_l). Extra check vs full-run features: bioclip 1.9e-5 abs (dinov3_l 0.0);
+  likely batch-shape-dependent kernels (last batch 52 vs 64) — not verified, reported as-is.
+- B2 result: B pair within-rare Δ>0 at k>=10 (bark +3.7/+3.8pp); L pair no gain (Δ<=0), DINOv3-L weak-flagged on bark/habit. Pre-registered B2 criterion (replicate in B and L) NOT met.
+- EXPLORATORY (post hoc, not pre-registered): across all within-organ k>=10 settings (n=20), fusion Δ vs accuracy gap (accA−accD): Spearman −0.86 (p=1e-6); all k>=10 settings n=52: −0.90.
+  Gain appears only when gap <= ~8pp. Competing account to H*: complementarity governed by performance parity, organ acts via parity.

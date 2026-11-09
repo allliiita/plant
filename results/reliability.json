@@ -1,0 +1,10 @@
+{
+ "R3_B_identical": true,
+ "R3_L_identical": true,
+ "R4_bioclip_maxdiff_rerun": 0.0,
+ "R4_bioclip_maxdiff_vs_full": 1.9371509552001953e-05,
+ "R4_bioclip_finite": true,
+ "R4_dinov3_l_maxdiff_rerun": 0.0,
+ "R4_dinov3_l_maxdiff_vs_full": 0.0,
+ "R4_dinov3_l_finite": true
+}
