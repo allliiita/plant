@@ -24,6 +24,7 @@ CFG = {
     "models": {"bioclip": ["oc", "hf-hub:imageomics/bioclip", None], "dinov3_b": ["timm", "vit_base_patch16_dinov3.lvd1689m", None],
                "bioclip2": ["oc", "hf-hub:imageomics/bioclip-2", None], "dinov3_l": ["timm", "vit_large_patch16_dinov3.lvd1689m", None]},
     "pairs": {"B": ["bioclip", "dinov3_b"], "L": ["bioclip2", "dinov3_l"]},
+    "frozen_split": {"path": "pc_sel.parquet", "sha": "56d73f6bb69b898c"},
     "k_grid": {"full": [1, 3, 10, 20], "smoke": [1, 3]},
     "n_boot": {"full": 1000, "smoke": 100},
 }
@@ -134,10 +135,19 @@ def s1_select(mode):
     import subprocess, sys
     key = _key("s1_select", mode, {"s0": _in(mode, "s0"), "sel": _h(_src("_select"))})
     if _valid(mode, "s1", key): return "SKIP"
-    sel, info = _select(mode); h1 = _df_hash(sel)
-    env = dict(os.environ, PYTHONHASHSEED="12345")
-    code = f"import sys; sys.path.insert(0,'/root'); import pipeline as p; s,_=p._select({mode!r}); print(p._df_hash(s))"
-    h2 = subprocess.run([sys.executable, "-c", code], env=env, capture_output=True, text=True, cwd="/root").stdout.strip().splitlines()[-1:]
+    frozen = CFG.get("frozen_split") if base(mode) == "full" else None
+    if frozen:                                   # pinned split artifact: reproducibility by sha pin, validated by the same gates
+        import pandas as pd
+        fp = f"{V}/{frozen['path']}"; fsha = _fsha(fp)
+        sel = pd.read_parquet(fp); sel = sel[sel.src == 'plantnet'][['image_name', 'species_id', 'species', 'organ', 'split', 'author', 'obs_id', 'dl']]
+        sel = sel.sort_values(['species_id', 'organ', 'split', 'image_name']).reset_index(drop=True)
+        info = {"n_chosen": int(sel.species_id.nunique()), "ntr": CFG["n_train"], "nte": CFG["n_test"], "n_img": len(sel), "frozen_sha": fsha}
+        h1 = _df_hash(sel); h2 = [h1] if fsha == frozen["sha"] else ["SHA_MISMATCH:" + fsha]
+    else:
+        sel, info = _select(mode); h1 = _df_hash(sel)
+        env = dict(os.environ, PYTHONHASHSEED="12345")
+        code = f"import sys; sys.path.insert(0,'/root'); import pipeline as p; s,_=p._select({mode!r}); print(p._df_hash(s))"
+        h2 = subprocess.run([sys.executable, "-c", code], env=env, capture_output=True, text=True, cwd="/root").stdout.strip().splitlines()[-1:]
     cell = sel.groupby(['species_id', 'organ', 'split']).size()
     leak = sum(len(set(g[g.split == 'train'].author) & set(g[g.split == 'test'].author)) for _, g in sel.groupby('species_id'))
     exp = {"train": info["ntr"], "test": info["nte"]}; want = [exp[s] for s in cell.index.get_level_values('split')]
@@ -145,7 +155,7 @@ def s1_select(mode):
              _gate("cell_sizes_exact", int((cell.values != want).sum()), all(cell.values == want)),
              _gate("author_leak", leak, leak == 0), _gate("dup_image", int(sel.image_name.duplicated().sum()), not sel.image_name.duplicated().any()),
              _gate("dup_obs", int(sel.obs_id.duplicated().sum()), not sel.obs_id.duplicated().any()),
-             _gate("hashseed_invariant", [h1, h2[0] if h2 else None], bool(h2) and h2[0] == h1)]
+             _gate("frozen_sha_pin" if frozen else "hashseed_invariant", [h1, h2[0] if h2 else None], bool(h2) and h2[0] == h1)]
     out = f"{_dir(mode,'s1')}/sel.parquet"; sel.to_parquet(out, index=False)
     _write_man(mode, "s1", key, [out], gates, {**info, "sel_hash": h1}); return "PASS"
 

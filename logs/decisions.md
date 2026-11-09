@@ -9,3 +9,4 @@
 - D2: matched cells = 2 → infeasible in main subset (as predicted); side-set deferred.
 - Pipeline gate fix: S4 chance-gate scoped to easiest setting (within-organ, max k); hard settings (k=1 cross-organ) legitimately near chance on 10-image smoke test. Threshold unchanged (2x smoke / 3x full).
 - R2 found S1 nondeterminism (author tie order via Python str hash; PYTHONHASHSEED env ineffective). Fix: explicit sorted+seeded order; new S1 gate re-runs selection in subprocess with PYTHONHASHSEED=12345 and requires identical hash.
+- Speed: froze legacy author-disjoint split (pc_sel.parquet, sha-pinned in CFG) as full-mode S1 input instead of recomputing; validated by same S1 gates. Fresh S1 algorithm (deterministic) kept for smoke + future data. Avoids ~2h re-download; parallelism unchanged.
