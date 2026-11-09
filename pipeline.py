@@ -398,6 +398,161 @@ def s5_b2(mode, pair, tag: str = ""):
              _gate(f"easy_setting_acc_vs_{fac}x_chance", [round(min(a for a, _ in easy), 4)], all(a > fac * c for a, c in easy))]
     _write_man(mode, stage, key, [out], gates, {"n_rows": len(rows)}); return "PASS"
 
+def _strat_split(species, fam):
+    """deterministic family-stratified SEEN/UNSEEN split + stratified VAL from SEEN"""
+    import numpy as np
+    sp = sorted(species); fams = {}
+    cnt = {}
+    for x in sp: cnt[fam[x]] = cnt.get(fam[x], 0) + 1
+    for x in sp: fams.setdefault(fam[x] if cnt[fam[x]] > 1 else "_other", []).append(x)
+    seen, unseen, order = [], [], {}
+    for f in sorted(fams):
+        g = sorted(fams[f]); g = [g[i] for i in np.random.default_rng(0).permutation(len(g))]
+        for j, x in enumerate(g):
+            order[x] = j
+            if j < len(g) - len(g) % 2: (seen if j % 2 == 0 else unseen).append(x)
+            else: (seen if len(seen) <= len(unseen) else unseen).append(x)
+    sk = sorted(seen, key=lambda x: (fam[x], order[x]))
+    val = sk[::5][:max(1, len(seen) // 5)]
+    return seen, unseen, val
+
+@app.function(image=IMG, volumes={V: vol}, gpu="T4", timeout=6 * 3600, memory=32768)
+def s6_adapter(mode, model, smoke: int = 0, tag: str = ""):
+    vol.reload()
+    import torch, numpy as np, pandas as pd, itertools
+    torch.manual_seed(0); torch.use_deterministic_algorithms(True)
+    torch.backends.cuda.matmul.allow_tf32 = False; torch.backends.cudnn.allow_tf32 = False
+    stage = f"s6_{model}{'_smoke' if smoke else ''}{tag}"
+    key = _key("s6_adapter", mode, {"f": _in(mode, f"s3_{model}"), "s1": _in(mode, "s1"), "smoke": smoke, "split": _h(_src("_strat_split")), "lr": _h(_src("lr_fit"))})
+    if _valid(mode, stage, key): return "SKIP"
+    dev = "cuda"; ORG = CFG["organs"]
+    with np.load(f"{_dir(mode, 's3_'+model)}/feats.npz") as Z: names, X = Z['names'], Z['final'].astype(np.float64)
+    sel = pd.read_parquet(f"{_dir(mode,'s1')}/sel.parquet").set_index('image_name').loc[names].reset_index()
+    fm = pd.read_csv(f"{V}/{CFG['meta_csv']}", sep=';', usecols=['species_id', 'family', 'genus'], dtype=str).drop_duplicates('species_id').set_index('species_id')
+    allsp = sorted(sel.species_id.unique())
+    if smoke: allsp = allsp[:20]
+    fam = fm.family.to_dict(); gen = fm.genus.to_dict()
+    seen, unseen, val = _strat_split(allsp, fam); fit = sorted(set(seen) - set(val))
+    tvd = 0.5 * sum(abs(pd.Series([fam[x] for x in seen]).value_counts(normalize=True).get(f, 0) - pd.Series([fam[x] for x in unseen]).value_counts(normalize=True).get(f, 0)) for f in set(fam[x] for x in allsp))
+    tr = (sel.split == 'train').values; org = sel.organ.values; sp = sel.species_id.values
+    S_tr = np.isin(sp, seen) & tr                      # everything fit on SEEN train images only
+    mu, sd = X[S_tr].mean(0), X[S_tr].std(0) + 1e-6; Xs = (X - mu) / sd
+    # ---- training-free transforms
+    om = {o: Xs[S_tr & (org == o)].mean(0) for o in ORG}
+    M1 = Xs - np.stack([om[o] for o in org])
+    Xc = Xs[S_tr] - Xs[S_tr].mean(0); C = Xc.T @ Xc / len(Xc); C += 1e-3 * np.trace(C) / len(C) * np.eye(len(C))
+    ev, Ve = np.linalg.eigh(C); W = Ve @ np.diag(ev ** -.5) @ Ve.T; Wp = Ve @ np.diag(ev ** .5) @ Ve.T
+    Zo = np.stack([(org[S_tr] == o).astype(float) for o in ORG], 1); Zo -= Zo.mean(0)
+    Q, Rr, _ = np.linalg.svd(W @ (Xc.T @ Zo / len(Xc)), full_matrices=False); Q = Q[:, Rr > 1e-8 * Rr.max()]
+    M2 = Xs - (Xs - Xs[S_tr].mean(0)) @ W @ Q @ Q.T @ Wp
+    # ---- adapters
+    def train_adapter(cross, lr, epochs, temp, mlp, seed=0):
+        torch.manual_seed(seed); rng = np.random.default_rng(seed)
+        d = Xs.shape[1]
+        net = (torch.nn.Sequential(torch.nn.Linear(d, 512), torch.nn.ReLU(), torch.nn.Linear(512, 256)) if mlp else torch.nn.Linear(d, 256)).to(dev)
+        opt = torch.optim.Adam(net.parameters(), lr=lr)
+        idx_fit = np.where(np.isin(sp, fit) & tr)[0]; by_sp = {s: idx_fit[sp[idx_fit] == s] for s in fit}
+        Xt = torch.tensor(Xs, dtype=torch.float32, device=dev)
+        P_, K_ = min(64, len(fit)), 8; steps = max(1, len(idx_fit) // (P_ * K_))
+        for ep in range(epochs):
+            for _ in range(steps):
+                ss = rng.choice(fit, P_, replace=False)
+                b = np.concatenate([rng.choice(by_sp[s], K_, replace=len(by_sp[s]) < K_) for s in ss])
+                z = torch.nn.functional.normalize(net(Xt[b]), dim=1)
+                sim = z @ z.T / temp; eye = torch.eye(len(b), device=dev, dtype=torch.bool)
+                sim = sim.masked_fill(eye, -1e9); logp = sim - torch.logsumexp(sim, 1, keepdim=True)
+                ys = torch.tensor(pd.factorize(sp[b])[0], device=dev); os_ = torch.tensor(pd.factorize(org[b])[0], device=dev)
+                same = (ys[:, None] == ys[None]) & ~eye
+                def sup(pos):
+                    n = pos.sum(1); ok = n > 0
+                    return -((logp * pos).sum(1)[ok] / n[ok]).mean()
+                loss = sup(same) if not cross else 0.5 * sup(same & (os_[:, None] != os_[None])) + 0.5 * sup(same)
+                opt.zero_grad(); loss.backward(); opt.step()
+        with torch.no_grad(): return net(Xt).cpu().numpy().astype(np.float64)
+    def evaluate(Zf, species, ks, seeds_lt, clf="proto", pairs=None):
+        """returns dict pair -> (per-species correct sums, counts) averaged over seeds, per k"""
+        Zn = Zf / np.linalg.norm(Zf, axis=1, keepdims=True); out = {}
+        for k in ks:
+            seeds = range(seeds_lt) if k < CFG["n_train"] else [0]
+            for A, B in (pairs or itertools.product(ORG, ORG)):
+                sa = set(sp[np.isin(sp, species) & tr & (org == A)]); sb = set(sp[np.isin(sp, species) & ~tr & (org == B)])
+                cls = sorted(sa & sb)
+                if len(cls) < 2: continue
+                q = np.where(np.isin(sp, cls) & ~tr & (org == B))[0]; acc = np.zeros(len(q))
+                for sd_ in seeds:
+                    r = np.random.default_rng(sd_)
+                    sup_idx = [r.choice(np.where((sp == c) & tr & (org == A))[0], min(k, ((sp == c) & tr & (org == A)).sum()), replace=False) for c in cls]
+                    if clf == "proto":
+                        Pm = np.stack([Zn[i].mean(0) for i in sup_idx]); Pm /= np.linalg.norm(Pm, axis=1, keepdims=True)
+                        pred = np.array(cls)[(Zn[q] @ Pm.T).argmax(1)]
+                    else:
+                        si = np.concatenate(sup_idx); cl, pr = lr_fit(Zn[si], sp[si], Zn[q], lams=(1e-2,), seed=sd_); pred = cl[pr.argmax(1)]
+                    acc += (pred == sp[q]) / len(seeds)
+                df = pd.DataFrame({'s': sp[q], 'c': acc}).groupby('s').c.agg(['sum', 'count'])
+                out[(k, A, B)] = df
+        return out
+    def macro(res, k, cross=True):
+        v = [df['sum'].sum() / df['count'].sum() for (kk, A, B), df in res.items() if kk == k and ((A != B) == cross)]
+        return float(np.mean(v)) if v else float('nan')
+    # ---- hyper-parameter selection on VAL species (cross-organ, k=5, proto)
+    grid = [(lr, ep, t) for lr in (1e-3, 3e-3) for ep in (50, 200) for t in (0.05, 0.1)]
+    if smoke: grid = [(1e-3, 5, 0.1)]
+    xpairs = [(A, B) for A in ORG for B in ORG if A != B]
+    sel_log = {}; Zs = {"M0": Xs, "M1": M1, "M2": M2}
+    for name, cross, mlp in [("M3", True, False), ("M3a", False, False), ("M3_mlp", True, True), ("M3a_mlp", False, True)]:
+        best = None
+        for hp in grid:
+            Zh = train_adapter(cross, *hp, mlp)
+            v = macro(evaluate(Zh, val, [5], 3, pairs=xpairs), 5)
+            sel_log[f"{name}|{hp}"] = v
+            if best is None or v > best[0]: best = (v, hp, Zh)
+        Zs[name] = best[2]; sel_log[f"{name}|chosen"] = [best[1], best[0]]
+    # ---- evaluation on UNSEEN (and genus-disjoint subset)
+    ks = [1, 5, 20]; NB = 1000 if not smoke else 50
+    seen_gen = {gen[x] for x in seen}; gdis = [x for x in unseen if gen[x] not in seen_gen]
+    results = {"split": {"n_seen": len(seen), "n_unseen": len(unseen), "n_val": len(val), "family_tvd": tvd, "n_genus_disjoint": len(gdis)}, "hp": sel_log}
+    for subset_name, subset in [("unseen", unseen)] + ([("genus_disjoint", gdis)] if len(gdis) >= 40 else []):
+        R = {(m, clf): evaluate(Zs[m], subset, ks, 5, clf) for m in Zs for clf in (["proto", "lr"] if subset_name == "unseen" else ["proto"])}
+        spl = sorted(subset); rng = np.random.default_rng(0); W_ = [np.bincount(rng.integers(0, len(spl), len(spl)), minlength=len(spl)) for _ in range(NB)]
+        def boot(res, k, cross):
+            keys = [kk for kk in res if kk[0] == k and ((kk[1] != kk[2]) == cross)]
+            Sm = np.zeros((len(spl), len(keys))); Cn = np.zeros_like(Sm); pos = {s: i for i, s in enumerate(spl)}
+            for j, kk in enumerate(keys):
+                df = res[kk]
+                for s_, row in df.iterrows(): Sm[pos[s_], j] = row['sum']; Cn[pos[s_], j] = row['count']
+            pt = np.mean(Sm.sum(0) / Cn.sum(0)); bs = np.array([np.mean((w @ Sm) / np.maximum(w @ Cn, 1e-9)) for w in W_])
+            return pt, bs
+        out = {}
+        for (m, clf), res in R.items():
+            for k in ks:
+                for cross in (True, False):
+                    pt, bs = boot(res, k, cross); out[(m, clf, k, cross)] = (pt, bs)
+        summ = {}
+        for (m, clf, k, cross), (pt, bs) in out.items():
+            summ[f"{m}|{clf}|k{k}|{'cross' if cross else 'within'}"] = [pt, float(np.percentile(bs, 2.5)), float(np.percentile(bs, 97.5))]
+        for a, b in [("M3", "M1"), ("M3", "M3a"), ("M3", "M0"), ("M3", "M2"), ("M1", "M0"), ("M2", "M0"), ("M3a", "M1"), ("M3_mlp", "M1"), ("M3_mlp", "M3a_mlp")]:
+            for clf in (["proto", "lr"] if subset_name == "unseen" else ["proto"]):
+                for k in ks:
+                    for cross in (True, False):
+                        d = out[(a, clf, k, cross)][1] - out[(b, clf, k, cross)][1]; pt = out[(a, clf, k, cross)][0] - out[(b, clf, k, cross)][0]
+                        summ[f"{a}-{b}|{clf}|k{k}|{'cross' if cross else 'within'}"] = [pt, float(np.percentile(d, 2.5)), float(np.percentile(d, 97.5))]
+        # per target organ (k=5 proto cross)
+        for m in ("M3", "M1"):
+            res = R[(m, "proto")]
+            for B in ORG:
+                v = [df['sum'].sum() / df['count'].sum() for (kk, A, BB), df in res.items() if kk == 5 and BB == B and A != B]
+                summ[f"{m}|proto|k5|target_{B}"] = float(np.mean(v))
+        results[subset_name] = summ
+    out_p = f"{_dir(mode, stage)}/results.json"; json.dump(results, open(out_p, "w"), indent=1, sort_keys=True)
+    vals = [v[0] for v in results["unseen"].values() if isinstance(v, list)]
+    m0w = results["unseen"]["M0|proto|k5|within"][0]; nchance = 1 / len(unseen)
+    gates = [_gate("seen_unseen_disjoint", len(set(seen) & set(unseen)), not set(seen) & set(unseen)),
+             _gate("val_fit_disjoint", len(set(val) & set(fit)), not set(val) & set(fit)),
+             _gate("family_tvd<=0.10", round(tvd, 4), smoke or tvd <= 0.10),
+             _gate("finite", bool(np.isfinite(vals).all()), np.isfinite(vals).all()),
+             _gate("M0_within_k5_vs_3x_chance", [round(m0w, 4), round(3 * nchance, 4)], m0w > 3 * nchance)]
+    _write_man(mode, stage, key, [out_p], gates, results["split"]); return "PASS"
+
 def lr_fit(Xtr, ytr, Xte, lams=(1e-4, 1e-3, 1e-2), iters=150, seed=0):
     """standardised multinomial logistic regression (full-batch L-BFGS); lambda picked on a seeded 20% holdout. Returns (classes, probs)."""
     import torch, numpy as np
@@ -483,6 +638,11 @@ def reliability(mode="full"):
 def main(mode: str = "smoke", upto: str = "s4", crash_after_shards: int = -1, show: int = 0, cmp: str = ""):
     if show: print(status.remote(mode)); return
     if cmp: print(json.dumps(compare_s2.remote(mode, cmp))); return
+    if upto.startswith("s6"):
+        smoke = int(upto.endswith("smoke"))
+        for mdl in (["dinov3_b", "bioclip"] if smoke else ["dinov3_b", "bioclip", "dinov3_l", "bioclip2"]):
+            print("S6", mdl, s6_adapter.remote(mode, mdl, smoke), flush=True)
+        return
     if upto == "b2":
         for p in CFG["pairs"]: print("B2", p, s5_b2.remote(mode, p))
         return
