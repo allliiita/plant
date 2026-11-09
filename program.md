@@ -194,3 +194,18 @@ Gates: name/taxonomy filters applied; photo fetch success ≥98% and every speci
 Smoke found ~8% of PlantTraitNet photo links dead (iNat 404; 24/25 sampled failures deleted, 1 uppercase .JPG).
 Rule change: per species a seeded rank order of up to 45 candidates; tier-1 fetch ranks 0–29, tier-2 fetch further ranks only for species short of 30;
 use the first 30 successful photos by rank. Gates: ≥98% of species reach 30 photos; every species ≥20. Dead-link rate reported. Limitation: deletion assumed unrelated to traits.
+### v7.2 amendment (approved 2026-11-10; before any analysis result)
+Data fixes: drop rows without iNat photo id (80,353; non-iNat sources); drop 2,077 photos shared by >1 species (congeneric pairs, e.g. Betula fruticosa|ovalifolia);
+species that shared photos form link groups (12 groups, 25 spp) kept in the same fold at every CV level; labels = first non-null species median.
+Pool = species with ≥30 downloadable-id iNat photos → 2,355 spp (839 genera, 163 families, 49 orders). Primary stratum (genus-imputed) n≈1,521.
+Fetch: statuses ok/deleted/failed, ≤3 retry rounds, gate transient failures = 0 and every species ≥20 photos; fraction <30 reported (expected 3–4%);
+dead-link rate and its Spearman with each trait reported. 48 threads, single container.
+Primary-stratum MDE (power .8, one-sided α .0125, ρ .3/.5/.7): Height .020/.020/.015 (genus-imputation R² .88); LeafArea .05/.05/.045 (.66); SLA .09/.085/.07 (.42); Leaf_N .07/.065/.06 (.53).
+Reporting format (fixed): per trait ΔR² + 95% CI + MDE; no binary significant/non-significant wording. If CI spans 0: "MDE = X, observed ΔR² = Y".
+  Holm-adjusted bootstrap p is computed internally only to trigger the checks below.
+Height rule: genus imputation already explains R² .88. If Height ΔR² CI excludes 0 (>0) → mandatory leakage checks BEFORE any interpretation:
+  (i) photo/label co-source (same observation/collection event as TRY record), (ii) geographic/background cues (location-blocked re-test),
+  (iii) unrecognised infraspecific structure within genera. Only after passing is it read as signal.
+Leaf_N rule unchanged (anomalous → inspect).
+Deferred to round 2 and stated as limitations in the report: no scratch-trained CNN control (cannot fully exclude plant signal inherited from ImageNet pretraining);
+no AusTraits aspect-ratio control (cannot separate "images uninformative" from "photos lack scale").

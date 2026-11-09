@@ -9,8 +9,8 @@ IMG = (modal.Image.debian_slim(python_version="3.11")
        .pip_install("torch==2.5.1", "torchvision==0.20.1", "timm==1.0.20", "huggingface_hub==0.34.4", "numpy==1.26.4",
                     "pandas==2.2.3", "pyarrow==17.0.0", "pillow==10.4.0", "scipy==1.13.1"))
 TRAITS = ["Height", "LeafArea", "SLA", "Leaf_N"]
-CFG = {"min_photos": 30, "n_photos": 30, "n_cand": 45, "full_species_frac_min": 0.98, "conf_min": 90, "smoke_species": 60, "shard": 500, "threads": 4,
-       "fetch_min_success": 0.98, "min_photos_after_fetch": 20, "alphas": [10 ** (x / 2) for x in range(-2, 9)],
+CFG = {"min_photos": 30, "n_photos": 30, "n_cand": 45, "conf_min": 90, "smoke_species": 60, "shard": 500, "threads": 48, "t1_min_species": 2000,
+       "retry_rounds": 3, "min_photos_after_fetch": 20, "alphas": [10 ** (x / 2) for x in range(-2, 9)],
        "n_boot": {"full": 2000, "smoke": 100}, "backbone": "vit_base_patch16_224.augreg_in1k"}
 
 def _h(o): return hashlib.sha256(json.dumps(o, sort_keys=True, default=str).encode()).hexdigest()[:16]
@@ -47,8 +47,12 @@ def t1_select(mode):
     key = _key("t1_select", mode, {"csv": [_fsha(f"{V}/ptn/{s}.csv") for s in ("train", "val")]})
     if _valid(mode, "t1", key): return "SKIP"
     d = pd.concat([pd.read_csv(f"{V}/ptn/{s}.csv") for s in ("train", "val")])
-    d["pid"] = d.Image.str.extract(r"photo_(\d+)")[0]
-    n = d.drop_duplicates(["Species", "pid"]).groupby("Species").size(); pool = sorted(n[n >= CFG["min_photos"]].index)
+    d["pid"] = d.Image.str.extract(r"photo_(\d+)")[0]; d_all = d.copy()
+    n_nopid = int(d.pid.isna().sum()); d = d[d.pid.notna()].drop_duplicates(["Species", "pid"])
+    multi = d.groupby("pid").Species.nunique(); shared = set(multi[multi > 1].index)
+    links = d[d.pid.isin(shared)].groupby("pid").Species.apply(lambda x: sorted(set(x))).tolist()
+    d = d[~d.pid.isin(shared)]
+    n = d.groupby("Species").size(); pool = sorted(n[n >= CFG["min_photos"]].index)
     cache = f"{V}/ptn/gbif_match_full.parquet"
     if os.path.exists(cache): gm = pd.read_parquet(cache)
     else:
@@ -65,19 +69,30 @@ def t1_select(mode):
     ok = (g["rank"] == "SPECIES") & (g.confidence >= CFG["conf_min"]) & g.genus.notna() & g.family.notna() & g.order.notna()
     g = g[ok]; dup = g.speciesKey.duplicated(keep=False); n_coll = int(dup.sum()); g = g[~dup]
     sp = sorted(g.Species)
+    parent = {x: x for x in sp}                                   # union-find over species that shared photos
+    def find(x):
+        while parent[x] != x: parent[x] = parent[parent[x]]; x = parent[x]
+        return x
+    for L in links:
+        L = [x for x in L if x in parent]
+        for x in L[1:]: parent[find(x)] = find(L[0])
+    link_group = {x: find(x) for x in sp}
     if mode == "smoke": sp = [sp[i] for i in np.random.default_rng(0).permutation(len(sp))[:CFG["smoke_species"]]]
-    lab = d.drop_duplicates("Species").set_index("Species")[[f"{t}_median" for t in TRAITS]]
+    lab = d_all.groupby("Species")[[f"{t}_median" for t in TRAITS]].first()     # first non-null per species (some rows carry NaN labels)
     rows = []
     for s in sp:
         x = d[d.Species == s].drop_duplicates("pid").sort_values("pid")
         c = x.iloc[np.random.default_rng(0).permutation(len(x))[:CFG["n_cand"]]][["Species", "pid"]].copy(); c["rank"] = np.arange(len(c)); rows.append(c)
     sel = pd.concat(rows).merge(g[["Species", "genus", "family", "order", "speciesKey"]], on="Species").merge(lab, left_on="Species", right_index=True)
+    sel["link_group"] = sel.Species.map(link_group)
     sel = sel.sort_values(["Species", "rank"]).reset_index(drop=True)
     out = f"{_d(mode, 't1')}/sel.parquet"; sel.to_parquet(out, index=False)
-    gates = [_gate("n_species", sel.Species.nunique(), sel.Species.nunique() >= (50 if mode == "smoke" else 2500)),
+    gates = [_gate("n_species", sel.Species.nunique(), sel.Species.nunique() >= (50 if mode == "smoke" else CFG["t1_min_species"])),
+             _gate("pid_unique", bool(sel.pid.is_unique), sel.pid.is_unique),
              _gate("labels_positive", True, bool((sel[[f"{t}_median" for t in TRAITS]] > 0).all().all())),
              _gate("candidates_per_species>=30", int(sel.groupby("Species").size().min()), sel.groupby("Species").size().min() >= CFG["n_photos"])]
-    _write(mode, "t1", key, [out], gates, {"pool": len(pool), "after_tax_filter": int(ok.sum()), "synonym_collisions_dropped": n_coll, "n_species": sel.Species.nunique(),
+    _write(mode, "t1", key, [out], gates, {"pool": len(pool), "after_tax_filter": int(ok.sum()), "synonym_collisions_dropped": n_coll, "n_species": sel.Species.nunique(), "rows_without_inat_pid": n_nopid, "shared_pids_dropped": len(shared),
+                                           "species_in_linked_groups": int(pd.Series(link_group).map(pd.Series(link_group).value_counts()).gt(1).sum()),
                                            "genera": int(sel.genus.nunique()), "families": int(sel.family.nunique()), "orders": int(sel.order.nunique())})
     return "PASS"
 
@@ -85,48 +100,66 @@ def t1_select(mode):
 @app.function(image=IMG, volumes={V: vol}, timeout=8 * 3600, memory=8192)
 def t2_fetch(mode):
     vol.reload()
-    import pandas as pd, pyarrow as pa, pyarrow.parquet as pq, io, glob, urllib.request, urllib.error, random
+    import pandas as pd, numpy as np, pyarrow as pa, pyarrow.parquet as pq, io, glob, urllib.request, urllib.error, random
     from concurrent.futures import ThreadPoolExecutor
     from PIL import Image
     key = _key("t2_fetch", mode, {"t1": _in(mode, "t1")})
     if _valid(mode, "t2", key): return "SKIP"
     sel = pd.read_parquet(f"{_d(mode,'t1')}/sel.parquet"); S = CFG["shard"]; dd = _d(mode, "t2")
+    EXT = ("jpg", "jpeg", "JPG", "png", "JPEG", "PNG")
     def get(pid):
-        for t in range(5):
-            for ext in ("jpg", "jpeg", "png", "JPG", "JPEG", "PNG"):
+        """returns (pid, bytes|None, status in ok/deleted/failed)"""
+        for t in range(4):
+            transient = False
+            for ext in EXT:
                 try:
                     raw = urllib.request.urlopen(urllib.request.Request(f"https://inaturalist-open-data.s3.amazonaws.com/photos/{pid}/medium.{ext}", headers={"User-Agent": "research-client"}), timeout=30).read()
-                    im = Image.open(io.BytesIO(raw)).convert("RGB"); im.thumbnail((384, 384)); o = io.BytesIO(); im.save(o, "JPEG", quality=90); return pid, o.getvalue()
+                    im = Image.open(io.BytesIO(raw)).convert("RGB"); im.thumbnail((384, 384)); o = io.BytesIO(); im.save(o, "JPEG", quality=90); return pid, o.getvalue(), "ok"
                 except urllib.error.HTTPError as e:
                     if e.code in (403, 404): continue
-                    time.sleep(2 * 2 ** t + random.random()); break
-                except Exception: time.sleep(2 * 2 ** t); break
-            else: return pid, None          # all extensions 403/404 -> photo deleted
-        return pid, None
+                    transient = True; break
+                except Exception: transient = True; break
+            if not transient: return pid, None, "deleted"
+            time.sleep(min(30, 2 * 2 ** t) + random.random())
+        return pid, None, "failed"
     def run_tier(name, pids):
         nsh = -(-len(pids) // S)
         for si in range(nsh):
             p = f"{dd}/{name}_shard_{si:05d}.parquet"; chunk = pids[si * S:(si + 1) * S]
-            if os.path.exists(p) and pq.read_table(p, columns=["pid"]).column("pid").to_pylist() == chunk: continue
-            with ThreadPoolExecutor(CFG["threads"]) as ex: res = list(ex.map(get, chunk))
-            pq.write_table(pa.table({"pid": [r[0] for r in res], "bytes": [r[1] for r in res]}), p + ".tmp"); os.replace(p + ".tmp", p); vol.commit()
+            for rnd in range(CFG["retry_rounds"] + 1):
+                if os.path.exists(p):
+                    t = pq.read_table(p).to_pydict()
+                    if t["pid"] != chunk or "status" not in t: os.remove(p); continue
+                    bad = [i for i, st_ in enumerate(t["status"]) if st_ == "failed"]
+                    if not bad: break
+                    with ThreadPoolExecutor(CFG["threads"]) as ex: rr = list(ex.map(get, [chunk[i] for i in bad]))
+                    for i, r in zip(bad, rr): t["bytes"][i], t["status"][i] = r[1], r[2]
+                else:
+                    with ThreadPoolExecutor(CFG["threads"]) as ex: res = list(ex.map(get, chunk))
+                    t = {"pid": [r[0] for r in res], "bytes": [r[1] for r in res], "status": [r[2] for r in res]}
+                pq.write_table(pa.table(t), p + ".tmp"); os.replace(p + ".tmp", p); vol.commit()
         for p in glob.glob(f"{dd}/{name}_shard_*.parquet"):
             if int(p[-13:-8]) >= nsh: os.remove(p)
-    def ok_set():
-        okp = set()
+    def statuses():
+        st_ = {}
         for p in sorted(glob.glob(f"{dd}/tier*_shard_*.parquet")):
-            t = pq.read_table(p).to_pydict(); okp |= {a for a, b in zip(t["pid"], t["bytes"]) if b}
-        return okp
+            t = pq.read_table(p, columns=["pid", "status"]).to_pydict(); st_.update(zip(t["pid"], t["status"]))
+        return st_
     run_tier("tier1", sel[sel["rank"] < CFG["n_photos"]].pid.tolist())
-    okp = ok_set(); n_ok = sel[sel.pid.isin(okp)].groupby("Species").size().reindex(sel.Species.unique(), fill_value=0)
-    short = set(n_ok[n_ok < CFG["n_photos"]].index)
+    st_ = statuses(); n_fail1 = sum(v == "failed" for v in st_.values())
+    n_ok = sel[sel.pid.map(st_).eq("ok")].groupby("Species").size().reindex(sel.Species.unique(), fill_value=0)
+    short = sorted(n_ok[n_ok < CFG["n_photos"]].index)
     run_tier("tier2", sel[(sel["rank"] >= CFG["n_photos"]) & sel.Species.isin(short)].pid.tolist())
-    okp = ok_set(); shards = sorted(glob.glob(f"{dd}/tier*_shard_*.parquet"))
-    tried = set(sel[sel["rank"] < CFG["n_photos"]].pid) | set(sel[(sel["rank"] >= CFG["n_photos"]) & sel.Species.isin(short)].pid)
-    dead = 1 - len(okp & tried) / len(tried)
-    sel["ok"] = sel.pid.isin(okp); per = sel.groupby("Species").ok.sum().clip(upper=CFG["n_photos"]); frac_full = float((per >= CFG["n_photos"]).mean()); mn = int(per.min())
-    gates = [_gate("species_with_30_photos_frac", round(frac_full, 4), frac_full >= CFG["full_species_frac_min"]), _gate("min_photos_per_species", mn, mn >= CFG["min_photos_after_fetch"])]
-    _write(mode, "t2", key, shards, gates, {"dead_link_rate_tried": round(dead, 4), "n_tried": len(tried), "n_ok": len(okp)}); return "PASS"
+    st_ = statuses(); shards = sorted(glob.glob(f"{dd}/tier*_shard_*.parquet"))
+    sel["status"] = sel.pid.map(st_); tried = sel[sel.status.notna()]
+    n_failed = int((tried.status == "failed").sum()); dead = float((tried.status == "deleted").mean())
+    per = sel[sel.status == "ok"].groupby("Species").size().reindex(sel.Species.unique(), fill_value=0).clip(upper=CFG["n_photos"]); mn = int(per.min())
+    t1 = sel[sel["rank"] < CFG["n_photos"]].groupby("Species").agg(dead=("status", lambda x: (x == "deleted").mean()), **{t: (f"{t}_median", "first") for t in TRAITS})
+    from scipy.stats import spearmanr
+    dead_vs_trait = {t: float(spearmanr(t1.dead, np.log(t1[t])).correlation) for t in TRAITS}
+    gates = [_gate("transient_failures", n_failed, n_failed == 0), _gate("min_photos_per_species", mn, mn >= CFG["min_photos_after_fetch"])]
+    _write(mode, "t2", key, shards, gates, {"dead_rate": round(dead, 4), "n_tried": len(tried), "frac_species_lt30": round(float((per < CFG["n_photos"]).mean()), 4),
+                                            "dead_vs_trait_spearman": dead_vs_trait, "tier1_failed_before_retry": n_fail1}); return "PASS"
 
 # ------------------------------------------------------------------ T3 features + organ probabilities
 @app.function(image=IMG, volumes={V: vol}, gpu="A10G", timeout=3 * 3600, memory=32768)
@@ -140,7 +173,7 @@ def t3_features(mode):
     if _valid(mode, "t3", key): return "SKIP"
     B = {}
     for p in sorted(glob.glob(f"{_d(mode,'t2')}/tier*_shard_*.parquet")):
-        t = pq.read_table(p).to_pydict(); B.update({a: b for a, b in zip(t["pid"], t["bytes"]) if b})
+        t = pq.read_table(p).to_pydict(); B.update({a: b for a, b, c in zip(t["pid"], t["bytes"], t["status"]) if c == "ok"})
     sel = pd.read_parquet(f"{_d(mode,'t1')}/sel.parquet"); sel = sel[sel.pid.isin(B)].sort_values(["Species", "rank"])
     sel = sel.groupby("Species").head(CFG["n_photos"]).reset_index(drop=True)
     net = timm.create_model(CFG["backbone"], pretrained=True, num_classes=0).cuda().eval().float()
@@ -173,13 +206,20 @@ def t4_analysis(mode, tag: str = ""):
     key = _key("t4_analysis", mode, {"t1": _in(mode, "t1"), "t3": _in(mode, "t3"), "ridge": _h(_src("_ridge_fit"))})
     if _valid(mode, st, key): return "SKIP"
     with np.load(f"{_d(mode,'t3')}/feats.npz", allow_pickle=True) as z: pid, X, pl, ph = z["pid"], z["X"].astype(np.float64), z["p_leaf"], z["p_habit"]
+    assert len(set(pid)) == len(pid), "duplicate pids in features"
     sel = pd.read_parquet(f"{_d(mode,'t1')}/sel.parquet").set_index("pid").loc[pid].reset_index()
     sp = sorted(sel.Species.unique()); si = sel.Species.map({s: i for i, s in enumerate(sp)}).values
     tax = sel.drop_duplicates("Species").set_index("Species").loc[sp]
     Y = np.log(tax[[f"{t}_median" for t in TRAITS]].values)          # species x trait
     Yimg = Y[si]; NB = CFG["n_boot"]["full" if mode == "full" else "smoke"]; A = CFG["alphas"]
     def folds(level, seed=0):
-        g = tax[level].values if level != "Species" else np.array(sp); u = np.array(sorted(set(g)))
+        """groups = taxonomic level value merged with link groups (species that shared photos never split across folds)"""
+        lab = tax[level].values if level != "Species" else np.array(sp); par = {}
+        def f_(x):
+            while par.setdefault(x, x) != x: par[x] = par[par[x]]; x = par[x]
+            return x
+        for a_, b_ in zip(("L:" + pd.Series(lab).astype(str)).values, ("G:" + tax.link_group.astype(str)).values): par[f_(a_)] = f_(b_)
+        g = np.array([f_("L:" + str(x)) for x in lab]); u = np.array(sorted(set(g)))
         perm = u[np.random.default_rng(seed).permutation(len(u))]; m = {x: i % 5 for i, x in enumerate(perm)}; return np.array([m[x] for x in g]), g
     def impute(tr_mask):
         trt = tax[tr_mask]; pred = np.full(Y.shape, np.nan); used = np.array(["global"] * len(sp), dtype=object)
@@ -214,15 +254,13 @@ def t4_analysis(mode, tag: str = ""):
             te = fo == f; tr = ~te
             pi, u = impute(tr); P_imp[te] = pi[te]; used[te] = u[te]
             pim, a = fit_predict(tr, te, level, Y); P_imgimg += pim; alphas.append(a)
-            # incremental: target = residual of within-training imputation (imputation recomputed leaving each training fold's species out is costly; use training-fold imputation residual)
             inner, _ = folds(level, seed=1); resid = np.zeros_like(Y)
             for k in range(5):                                  # training residuals from inner-fold imputation (species never imputes itself)
                 ik = tr & (inner == k)
                 if ik.sum() == 0: continue
                 pk, _ = impute(tr & (inner != k)); resid[ik] = Y[ik] - pk[ik]
             pr, _ = fit_predict(tr, te, level, resid); P_inc += pr
-        tei_all = np.ones(len(X))
-        store[level] = {"imp": P_imp, "img": species_mean(P_imgimg), "img_w": None, "inc": P_imp + species_mean(P_inc), "used": used, "alphas": alphas,
+        store[level] = {"imp": P_imp, "img": species_mean(P_imgimg), "inc": P_imp + species_mean(P_inc), "used": used, "alphas": alphas,
                         "img_wleaf": species_mean(P_imgimg, pl), "img_whabit": species_mean(P_imgimg, ph)}
         # top-10 by organ prob
         for nm, pr_ in (("img_top_leaf", pl), ("img_top_habit", ph)):
@@ -267,6 +305,15 @@ def t4_analysis(mode, tag: str = ""):
         w, b = _ridge_fit(Xs[tr], Yimg[tr], [100.0])[100.0]; Pr[te] = Xs[te] @ w + b
     res["warmup_seen"] = {t: {"r2_lookup_img": float(1 - ((Yimg[:, j] - Pl[:, j]) ** 2).sum() / ((Yimg[:, j] - Yimg[:, j].mean()) ** 2).sum()),
                               "r2_regress_img": float(1 - ((Yimg[:, j] - Pr[:, j]) ** 2).sum() / ((Yimg[:, j] - Yimg[:, j].mean()) ** 2).sum())} for j, t in enumerate(TRAITS)}
+    # primary test: Species-level CV, genus-imputed stratum, Holm over 4 traits (one-sided bootstrap p)
+    pv = {t: res["Species"][f"genus_imputed|{t}"]["d_img_minus_imp"][3] for t in TRAITS if f"genus_imputed|{t}" in res["Species"]}
+    order_ = sorted(pv, key=pv.get); verdict = {}; stop = False
+    for i, t in enumerate(order_):
+        thr = 0.05 / (len(order_) - i); sig = (not stop) and pv[t] <= thr; stop = stop or not sig
+        verdict[t] = {"p_boot": pv[t], "holm_threshold": thr, "significant": bool(sig)}
+    if verdict.get("Leaf_N", {}).get("significant"): verdict["Leaf_N"]["flag"] = "anomalous_inspect"
+    if verdict.get("Height", {}).get("significant"): verdict["Height"]["flag"] = "mandatory_leakage_check_before_interpretation"
+    res["primary_verdict"] = verdict
     out = f"{_d(mode, st)}/results.json"; json.dump(res, open(out, "w"), indent=1, sort_keys=True, default=str)
     w0 = min(v["r2_regress_img"] for v in res["warmup_seen"].values())
     gates = [_gate("warmup_seen_regression_r2>0", round(w0, 4), w0 > 0)]
@@ -277,7 +324,9 @@ def orchestrate(mode, upto="t4"):
     log = []
     for nm, fn in (("t1", t1_select), ("t2", t2_fetch), ("t3", t3_features), ("t4", t4_analysis)):
         r = fn.remote(mode); log.append(f"{nm}:{r}"); print(nm, r, flush=True); vol.reload()
-        if upto == nm: break
+        if upto == nm: return log
+    r = t4_analysis.remote(mode, "_rep"); vol.reload()
+    same = _fsha(f"{_d(mode,'t4')}/results.json") == _fsha(f"{_d(mode,'t4_rep')}/results.json"); log.append(f"t4_rep:{r}:identical={same}"); print("t4_rep identical", same, flush=True)
     return log
 
 @app.function(image=IMG, volumes={V: vol}, timeout=600)
