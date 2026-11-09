@@ -146,6 +146,19 @@ def t4_analysis(mode, tag: str = ""):
     w0 = min(v["r2_regress_img"] for v in res["warmup_seen"].values())
     _write(mode, st, key, [out], [_gate("warmup_seen_regression_r2>0", round(w0, 4), w0 > 0)], {"n_species": res["n_species"], "seconds": res["seconds"]}); return "PASS"
 
+def _cmp(a, b):
+    """(structure_equal, max_abs_numeric_diff): reproducibility across heterogeneous CPUs (float summation order)"""
+    if isinstance(a, dict):
+        if set(a) != set(b): return False, float("inf")
+        rs = [_cmp(a[k], b[k]) for k in a]; return all(r[0] for r in rs), max([r[1] for r in rs] + [0.0])
+    if isinstance(a, list):
+        if not isinstance(b, list) or len(a) != len(b): return False, float("inf")
+        rs = [_cmp(x, y) for x, y in zip(a, b)]; return all(r[0] for r in rs), max([r[1] for r in rs] + [0.0])
+    if isinstance(a, (int, float)) and isinstance(b, (int, float)) and not isinstance(a, bool):
+        if a != a and b != b: return True, 0.0
+        return True, abs(a - b)
+    return a == b, 0.0
+
 @app.function(image=IMG, volumes={V: vol}, timeout=20 * 3600)
 def orchestrate(mode, upto="all"):
     log = []
@@ -153,7 +166,9 @@ def orchestrate(mode, upto="all"):
         r = fn.remote(mode); log.append(f"{nm}:{r}"); print(nm, r, flush=True); vol.reload()
         if upto == nm: return log
     r = t4_analysis.remote(mode, "_rep"); vol.reload()
-    same = _fsha(f"{_d(mode,'t4')}/results.json") == _fsha(f"{_d(mode,'t4_rep')}/results.json"); log.append(f"t4_rep:{r}:identical={same}"); print("t4_rep identical", same, flush=True)
+    A_, B_ = (json.load(open(f"{_d(mode, x)}/results.json")) for x in ("t4", "t4_rep")); A_.pop("seconds", None); B_.pop("seconds", None)
+    ok, md = _cmp(A_, B_); same = ok and md <= 1e-9
+    log.append(f"t4_rep:{r}:identical={same}:maxdiff={md:.2e}:structure={ok}"); print("t4_rep identical", same, md, flush=True)
     return log
 
 @app.function(image=IMG, volumes={V: vol}, timeout=600)

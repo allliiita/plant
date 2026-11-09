@@ -25,3 +25,4 @@
 - smoke T2 crash: stale legacy shards; also tier2 'short' set could include stale tier2 results (nondeterminism). Fixed: decide from tier1 statuses only; delete shards without status column.
 - v7.3 decided autonomously per user instruction.
 - smoke T4 crash: bootstrap on empty sensitivity stratum (path untested: synthetic dead rates were constant). Guard + test t_small_and_varied + mutation M14.
+- orchestrate default upto=t4 skipped the byte-identical rerun (conservative failure: pilot never triggered). Fixed default to all.
