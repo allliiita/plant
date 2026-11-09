@@ -137,3 +137,8 @@ VAL (30) = systematic stratified sample of SEEN: sort SEEN by (family, permuted 
 New gate: total-variation distance between SEEN and UNSEEN family distributions ≤ 0.10 (full mode).
 Rationale: G1 is paired (same queries), so main-effect difficulty cancels; stratification removes taxonomy × adapter interaction confounds.
 Smoke for s6 = full features restricted to the first 20 species (sorted id) and a 1-config grid; gates on split/finite only.
+### v6.2 amendment (approved; before any full v6 result)
+Family-level TVD ≤0.10 is infeasible by construction (82 families, 37 singletons → measured 0.18). Gate redefined at the stratification-unit level
+(multi-species families + pooled singleton stratum): TVD_strata ≤ 0.10 (measured 0.06). Family-level TVD reported as-is.
+Added robustness subset "shared_family": UNSEEN species whose family also has SEEN species (removes taxonomy mismatch); G1 recomputed there (proto, descriptive).
+Reproducibility: full s6 rerun for the two primary backbones (dinov3_b, bioclip) must be byte-identical before reporting; secondary backbones rerun deferred (cost).

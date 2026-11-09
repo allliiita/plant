@@ -433,6 +433,10 @@ def s6_adapter(mode, model, smoke: int = 0, tag: str = ""):
     if smoke: allsp = allsp[:20]
     fam = fm.family.to_dict(); gen = fm.genus.to_dict()
     seen, unseen, val = _strat_split(allsp, fam); fit = sorted(set(seen) - set(val))
+    vcf = pd.Series([fam[x] for x in allsp]).value_counts(); stf = lambda x: fam[x] if vcf[fam[x]] > 1 else "_other"
+    ss_ = pd.Series([stf(x) for x in seen]).value_counts(normalize=True); su_ = pd.Series([stf(x) for x in unseen]).value_counts(normalize=True)
+    tvd_st = 0.5 * sum(abs(ss_.get(f, 0) - su_.get(f, 0)) for f in set(ss_.index) | set(su_.index))
+    seen_fam = {fam[x] for x in seen}; shf = [x for x in unseen if fam[x] in seen_fam]
     tvd = 0.5 * sum(abs(pd.Series([fam[x] for x in seen]).value_counts(normalize=True).get(f, 0) - pd.Series([fam[x] for x in unseen]).value_counts(normalize=True).get(f, 0)) for f in set(fam[x] for x in allsp))
     tr = (sel.split == 'train').values; org = sel.organ.values; sp = sel.species_id.values
     S_tr = np.isin(sp, seen) & tr                      # everything fit on SEEN train images only
@@ -510,8 +514,8 @@ def s6_adapter(mode, model, smoke: int = 0, tag: str = ""):
     # ---- evaluation on UNSEEN (and genus-disjoint subset)
     ks = [1, 5, 20]; NB = 1000 if not smoke else 50
     seen_gen = {gen[x] for x in seen}; gdis = [x for x in unseen if gen[x] not in seen_gen]
-    results = {"split": {"n_seen": len(seen), "n_unseen": len(unseen), "n_val": len(val), "family_tvd": tvd, "n_genus_disjoint": len(gdis)}, "hp": sel_log}
-    for subset_name, subset in [("unseen", unseen)] + ([("genus_disjoint", gdis)] if len(gdis) >= 40 else []):
+    results = {"split": {"n_seen": len(seen), "n_unseen": len(unseen), "n_val": len(val), "family_tvd": tvd, "n_genus_disjoint": len(gdis), "family_tvd_strata": tvd_st, "n_shared_family": len(shf)}, "hp": sel_log}
+    for subset_name, subset in [("unseen", unseen)] + ([("genus_disjoint", gdis)] if len(gdis) >= 40 else []) + ([("shared_family", shf)] if len(shf) >= 40 else []):
         R = {(m, "proto"): evaluate(Zs[m], subset, ks, 5, "proto") for m in Zs}
         if subset_name == "unseen":                      # secondary classifier: k=5, core methods only (cost control, pre-declared as secondary)
             for m in ("M0", "M1", "M3", "M3a"): R[(m, "lr")] = evaluate(Zs[m], subset, [5], 5, "lr")
@@ -551,7 +555,7 @@ def s6_adapter(mode, model, smoke: int = 0, tag: str = ""):
     m0w = results["unseen"]["M0|proto|k5|within"][0]; nchance = 1 / len(unseen)
     gates = [_gate("seen_unseen_disjoint", len(set(seen) & set(unseen)), not set(seen) & set(unseen)),
              _gate("val_fit_disjoint", len(set(val) & set(fit)), not set(val) & set(fit)),
-             _gate("family_tvd<=0.10", round(tvd, 4), smoke or tvd <= 0.10),
+             _gate("strata_tvd<=0.10", round(tvd_st, 4), smoke or tvd_st <= 0.10),
              _gate("finite", bool(np.isfinite(vals).all()), np.isfinite(vals).all()),
              _gate("M0_within_k5_vs_3x_chance", [round(m0w, 4), round(3 * nchance, 4)], m0w > 3 * nchance)]
     _write_man(mode, stage, key, [out_p], gates, results["split"]); return "PASS"
@@ -637,6 +641,17 @@ def reliability(mode="full"):
         out[f"R4_{mdl}_finite"] = bool(all(np.isfinite(A[k]).all() for k in A if k != "names"))
     json.dump(out, open(f"{V}/runs/{mode}/reliability.json", "w"), indent=1); vol.commit(); return out
 
+@app.function(image=IMG, volumes={V: vol}, timeout=20 * 3600)
+def s6_orchestrate(mode="full"):
+    log = {}
+    for mdl in ["dinov3_b", "bioclip", "dinov3_l", "bioclip2"]:
+        log[mdl] = s6_adapter.remote(mode, mdl, 0); print("S6", mdl, log[mdl], flush=True)
+    for mdl in ["dinov3_b", "bioclip"]:
+        s6_adapter.remote(mode, mdl, 0, "_rep"); vol.reload()
+        log[mdl + "_identical"] = _fsha(f"{_dir(mode, 's6_'+mdl)}/results.json") == _fsha(f"{_dir(mode, 's6_'+mdl+'_rep')}/results.json")
+        print("REP", mdl, log[mdl + "_identical"], flush=True)
+    json.dump(log, open(f"{V}/runs/{mode}/s6_log.json", "w")); vol.commit(); return log
+
 @app.function(image=IMG, volumes={V: vol}, timeout=900, memory=16384)
 def split_check(mode="full"):
     vol.reload(); import pandas as pd
@@ -656,6 +671,7 @@ def split_check(mode="full"):
 def main(mode: str = "smoke", upto: str = "s4", crash_after_shards: int = -1, show: int = 0, cmp: str = ""):
     if show: print(status.remote(mode)); return
     if cmp: print(json.dumps(compare_s2.remote(mode, cmp))); return
+    if upto == "s6full": print("S6FULL", json.dumps(s6_orchestrate.remote(mode))); return
     if upto == "splitcheck": print("SPLIT", json.dumps(split_check.remote(mode))); return
     if upto.startswith("s6"):
         smoke = int(upto.endswith("smoke"))
