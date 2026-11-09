@@ -78,27 +78,27 @@ def s0_env(mode):
     _write_man(mode, "s0", key, [out], gates, vers); return "PASS"
 
 # ---------------------------------------------------------------- S1 selection (author-disjoint, one image per obs)
-@app.function(image=IMG, volumes={V: vol}, timeout=3600, memory=32768, cpu=4)
-def s1_select(mode):
-    vol.reload()
+def _select(mode):
+    """pure, deterministic selection; must not depend on hash order"""
     import pandas as pd, numpy as np
-    key = _key("s1_select", mode, {"s0": _in(mode, "s0")})
-    if _valid(mode, "s1", key): return "SKIP"
     m = pd.read_csv(f"{V}/{CFG['meta_csv']}", sep=';', usecols=['image_name', 'organ', 'species_id', 'obs_id', 'author', 'species', 'dataset', 'url'], dtype=str)
     m = m[m.organ.isin(CFG["organs"])].copy(); m['author'] = m.author.fillna('NA')
     m['bin'] = m.species.str.extract(r'^([A-Z][a-z]+ [a-z\-]+)')[0]
+    m = m.sort_values('image_name', kind='stable')
     pn = m[m.dataset == 'plantnet'].drop_duplicates('obs_id')
     c = pn.groupby(['species_id', 'organ']).size().unstack(fill_value=0)
     for o in CFG["organs"]: c[o] = c[o] if o in c else 0
     t = CFG["pool_min_obs"]
-    pool = c[(c.flower >= t) & (c.leaf >= t) & (c.bark >= t) & ((c.fruit >= t) | (c.habit >= t))].index
+    pool = sorted(c[(c.flower >= t) & (c.leaf >= t) & (c.bark >= t) & ((c.fruit >= t) | (c.habit >= t))].index)
     NTR, NTE = CFG["n_train"], CFG["n_test"]
-    def split_species(g):
+    def split_species(sid, g):
         orgs = [o for o in CFG["organs"] if (g.organ == o).sum() >= NTR + NTE]
         if not {'flower', 'leaf', 'bark'} <= set(orgs) or not ({'fruit', 'habit'} & set(orgs)): return None
-        au = g.author.value_counts().sort_values(); au = au.sample(frac=1, random_state=0).sort_values(kind='stable')
+        cnt = g.author.value_counts(); names = sorted(cnt.index)
+        perm = np.random.default_rng(int(sid)).permutation(len(names))
+        order = sorted([names[i] for i in perm], key=lambda a: cnt[a])        # stable: seeded shuffle, then by count
         test = set()
-        for a in au.index:
+        for a in order:
             need = [o for o in orgs if ((g.organ == o) & g.author.isin(test)).sum() < NTE]
             if not need: break
             if ((g.organ.isin(need)) & (g.author == a)).any(): test.add(a)
@@ -107,12 +107,12 @@ def s1_select(mode):
         return test, ok
     bio = set(json.load(open(f"{V}/{CFG['bio_species']}")))
     feas = {}
-    for sid, g in pn[pn.species_id.isin(pool)].groupby('species_id'):
-        r = split_species(g)
+    for sid, g in pn[pn.species_id.isin(pool)].groupby('species_id', sort=True):
+        r = split_species(sid, g)
         if r: feas[sid] = r
     bins = pn.drop_duplicates('species_id').set_index('species_id').bin
-    fl = list(feas); ov = [s for s in fl if bins[s] in bio]; rest = [s for s in fl if s not in set(ov)]
-    np.random.default_rng(0).shuffle(rest); chosen = (ov + rest)[:CFG["n_species"]]
+    fl = sorted(feas); ov = [s for s in fl if bins[s] in bio]; rest = [s for s in fl if s not in set(ov)]
+    rest = [rest[i] for i in np.random.default_rng(0).permutation(len(rest))]; chosen = (ov + rest)[:CFG["n_species"]]
     ntr, nte = NTR, NTE
     if base(mode) == "smoke": chosen = chosen[:CFG["smoke"]["n_species"]]; ntr, nte = CFG["smoke"]["n_train"], CFG["smoke"]["n_test"]
     rows = []
@@ -121,19 +121,33 @@ def s1_select(mode):
         for o in ok:
             rows += [g[(g.organ == o) & g.author.isin(test)].sample(NTE, random_state=0).head(nte).assign(split='test'),
                      g[(g.organ == o) & ~g.author.isin(test)].sample(NTR, random_state=0).head(ntr).assign(split='train')]
-    sel = pd.concat(rows).reset_index(drop=True)
+    sel = pd.concat(rows)
     sel['dl'] = sel.url.str.replace('/image/o/', '/image/m/')
     sel = sel[['image_name', 'species_id', 'species', 'organ', 'split', 'author', 'obs_id', 'dl']].sort_values(['species_id', 'organ', 'split', 'image_name']).reset_index(drop=True)
+    return sel, {"pool": len(pool), "feasible": len(feas), "n_img": len(sel), "bio_overlap": len([s for s in chosen if s in set(ov)]), "n_chosen": len(chosen), "ntr": ntr, "nte": nte}
+
+def _df_hash(df): return hashlib.sha256(df.to_csv(index=False).encode()).hexdigest()[:16]
+
+@app.function(image=IMG, volumes={V: vol}, timeout=3600, memory=32768, cpu=4)
+def s1_select(mode):
+    vol.reload()
+    import subprocess, sys
+    key = _key("s1_select", mode, {"s0": _in(mode, "s0"), "sel": _h(_src("_select"))})
+    if _valid(mode, "s1", key): return "SKIP"
+    sel, info = _select(mode); h1 = _df_hash(sel)
+    env = dict(os.environ, PYTHONHASHSEED="12345")
+    code = f"import sys; sys.path.insert(0,'/root'); import pipeline as p; s,_=p._select({mode!r}); print(p._df_hash(s))"
+    h2 = subprocess.run([sys.executable, "-c", code], env=env, capture_output=True, text=True, cwd="/root").stdout.strip().splitlines()[-1:]
     cell = sel.groupby(['species_id', 'organ', 'split']).size()
     leak = sum(len(set(g[g.split == 'train'].author) & set(g[g.split == 'test'].author)) for _, g in sel.groupby('species_id'))
-    exp = {"train": ntr, "test": nte}
-    gates = [_gate("n_species", int(sel.species_id.nunique()), sel.species_id.nunique() == len(chosen) and len(chosen) >= (5 if base(mode) == "smoke" else 250)),
-             _gate("cell_sizes_exact", int((cell != [exp[s] for s in cell.index.get_level_values('split')]).sum()), all(cell.values == [exp[s] for s in cell.index.get_level_values('split')])),
+    exp = {"train": info["ntr"], "test": info["nte"]}; want = [exp[s] for s in cell.index.get_level_values('split')]
+    gates = [_gate("n_species", info["n_chosen"], sel.species_id.nunique() == info["n_chosen"] and info["n_chosen"] >= (5 if base(mode) == "smoke" else 250)),
+             _gate("cell_sizes_exact", int((cell.values != want).sum()), all(cell.values == want)),
              _gate("author_leak", leak, leak == 0), _gate("dup_image", int(sel.image_name.duplicated().sum()), not sel.image_name.duplicated().any()),
-             _gate("dup_obs", int(sel.obs_id.duplicated().sum()), not sel.obs_id.duplicated().any())]
+             _gate("dup_obs", int(sel.obs_id.duplicated().sum()), not sel.obs_id.duplicated().any()),
+             _gate("hashseed_invariant", [h1, h2[0] if h2 else None], bool(h2) and h2[0] == h1)]
     out = f"{_dir(mode,'s1')}/sel.parquet"; sel.to_parquet(out, index=False)
-    _write_man(mode, "s1", key, [out], gates, {"pool": len(pool), "feasible": len(feas), "n_img": len(sel), "bio_overlap": len([s for s in chosen if s in set(ov)])})
-    return "PASS"
+    _write_man(mode, "s1", key, [out], gates, {**info, "sel_hash": h1}); return "PASS"
 
 # ---------------------------------------------------------------- S2 fetch (resumable shards; reuses legacy cache by image_name after re-validation)
 @app.function(image=IMG, volumes={V: vol}, timeout=6 * 3600, memory=8192, cpu=2)
