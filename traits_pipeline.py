@@ -140,13 +140,15 @@ def t2_fetch(mode):
                 pq.write_table(pa.table(t), p + ".tmp"); os.replace(p + ".tmp", p); vol.commit()
         for p in glob.glob(f"{dd}/{name}_shard_*.parquet"):
             if int(p[-13:-8]) >= nsh: os.remove(p)
-    def statuses():
+    def statuses(prefix="tier"):
         st_ = {}
-        for p in sorted(glob.glob(f"{dd}/tier*_shard_*.parquet")):
+        for p in sorted(glob.glob(f"{dd}/{prefix}*_shard_*.parquet")):
             t = pq.read_table(p, columns=["pid", "status"]).to_pydict(); st_.update(zip(t["pid"], t["status"]))
         return st_
+    for p in glob.glob(f"{dd}/*.parquet"):                       # legacy-format shards (no status column) are stale
+        if "status" not in pq.read_schema(p).names: os.remove(p)
     run_tier("tier1", sel[sel["rank"] < CFG["n_photos"]].pid.tolist())
-    st_ = statuses(); n_fail1 = sum(v == "failed" for v in st_.values())
+    st_ = statuses("tier1"); n_fail1 = sum(v == "failed" for v in st_.values())
     n_ok = sel[sel.pid.map(st_).eq("ok")].groupby("Species").size().reindex(sel.Species.unique(), fill_value=0)
     short = sorted(n_ok[n_ok < CFG["n_photos"]].index)
     run_tier("tier2", sel[(sel["rank"] >= CFG["n_photos"]) & sel.Species.isin(short)].pid.tolist())
