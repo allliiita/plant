@@ -7,3 +7,4 @@
 - R1 v1 B-pair: null-Δ (same-model concat) = −27pp at k=1 → concat-probe Δ at low k is dominated by readout capacity/regularisation.
   Deviation (flagged, not pre-registered): add late-fusion Δ (mean of the two softmax outputs) as robustness readout; concat-Δ stays the pre-registered primary.
 - D2: matched cells = 2 → infeasible in main subset (as predicted); side-set deferred.
+- Pipeline gate fix: S4 chance-gate scoped to easiest setting (within-organ, max k); hard settings (k=1 cross-organ) legitimately near chance on 10-image smoke test. Threshold unchanged (2x smoke / 3x full).

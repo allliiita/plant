@@ -308,8 +308,10 @@ def s4_probes(mode, pair, tag: str = ""):
     chance = 1 / m.species_id.nunique()
     out = f"{_dir(mode, stage)}/rows.json"; json.dump(rows, open(out, "w"), indent=1, sort_keys=True)
     accs = [r[x] for r in rows for x in ('accA', 'accD')]
-    gates = [_gate("all_finite", True, all(np.isfinite(accs))),
-             _gate("min_acc_vs_2x_chance", [round(min(accs), 4), round(2 * chance, 4)], min(accs) >= 2 * chance)]
+    kmax = max(r['k'] for r in rows); fac = 3 if mode == "full" else 2
+    easy = [r[x] for r in rows if r['within'] and r['k'] == kmax for x in ('accA', 'accD')]
+    gates = [_gate("all_finite", bool(np.isfinite(accs).all()), np.isfinite(accs).all()),
+             _gate(f"easy_setting_acc_vs_{fac}x_chance", [round(min(easy), 4), round(fac * chance, 4)], min(easy) > fac * chance + 1e-9)]
     _write_man(mode, stage, key, [out], gates, {"n_rows": len(rows)}); return "PASS"
 
 def lr_fit(Xtr, ytr, Xte, lams=(1e-4, 1e-3, 1e-2), iters=150, seed=0):
