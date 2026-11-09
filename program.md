@@ -190,3 +190,7 @@ Scale-calibration control: AusTraits leaf aspect ratio (244 spp, strict measured
 ### Reliability
 Run on new Modal account (volume plantid-vol2) in a manifest/gated pipeline (traits_pipeline.py): smoke (60 spp) → full → full rerun byte-identical before reporting.
 Gates: name/taxonomy filters applied; photo fetch success ≥98% and every species ≥20 photos; features finite; ridge R² on seen-species warm-up > 0.
+### v7.1 amendment (after smoke T2 gate failure; before any analysis result)
+Smoke found ~8% of PlantTraitNet photo links dead (iNat 404; 24/25 sampled failures deleted, 1 uppercase .JPG).
+Rule change: per species a seeded rank order of up to 45 candidates; tier-1 fetch ranks 0–29, tier-2 fetch further ranks only for species short of 30;
+use the first 30 successful photos by rank. Gates: ≥98% of species reach 30 photos; every species ≥20. Dead-link rate reported. Limitation: deletion assumed unrelated to traits.
