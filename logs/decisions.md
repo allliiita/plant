@@ -20,3 +20,5 @@
   Gain appears only when gap <= ~8pp. Competing account to H*: complementarity governed by performance parity, organ acts via parity.
 - s6 cost control: precomputed index; secondary LR classifier restricted to k=5 × {M0,M1,M3,M3a} (go criteria use proto only; unchanged).
 - Early stop (agreed): G1 is AND over primaries → evaluate dinov3_b first; if G1 fails, stop (NO-GO), rerun dinov3_b only for byte-check; bioclip optional for write-up.
+- POST HOC (user-approved, flagged): adapter+proto vs strongest training-free baseline (M1+LR) with shared cluster bootstrap; computed by rerunning primaries with tag _ph after the main run; main numbers must reproduce exactly.
+- STOP (user): secondary backbones, byte reruns, and _ph rerun cancelled. Post hoc strongest-baseline CI computed from summaries as conservative unpaired approximation (independence assumption).
