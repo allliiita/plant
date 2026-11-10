@@ -266,7 +266,7 @@ def analyze(pid, X, pl, ph, dead_species, dead_rate, sel, cfg, n_boot, levels=("
         ws = BWs * m; tot = ws.sum(1); keep = tot > 0; ws = ws[keep]; tot = tot[keep]
         my = ws @ y / tot; sst = ws @ (y ** 2) - tot * my ** 2
         out = (ws @ eb - ws @ ea) / sst
-        return [r2(pa, m, j) - r2(pb, m, j), float(np.percentile(out, 2.5)), float(np.percentile(out, 97.5)), float((out <= 0).mean())]
+        return [r2(pa, m, j) - r2(pb, m, j), float(np.percentile(out, 2.5)), float(np.percentile(out, 97.5)), float((out <= 1e-12).mean())]   # |diff|<1e-12 = tie (float noise)
     for level, S in store.items():
         R = {}; strata = {"pooled": np.ones(len(sp), bool)}
         if level == "Species": strata.update({"genus_imputed": S["used"] == "genus", "family_imputed": S["used"] == "family", "order_or_global": np.isin(S["used"], ["order", "global"])})
