@@ -29,3 +29,4 @@
 - t4_rep not byte-identical: 276 diffs at ~1e-15 (different Modal CPUs, float summation order). Criterion: structure equal + max|Δ|≤1e-9; reported as such (not 'byte-identical').
 - v9 (density-conditioned shrinkage + conformal) decided; stopped A (old core) and B chain so smoke/full use the same tested core.
 - smoke rep diff: bootstrap p flipped on ~1e-17 differences (blend==uniform in tiny smoke strata). Ties |d|<1e-12 counted as <=0.
+- v10 accepted (no v9 regression): C1 confirmed Height, LeafArea, Leaf_N; SLA not. No further attempts per rule.

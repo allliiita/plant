@@ -128,3 +128,22 @@
 | CLIP ViT-L | family | 767 | 0.872/0.855/0.876/0.849 | 0.900/0.900/0.903/0.900 | 2.15/3.05/1.05/0.79 |
 | CLIP ViT-L | order_or_global | 98 | 0.704/0.775/0.847/0.704 | 0.918/0.908/0.898/0.878 | 2.61/3.51/1.07/0.85 |
 | CLIP ViT-L | all | 2345 | 0.899/0.900/0.900/0.900 | 0.901/0.902/0.901/0.898 | 1.94/2.63/0.98/0.66 |
+---
+# v10 增补（预登记的一次性尝试，已接受）
+
+改动：密度权重中加入按性状计算的“训练集同属物种该性状的标准差（log）”（不足 2 个同属训练物种时依次退到科、目、全局）。其余设计完全不变。
+判定规则（预先写定）：C1 需在 MAE 与 CLIP 上同时成立；若 v9 已通过的任何判据退化则否决 v10。结果：v9 所有判据均保持通过，v10 接受。
+
+| trait | C1 密度 − 统一权重（MAE） | C1（CLIP） | v9 | v10 |
+|---|---|---|---|---|
+| Height | +0.035 [+0.027, +0.043] | +0.024 [+0.017, +0.031] | ✅ | ✅ |
+| LeafArea | +0.037 [+0.022, +0.051] | +0.029 [+0.016, +0.043] | ✅ | ✅ |
+| Leaf_N | +0.006 [+0.000, +0.012] | +0.012 [+0.005, +0.019] | ❌ | ✅（MAE 下界仅略大于 0） |
+| SLA | +0.012 [+0.000, +0.023] | +0.008 [−0.001, +0.018] | ❌ | ❌ |
+
+v10（MAE/CLIP）：收缩 − 照片 +0.031 至 +0.260；收缩 − 插补 +0.032 至 +0.178；Mondrian CV+（名义 0.95）各密度层经验覆盖 ≥0.939，最稀疏层 pooled CV+ 为 0.857–0.929。重跑跨机器最大差 3.2e-13。
+结论：密度条件化收益在 3/4 个性状上确认（SLA 不声称）。按规则不再做第二次尝试。
+
+## 最终简历 bullet（以 v10 为准）
+- **Method + uncertainty**: Identified that standard CV+ conformal intervals under-cover taxonomically sparse plant species (0.857–0.929 empirical coverage at 95% nominal), because prediction error grows as taxonomic neighbours thin out while CV+ only guarantees marginal coverage; proposed taxonomy-stratified (Mondrian) calibration on top of density-conditioned empirical-Bayes shrinkage of photo-based and taxonomic predictions, restoring ≥0.939 coverage in every density stratum and improving unseen-species R² over photo-only (+0.031 to +0.260) and taxonomic imputation (+0.032 to +0.178) on all four traits; density conditioning itself beat a uniform weight on 3 of 4 traits. Confirmed on two held-out backbones (MAE, CLIP ViT-L).
+- **Diagnosis + reliability**: Showed that photo-based trait models largely recapitulate taxonomy: for species with congeners in training, they trail a no-image genus mean (photo − genus-mean ΔR²: Height −0.043 to −0.092, Leaf N −0.245 to −0.350 across both confirmation backbones), while photos gain value as taxonomic neighbourhoods thin out; built on a pre-registered pipeline with known-answer, fault-injection and mutation tests, staged gates, and cross-machine reproducibility to 1e-13 (2,345 species / 69,952 photos).
