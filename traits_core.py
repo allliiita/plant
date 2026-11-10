@@ -191,7 +191,9 @@ def conformal_report(Y, S, alpha=0.1, methods=("blend", "img", "imp", "inc"), mi
         out[meth] = res
     return out
 
-def analyze(pid, X, pl, ph, dead_species, dead_rate, sel, cfg, n_boot):
+def analyze(pid, X, pl, ph, dead_species, dead_rate, sel, cfg, n_boot, levels=("Species", "genus", "family", "order"), do_warmup=True, precomputed=None, return_parts=False):
+    """levels/do_warmup select the heavy parts to compute; precomputed={"store":{level:S}, "warmup":(Pl, Pr)} supplies parts computed elsewhere (parallel workers)."""
+    precomputed = precomputed or {}
     assert len(set(pid)) == len(pid), "duplicate pids in features"
     X = X.astype(np.float64)
     sel = sel.set_index("pid").loc[pid].reset_index()
@@ -216,8 +218,8 @@ def analyze(pid, X, pl, ph, dead_species, dead_rate, sel, cfg, n_boot):
                 ps_ = species_mean(pim, mt.astype(float))[ite]; err[a] += ((ps_ - target[ite]) ** 2).sum(); oof[a][ite] = ps_
         a_best = min(err, key=err.get); w, b = ridge_fit(Xs[tri], target[si[tri]], [a_best])[a_best]
         pim = np.zeros((len(Xs), target.shape[1])); pim[tei] = Xs[tei] @ w + b; return pim, a_best, oof[a_best]
-    res = {"n_species": len(sp), "n_images": int(len(X))}; store = {}
-    for level in ("Species", "genus", "family", "order"):
+    res = {"n_species": len(sp), "n_images": int(len(X))}; store = dict(precomputed.get("store", {}))
+    for level in [lv for lv in levels if lv not in store]:
         fo = make_folds(tax, sp, level); P_imp = np.zeros_like(Y); used = np.empty(len(sp), dtype=object)
         P_blend = np.zeros_like(Y); P_blend1 = np.zeros_like(Y); W_log = []
         P_img = np.zeros((len(X), Y.shape[1])); P_inc = np.zeros_like(P_img); alphas = []
@@ -255,16 +257,16 @@ def analyze(pid, X, pl, ph, dead_species, dead_rate, sel, cfg, n_boot):
             S[nm] = species_mean(P_img, w)
         store[level] = S
     gen = tax.genus.values; ug = np.array(sorted(set(gen))); gidx = np.searchsorted(ug, gen)
-    rng = np.random.default_rng(0); BW = [np.bincount(rng.integers(0, len(ug), len(ug)), minlength=len(ug)) for _ in range(n_boot)]
+    rng = np.random.default_rng(0); BW = np.stack([np.bincount(rng.integers(0, len(ug), len(ug)), minlength=len(ug)) for _ in range(n_boot)]).astype(float)
+    BWs = BW[:, gidx]                                                      # n_boot x species (genus-cluster weights)
     def r2(p, m, j): y = Y[m, j]; return float(1 - ((y - p[m, j]) ** 2).sum() / ((y - y.mean()) ** 2).sum())
     def boot_diff(pa, pb, m, j):
         if m.sum() < 10: return [None, None, None, None]               # too few species: not estimated
-        y = Y[:, j]; ea = (y - pa[:, j]) ** 2; eb = (y - pb[:, j]) ** 2; out = []
-        for w in BW:
-            ws = w[gidx] * m
-            if ws.sum() == 0: continue
-            my = (ws * y).sum() / ws.sum(); out.append(((ws * eb).sum() - (ws * ea).sum()) / (ws * (y - my) ** 2).sum())
-        out = np.array(out); return [r2(pa, m, j) - r2(pb, m, j), float(np.percentile(out, 2.5)), float(np.percentile(out, 97.5)), float((out <= 0).mean())]
+        y = Y[:, j]; ea = (y - pa[:, j]) ** 2; eb = (y - pb[:, j]) ** 2
+        ws = BWs * m; tot = ws.sum(1); keep = tot > 0; ws = ws[keep]; tot = tot[keep]
+        my = ws @ y / tot; sst = ws @ (y ** 2) - tot * my ** 2
+        out = (ws @ eb - ws @ ea) / sst
+        return [r2(pa, m, j) - r2(pb, m, j), float(np.percentile(out, 2.5)), float(np.percentile(out, 97.5)), float((out <= 0).mean())]
     for level, S in store.items():
         R = {}; strata = {"pooled": np.ones(len(sp), bool)}
         if level == "Species": strata.update({"genus_imputed": S["used"] == "genus", "family_imputed": S["used"] == "family", "order_or_global": np.isin(S["used"], ["order", "global"])})
@@ -284,15 +286,19 @@ def analyze(pid, X, pl, ph, dead_species, dead_rate, sel, cfg, n_boot):
         R["conformal"] = {f"alpha={a_}": {"nominal": 1 - a_, "cvplus_guarantee": 1 - 2 * a_, **conformal_report(Y, S, alpha=a_)} for a_ in (0.05, 0.10)}
         R["imputation_level_counts"] = {k: int(v) for k, v in pd.Series(S["used"]).value_counts().items()}; R["alphas"] = S["alphas"]; res[level] = R
     # warm-up (seen species): nearest-centroid lookup vs direct regression, image level
-    rng2 = np.random.default_rng(0); ff = np.zeros(len(X), int)
-    for s_ in range(len(sp)):
-        idx = np.where(si == s_)[0]; ff[idx] = rng2.permutation(len(idx)) % 5
-    Pl, Pr = np.zeros((len(X), Y.shape[1])), np.zeros((len(X), Y.shape[1]))
-    for f in range(5):
-        tr = ff != f; te = ~tr; mu, sd = X[tr].mean(0), X[tr].std(0) + 1e-6; Xs = (X - mu) / sd
-        C = np.zeros((len(sp), X.shape[1])); np.add.at(C, si[tr], Xs[tr]); C /= np.maximum(np.bincount(si[tr], minlength=len(sp)), 1)[:, None]
-        Cn = C / (np.linalg.norm(C, axis=1, keepdims=True) + 1e-12); Q = Xs[te] / (np.linalg.norm(Xs[te], axis=1, keepdims=True) + 1e-12)
-        Pl[te] = Y[(Q @ Cn.T).argmax(1)]; w, b = ridge_fit(Xs[tr], Yimg[tr], [100.0])[100.0]; Pr[te] = Xs[te] @ w + b
+    if "warmup" in precomputed: Pl, Pr = precomputed["warmup"]
+    elif do_warmup:
+        rng2 = np.random.default_rng(0); ff = np.zeros(len(X), int)
+        for s_ in range(len(sp)):
+            idx = np.where(si == s_)[0]; ff[idx] = rng2.permutation(len(idx)) % 5
+        Pl, Pr = np.zeros((len(X), Y.shape[1])), np.zeros((len(X), Y.shape[1]))
+        for f in range(5):
+            tr = ff != f; te = ~tr; mu, sd = X[tr].mean(0), X[tr].std(0) + 1e-6; Xs = (X - mu) / sd
+            C = np.zeros((len(sp), X.shape[1])); np.add.at(C, si[tr], Xs[tr]); C /= np.maximum(np.bincount(si[tr], minlength=len(sp)), 1)[:, None]
+            Cn = C / (np.linalg.norm(C, axis=1, keepdims=True) + 1e-12); Q = Xs[te] / (np.linalg.norm(Xs[te], axis=1, keepdims=True) + 1e-12)
+            Pl[te] = Y[(Q @ Cn.T).argmax(1)]; w, b = ridge_fit(Xs[tr], Yimg[tr], [100.0])[100.0]; Pr[te] = Xs[te] @ w + b
+    else: Pl = Pr = None
+    if return_parts: return {"store": store, "warmup": (Pl, Pr) if Pl is not None else None}
     sst = ((Yimg - Yimg.mean(0)) ** 2).sum(0)
     res["warmup_seen"] = {t: {"r2_lookup_img": float(1 - ((Yimg[:, j] - Pl[:, j]) ** 2).sum() / sst[j]), "r2_regress_img": float(1 - ((Yimg[:, j] - Pr[:, j]) ** 2).sum() / sst[j])} for j, t in enumerate(TRAITS)}
     # selection-bias sensitivity

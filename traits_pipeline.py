@@ -27,9 +27,16 @@ def _src(name):
 def _d(mode, st): p = f"{V}/traits/{mode}/{st}"; os.makedirs(p, exist_ok=True); return p
 def _man(mode, st):
     p = f"{_d(mode, st)}/manifest.json"; return json.load(open(p)) if os.path.exists(p) else None
-def _core_sha():
-    import traits_core; return _fsha(traits_core.__file__)
-def _key(name, mode, inputs): return {"code": _h(_src(name)), "core": _core_sha(), "cfg": _h(CFG), "mode": mode, "inputs": inputs}
+CORE_FUNCS = {"t1_select": ["select_species"], "t2_fetch": ["run_tier", "statuses", "fetch", "_read", "_write"], "t3_features": ["final_photos", "statuses"],
+              "t3_bb": [], "t4": ["ridge_fit", "make_folds", "impute", "_cat", "density_features", "fit_density_weights", "apply_density_weights", "conformal_report", "analyze"]}
+def _core_src(names):
+    import traits_core; t = open(traits_core.__file__).read(); out = []
+    for n in names:
+        i = t.index(f"\ndef {n}("); j = min([x for x in (t.find("\ndef ", i + 1),) if x > 0] + [len(t)]); out.append(t[i:j])
+    return "".join(out)
+def _key(name, mode, inputs):
+    core = CORE_FUNCS.get(name, CORE_FUNCS["t4"] if name.startswith("t4") else [])
+    return {"code": _h(_src(name)), "core": _h(_core_src(core)), "cfg": _h(CFG), "mode": mode, "inputs": inputs}
 def _valid(mode, st, key):
     m = _man(mode, st)
     return bool(m) and m["status"] == "PASS" and m["key"] == key and all(os.path.exists(o["path"]) and _fsha(o["path"]) == o["sha"] for o in m["outputs"])
@@ -102,7 +109,7 @@ def t2_fetch(mode):
     _write(mode, "t2", key, shards, gates, info); return "PASS"
 
 # ------------------------------------------------------------------ T3 features (core.final_photos)
-@app.function(image=IMG, volumes={V: vol}, gpu="A10G", timeout=3 * 3600, memory=32768)
+@app.function(image=IMG, volumes={V: vol}, gpu="H100", timeout=3 * 3600, memory=65536, cpu=16)
 def t3_features(mode):
     vol.reload()
     import torch, timm, numpy as np, pandas as pd, glob, io, pyarrow.parquet as pq, traits_core as core
@@ -123,7 +130,7 @@ def t3_features(mode):
         def __getitem__(self_, i): return pre(Image.open(io.BytesIO(B[s.pid[i]])).convert("RGB"))
     F = []
     with torch.no_grad():
-        for x in torch.utils.data.DataLoader(DS(), batch_size=128, num_workers=4, shuffle=False): F.append(net(x.cuda()).float().cpu())
+        for x in torch.utils.data.DataLoader(DS(), batch_size=512, num_workers=14, shuffle=False): F.append(net(x.cuda()).float().cpu())
     F = torch.cat(F); oc = torch.load(f"{V}/organ_clf.pt")
     P = torch.softmax(((F - oc["mu"]) / oc["sd"]) @ oc["W"] + oc["b"], 1).numpy(); F = F.numpy().astype(np.float32)
     out = f"{_d(mode,'t3')}/feats.npz"
@@ -131,21 +138,35 @@ def t3_features(mode):
     gates = [_gate("finite", bool(np.isfinite(F).all()), np.isfinite(F).all()), _gate("n_rows", len(F), len(F) == len(s))]
     _write(mode, "t3", key, [out], gates, {"n_species_kept": int(s.Species.nunique()), "n_species_excluded_lt20": nex, "n_images": len(s)}); return "PASS"
 
-# ------------------------------------------------------------------ T4 analysis (core.analyze)
-@app.function(image=IMG, volumes={V: vol}, timeout=6 * 3600, memory=65536, cpu=8)
-def t4_analysis(mode, tag: str = ""):
+# ------------------------------------------------------------------ T4 analysis (core.analyze), parallel over CV levels
+@app.function(image=IMG, volumes={V: vol}, timeout=3 * 3600, memory=65536, cpu=16)
+def t4_part(mode, feats_stage, part):
     vol.reload()
     import numpy as np, pandas as pd, traits_core as core
-    st = f"t4{tag}"
-    key = _key("t4_analysis", mode, {"t1": _in(mode, "t1"), "t3": _in(mode, "t3")})
-    if _valid(mode, st, key): return "SKIP"
-    with np.load(f"{_d(mode,'t3')}/feats.npz", allow_pickle=True) as z: a = {k: z[k] for k in z.files}
-    sel = pd.read_parquet(f"{_d(mode,'t1')}/sel.parquet"); t0 = time.time()
-    res, *_ = core.analyze(a["pid"], a["X"], a["p_leaf"], a["p_habit"], a["dead_species"], a["dead_rate"], sel, CFG, CFG["n_boot"][mode])
-    res["seconds"] = round(time.time() - t0, 1)
+    with np.load(f"{_d(mode, feats_stage)}/feats.npz", allow_pickle=True) as z: a = {k: z[k] for k in z.files}
+    sel = pd.read_parquet(f"{_d(mode,'t1')}/sel.parquet")
+    kw = dict(levels=(), do_warmup=True) if part == "warmup" else dict(levels=(part,), do_warmup=False)
+    return core.analyze(a["pid"], a["X"], a["p_leaf"], a["p_habit"], a["dead_species"], a["dead_rate"], sel, CFG, CFG["n_boot"][mode], return_parts=True, **kw)
+
+def _t4_run(mode, feats_stage, st, key):
+    import numpy as np, pandas as pd, traits_core as core
+    t0 = time.time(); parts = list(t4_part.map([mode] * 5, [feats_stage] * 5, ["Species", "genus", "family", "order", "warmup"]))
+    store = {}
+    for p in parts[:4]: store.update(p["store"])
+    with np.load(f"{_d(mode, feats_stage)}/feats.npz", allow_pickle=True) as z: a = {k: z[k] for k in z.files}
+    sel = pd.read_parquet(f"{_d(mode,'t1')}/sel.parquet")
+    res, *_ = core.analyze(a["pid"], a["X"], a["p_leaf"], a["p_habit"], a["dead_species"], a["dead_rate"], sel, CFG, CFG["n_boot"][mode],
+                           precomputed={"store": store, "warmup": parts[4]["warmup"]})
     out = f"{_d(mode, st)}/results.json"; json.dump(res, open(out, "w"), indent=1, sort_keys=True, default=str)
     w0 = min(v["r2_regress_img"] for v in res["warmup_seen"].values())
-    _write(mode, st, key, [out], [_gate("warmup_seen_regression_r2>0", round(w0, 4), w0 > 0)], {"n_species": res["n_species"], "seconds": res["seconds"]}); return "PASS"
+    _write(mode, st, key, [out], [_gate("warmup_seen_regression_r2>0", round(w0, 4), w0 > 0)], {"n_species": res["n_species"], "seconds": round(time.time() - t0, 1)}); return "PASS"
+
+@app.function(image=IMG, volumes={V: vol}, timeout=6 * 3600, memory=65536, cpu=8)
+def t4_analysis(mode, tag: str = ""):
+    vol.reload(); st = f"t4{tag}"
+    key = _key("t4_analysis", mode, {"t1": _in(mode, "t1"), "t3": _in(mode, "t3")})
+    if _valid(mode, st, key): return "SKIP"
+    return _t4_run(mode, "t3", st, key)
 
 def _cmp(a, b):
     """(structure_equal, max_abs_numeric_diff): reproducibility across heterogeneous CPUs (float summation order)"""
@@ -163,10 +184,11 @@ def _cmp(a, b):
 @app.function(image=IMG, volumes={V: vol}, timeout=20 * 3600)
 def orchestrate(mode, upto="all"):
     log = []
-    for nm, fn in (("t1", t1_select), ("t2", t2_fetch), ("t3", t3_features), ("t4", t4_analysis)):
+    for nm, fn in (("t1", t1_select), ("t2", t2_fetch), ("t3", t3_features)):
         r = fn.remote(mode); log.append(f"{nm}:{r}"); print(nm, r, flush=True); vol.reload()
         if upto == nm: return log
-    r = t4_analysis.remote(mode, "_rep"); vol.reload()
+    h1, h2 = t4_analysis.spawn(mode), t4_analysis.spawn(mode, "_rep"); r1 = h1.get(); r = h2.get(); vol.reload()
+    log.append(f"t4:{r1}"); print("t4", r1, flush=True)
     A_, B_ = (json.load(open(f"{_d(mode, x)}/results.json")) for x in ("t4", "t4_rep")); A_.pop("seconds", None); B_.pop("seconds", None)
     ok, md = _cmp(A_, B_); same = ok and md <= 1e-9
     log.append(f"t4_rep:{r}:identical={same}:maxdiff={md:.2e}:structure={ok}"); print("t4_rep identical", same, md, flush=True)
@@ -174,7 +196,7 @@ def orchestrate(mode, upto="all"):
 
 
 # ------------------------------------------------------------------ v8-B: alternative backbones (same photos, same core analysis)
-@app.function(image=IMG, volumes={V: vol}, gpu="A10G", timeout=3 * 3600, memory=32768)
+@app.function(image=IMG, volumes={V: vol}, gpu="H100", timeout=3 * 3600, memory=65536, cpu=16)
 def t3_bb(mode, bb):
     vol.reload()
     import torch, numpy as np, pandas as pd, glob, io, pyarrow.parquet as pq, traits_core as core
@@ -201,7 +223,7 @@ def t3_bb(mode, bb):
         def __getitem__(self_, i): return pre(Image.open(io.BytesIO(B[want[i]])).convert("RGB"))
     F = []
     with torch.no_grad():
-        for x in torch.utils.data.DataLoader(DS(), batch_size=64, num_workers=4, shuffle=False): F.append(fwd(x.cuda()).float().cpu())
+        for x in torch.utils.data.DataLoader(DS(), batch_size=256, num_workers=14, shuffle=False): F.append(fwd(x.cuda()).float().cpu())
     F = torch.cat(F).numpy().astype(np.float32)
     out = f"{_d(mode, st)}/feats.npz"; np.savez(out, **{**base, "X": F})
     gates = [_gate("finite", bool(np.isfinite(F).all()), np.isfinite(F).all()), _gate("n_rows", len(F), len(F) == len(want)), _gate("nonconstant", float(F.std(0).mean()), F.std(0).mean() > 1e-6)]
@@ -209,23 +231,17 @@ def t3_bb(mode, bb):
 
 @app.function(image=IMG, volumes={V: vol}, timeout=6 * 3600, memory=65536, cpu=8)
 def t4_bb(mode, bb, tag: str = ""):
-    vol.reload()
-    import numpy as np, pandas as pd, traits_core as core
-    st = f"t4_{bb}{tag}"; key = _key("t4_bb", mode, {"t1": _in(mode, "t1"), "t3": _in(mode, f"t3_{bb}")})
+    vol.reload(); st = f"t4_{bb}{tag}"
+    key = _key("t4_bb", mode, {"t1": _in(mode, "t1"), "t3": _in(mode, f"t3_{bb}")})
     if _valid(mode, st, key): return "SKIP"
-    with np.load(f"{_d(mode, 't3_' + bb)}/feats.npz", allow_pickle=True) as z: a = {k: z[k] for k in z.files}
-    sel = pd.read_parquet(f"{_d(mode,'t1')}/sel.parquet"); t0 = time.time()
-    res, *_ = core.analyze(a["pid"], a["X"], a["p_leaf"], a["p_habit"], a["dead_species"], a["dead_rate"], sel, CFG, CFG["n_boot"][mode])
-    out = f"{_d(mode, st)}/results.json"; json.dump(res, open(out, "w"), indent=1, sort_keys=True, default=str)
-    w0 = min(v["r2_regress_img"] for v in res["warmup_seen"].values())
-    _write(mode, st, key, [out], [_gate("warmup_seen_regression_r2>0", round(w0, 4), w0 > 0)], {"n_species": res["n_species"], "seconds": round(time.time() - t0, 1)}); return "PASS"
+    return _t4_run(mode, f"t3_{bb}", st, key)
 
 @app.function(image=IMG, volumes={V: vol}, timeout=20 * 3600)
 def orchestrate_b(mode):
     log = []
     for bb in CFG_B:
-        for nm, call in (("t3", lambda: t3_bb.remote(mode, bb)), ("t4", lambda: t4_bb.remote(mode, bb)), ("t4_rep", lambda: t4_bb.remote(mode, bb, "_rep"))):
-            r = call(); log.append(f"{nm}_{bb}:{r}"); print(nm, bb, r, flush=True); vol.reload()
+        r = t3_bb.remote(mode, bb); log.append(f"t3_{bb}:{r}"); vol.reload()
+        h1, h2 = t4_bb.spawn(mode, bb), t4_bb.spawn(mode, bb, "_rep"); log.append(f"t4_{bb}:{h1.get()}"); log.append(f"t4rep_{bb}:{h2.get()}"); vol.reload()
         A_, B_ = (json.load(open(f"{_d(mode, 't4_' + bb + x)}/results.json")) for x in ("", "_rep")); ok, md = _cmp(A_, B_)
         log.append(f"rep_{bb}:identical={ok and md <= 1e-9}:maxdiff={md:.2e}"); print("rep", bb, ok, md, flush=True)
     return log

@@ -213,6 +213,16 @@ def t_conformal_mondrian(C):
             assert 0.82 <= cf["mondrian"][c]["coverage"][j] <= 0.98, f"mondrian stratum {c} coverage off: {cf['mondrian'][c]}"
     assert any(cf["pooled"][c]["coverage"][j] < 0.85 for c in sparse for j in range(4)), f"pooled conformal should under-cover sparse strata: {cf['pooled']}"
 
+def t_parallel_equivalence(C):
+    args = synth_analysis("signal", n_genus=20)
+    full, *_ = C.analyze(*args, CFG, n_boot=50)
+    parts = [C.analyze(*args, CFG, n_boot=50, levels=(lv,), do_warmup=False, return_parts=True) for lv in ("Species", "genus", "family", "order")]
+    wu = C.analyze(*args, CFG, n_boot=50, levels=(), do_warmup=True, return_parts=True)
+    store = {}
+    for p in parts: store.update(p["store"])
+    merged, *_ = C.analyze(*args, CFG, n_boot=50, precomputed={"store": store, "warmup": wu["warmup"]})
+    assert json.dumps(full, sort_keys=True, default=str) == json.dumps(merged, sort_keys=True, default=str), "parallel parts differ from sequential analysis"
+
 def t_analysis_deterministic(C):
     a = json.dumps(C.analyze(*synth_analysis("signal", n_genus=30), CFG, n_boot=100)[0], sort_keys=True, default=str)
     b = json.dumps(C.analyze(*synth_analysis("signal", n_genus=30), CFG, n_boot=100)[0], sort_keys=True, default=str)
@@ -225,7 +235,7 @@ def t_duplicate_pid_rejected(C):
     raise AssertionError("duplicate pids accepted")
 
 TESTS = [t_select_rules, t_select_hashseed, t_fetch_resume_identical, t_fetch_transient_retried, t_fetch_stale_and_legacy, t_exclusion,
-         t_impute_no_leak, t_folds_links, t_known_answer_taxonomy_only, t_known_answer_signal, t_known_answer_complementary, t_small_and_varied, t_density_shrinkage, t_conformal_mondrian, t_analysis_deterministic, t_duplicate_pid_rejected]
+         t_impute_no_leak, t_folds_links, t_known_answer_taxonomy_only, t_known_answer_signal, t_known_answer_complementary, t_small_and_varied, t_density_shrinkage, t_conformal_mondrian, t_parallel_equivalence, t_analysis_deterministic, t_duplicate_pid_rejected]
 
 def run(C, tests=TESTS, quiet=False):
     fails = []
@@ -248,7 +258,7 @@ MUTATIONS = {
     "M10 no <20 exclusion": ('keep = sorted(cnt[cnt >= cfg["min_photos_after_fetch"]].index)', 'keep = sorted(cnt.index)'),
     "M11 duplicate pids accepted": ('assert len(set(pid)) == len(pid), "duplicate pids in features"', 'pass'),
     "M13 incremental without imputation covariate": ('pr, _, _ = fit_predict(tr, te, level, Y, Zsp); P_inc += pr', 'pr, _, _ = fit_predict(tr, te, level, Y); P_inc += pr'),
-    "M14 bootstrap on tiny strata": ('        if m.sum() < 10: return [None, None, None, None]               # too few species: not estimated\n', ''),
+    "M14 bootstrap on tiny strata": ('        if m.sum() < 10: return [None, None, None, None]               # too few species: not estimated\n        y = Y[:, j]; ea', '        y = Y[:, j]; ea'),
     "M15 stacking compared against itself": ('"d_inc_minus_img": boot_diff(S["inc"], S["img"], m, j),', '"d_inc_minus_img": boot_diff(S["img"], S["img"], m, j),'),
     "M16 weights ignore density": ('Wte = apply_density_weights(th, D_te[te]); W1', 'Wte = apply_density_weights(th1, D_te[te]); W1'),
     "M17 mondrian calibrates pooled": ('cal = (fo != f) & ((cat == c) if mode == "mondrian" else True)', 'cal = (fo != f)'),
