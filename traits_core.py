@@ -151,23 +151,46 @@ def density_features(tax, train_mask):
     ng = pd.Series(g).map(cg).fillna(0).values - train_mask; nf = pd.Series(f).map(cf).fillna(0).values - train_mask
     return np.stack([np.log1p(np.clip(ng, 0, None)), np.log1p(np.clip(nf, 0, None))], 1)
 
-def fit_density_weights(Ytr, Pimg, Pimp, Dtr, single=False):
+def sd_feature(Y, tax, train_mask):
+    """v10: per species and trait, log SD of the trait among TRAINING species of its genus (excluding itself);
+    fallback family -> order -> global SD when <2 other training species."""
+    out = np.full(Y.shape, np.nan)
+    for lv in ("genus", "family", "order"):
+        lab = tax[lv].values
+        for j in range(Y.shape[1]):
+            df = pd.DataFrame({"g": lab[train_mask], "y": Y[train_mask, j]})
+            s1 = df.groupby("g").y.sum(); s2 = (df.y ** 2).groupby(df.g).sum(); n = df.groupby("g").size()
+            S1 = pd.Series(lab).map(s1).fillna(0).values - np.where(train_mask, Y[:, j], 0)
+            S2 = pd.Series(lab).map(s2).fillna(0).values - np.where(train_mask, Y[:, j] ** 2, 0)
+            N = pd.Series(lab).map(n).fillna(0).values - train_mask
+            ok = (N >= 2) & np.isnan(out[:, j]); var = (S2 - S1 ** 2 / np.maximum(N, 1)) / np.maximum(N - 1, 1)
+            out[ok, j] = 0.5 * np.log(np.maximum(var[ok], 1e-8))
+    for j in range(Y.shape[1]):
+        m = np.isnan(out[:, j]); out[m, j] = 0.5 * np.log(max(np.var(Y[train_mask, j], ddof=1), 1e-8))
+    return out
+
+def fit_density_weights(Ytr, Pimg, Pimp, Dtr, single=False, Dt=None):
     """per trait: w = sigmoid(a + b*D1 + c*D2) minimizing squared error of w*photo + (1-w)*imputation on TRAINING species
     (inner out-of-fold predictions). single=True: intercept only (uniform-weight ablation). Deterministic (L-BFGS-B from 0)."""
     from scipy.optimize import minimize
     mu, sd = Dtr.mean(0), Dtr.std(0) + 1e-9                              # standardize density features (conditioning)
-    Z = np.c_[np.ones(len(Dtr)), (Dtr - mu) / sd] if not single else np.ones((len(Dtr), 1)); th = []
+    Z0 = np.c_[np.ones(len(Dtr)), (Dtr - mu) / sd] if not single else np.ones((len(Dtr), 1)); th = []
+    mt = Dt.mean(0) if Dt is not None else None; st = Dt.std(0) + 1e-9 if Dt is not None else None
     for j in range(Ytr.shape[1]):
+        Z = Z0 if (Dt is None or single) else np.c_[Z0, (Dt[:, j] - mt[j]) / st[j]]
         dlt = Pimg[:, j] - Pimp[:, j]; r0 = Ytr[:, j] - Pimp[:, j]
         def fg(t):
             w = 1 / (1 + np.exp(-(Z @ t))); e = r0 - w * dlt
             return (e ** 2).mean(), (-2 * (e * dlt * w * (1 - w)) @ Z) / len(e)
         th.append(minimize(fg, np.zeros(Z.shape[1]), jac=True, method="L-BFGS-B", bounds=[(-10, 10)] * Z.shape[1]).x)
-    return {"theta": np.array(th), "mu": mu, "sd": sd}                    # theta: traits x params
+    return {"theta": np.array(th), "mu": mu, "sd": sd, "mt": mt, "st": st}   # theta: traits x params
 
-def apply_density_weights(m, D):
-    th = m["theta"]; Z = np.c_[np.ones(len(D)), (D - m["mu"]) / m["sd"]] if th.shape[1] == 3 else np.ones((len(D), 1))
-    return 1 / (1 + np.exp(-(Z @ th.T)))                                 # species x traits
+def apply_density_weights(m, D, Dt=None):
+    th = m["theta"]
+    if th.shape[1] == 1: return np.repeat(1 / (1 + np.exp(-th[:, 0]))[None, :], len(D), 0)
+    Z0 = np.c_[np.ones(len(D)), (D - m["mu"]) / m["sd"]]
+    if th.shape[1] == 3: return 1 / (1 + np.exp(-(Z0 @ th.T)))           # species x traits
+    return np.stack([1 / (1 + np.exp(-(np.c_[Z0, (Dt[:, j] - m["mt"][j]) / m["st"][j]] @ th[j]))) for j in range(th.shape[0])], 1)
 
 def conformal_report(Y, S, alpha=0.1, methods=("blend", "img", "imp", "inc"), min_cal=20):
     """cross-conformal (CV+-style; finite-sample guarantee >= 1-2*alpha): calibration residuals come only from species in OTHER outer folds
@@ -238,13 +261,17 @@ def analyze(pid, X, pl, ph, dead_species, dead_rate, sel, cfg, n_boot, levels=("
             pr, _, _ = fit_predict(tr, te, level, Y, Zsp); P_inc += pr
             # density-conditioned shrinkage: weight on photo prediction per imputation-density category, learned on training species only
             img_te = species_mean(pim, te[si].astype(float)); ok_tr = tr & ~np.isnan(oof_img[:, 0])
-            D_in = np.zeros((len(sp), 2))
+            D_in = np.zeros((len(sp), 2)); use_sd = bool(cfg.get("density_sd_feature")); Dt_in = np.zeros_like(Y) if use_sd else None
             for k in range(5):                                                 # training species: density w.r.t. their inner-training set
                 ik = tr & (inner == k)
-                if ik.sum(): D_in[ik] = density_features(tax, tr & (inner != k))[ik]
+                if ik.sum():
+                    D_in[ik] = density_features(tax, tr & (inner != k))[ik]
+                    if use_sd: Dt_in[ik] = sd_feature(Y, tax, tr & (inner != k))[ik]
             D_te = density_features(tax, tr)                                   # test species: density w.r.t. outer training set
-            th = fit_density_weights(Y[ok_tr], oof_img[ok_tr], Zsp[ok_tr], D_in[ok_tr]); th1 = fit_density_weights(Y[ok_tr], oof_img[ok_tr], Zsp[ok_tr], D_in[ok_tr], single=True)
-            Wte = apply_density_weights(th, D_te[te]); W1 = apply_density_weights(th1, D_te[te])
+            Dt_te = sd_feature(Y, tax, tr) if use_sd else None
+            th = fit_density_weights(Y[ok_tr], oof_img[ok_tr], Zsp[ok_tr], D_in[ok_tr], Dt=Dt_in[ok_tr] if use_sd else None)
+            th1 = fit_density_weights(Y[ok_tr], oof_img[ok_tr], Zsp[ok_tr], D_in[ok_tr], single=True)
+            Wte = apply_density_weights(th, D_te[te], Dt_te[te] if use_sd else None); W1 = apply_density_weights(th1, D_te[te])
             P_blend[te] = Wte * img_te[te] + (1 - Wte) * pi[te]; P_blend1[te] = W1 * img_te[te] + (1 - W1) * pi[te]
             W_log.append({"theta_abc": np.round(th["theta"], 3).tolist(), "mu": np.round(th["mu"], 4).tolist(), "sd": np.round(th["sd"], 4).tolist(), "theta_single": np.round(th1["theta"], 3).tolist()})
         S = {"imp": P_imp, "img": species_mean(P_img), "inc": species_mean(P_inc), "used": used, "alphas": alphas,

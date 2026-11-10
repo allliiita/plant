@@ -245,3 +245,12 @@ Confirmatory criteria (both MAE and CLIP must satisfy; Species-level CV, pooled,
 If C1 fails but C2/C3 hold → claim reduces to "taxonomy+photo stacking/shrinkage helps", no density claim.
 Not claimed: any theoretical coverage bound beyond the standard CV+ 1−2α guarantee (no ε(d) theorem unless proven separately).
 Offline: suite 16/16; mutations M16 (density ignored) and M17 (Mondrian pooled) caught by their targeted tests.
+
+## v10 (2026-11-10) — ONE-SHOT attempt to rescue C1 for SLA and Leaf_N (written before any v10 result)
+Single change: add a third, trait-specific density feature to the logistic weight:
+  z(log(SD of the trait among TRAINING congeners)) — within-genus dispersion of the species' genus in the training set
+  (genera with <2 training species: family-level SD; then order; then global SD). Rationale: EB-optimal shrinkage depends on within- vs between-group variance.
+Everything else identical (same features, splits, code, bootstrap). One full run on MAE and CLIP (and ImageNet dev, reported).
+Decision rule (fixed): C1 (density − uniform, Species-level pooled, CI lower > 0) must hold on BOTH MAE and CLIP for a trait.
+  If SLA and Leaf_N pass → method claim 4/4. If not → keep the v9 2/4 wording. No second attempt. Time cap: half a day.
+All other v9 criteria re-reported; if any v9 criterion that passed now fails, v10 is rejected and v9 stands.

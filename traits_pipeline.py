@@ -140,22 +140,24 @@ def t3_features(mode):
 
 # ------------------------------------------------------------------ T4 analysis (core.analyze), parallel over CV levels
 @app.function(image=IMG, volumes={V: vol}, timeout=3 * 3600, memory=65536, cpu=16)
-def t4_part(mode, feats_stage, part):
+def t4_part(mode, feats_stage, part, v10=False):
     vol.reload()
     import numpy as np, pandas as pd, traits_core as core
     with np.load(f"{_d(mode, feats_stage)}/feats.npz", allow_pickle=True) as z: a = {k: z[k] for k in z.files}
     sel = pd.read_parquet(f"{_d(mode,'t1')}/sel.parquet")
     kw = dict(levels=(), do_warmup=True) if part == "warmup" else dict(levels=(part,), do_warmup=False)
-    return core.analyze(a["pid"], a["X"], a["p_leaf"], a["p_habit"], a["dead_species"], a["dead_rate"], sel, CFG, CFG["n_boot"][mode], return_parts=True, **kw)
+    cfg = dict(CFG, density_sd_feature=True) if v10 else CFG
+    return core.analyze(a["pid"], a["X"], a["p_leaf"], a["p_habit"], a["dead_species"], a["dead_rate"], sel, cfg, CFG["n_boot"][mode], return_parts=True, **kw)
 
-def _t4_run(mode, feats_stage, st, key):
+def _t4_run(mode, feats_stage, st, key, v10=False):
     import numpy as np, pandas as pd, traits_core as core
-    t0 = time.time(); parts = list(t4_part.map([mode] * 5, [feats_stage] * 5, ["Species", "genus", "family", "order", "warmup"]))
+    t0 = time.time(); parts = list(t4_part.map([mode] * 5, [feats_stage] * 5, ["Species", "genus", "family", "order", "warmup"], [v10] * 5))
     store = {}
     for p in parts[:4]: store.update(p["store"])
     with np.load(f"{_d(mode, feats_stage)}/feats.npz", allow_pickle=True) as z: a = {k: z[k] for k in z.files}
     sel = pd.read_parquet(f"{_d(mode,'t1')}/sel.parquet")
-    res, *_ = core.analyze(a["pid"], a["X"], a["p_leaf"], a["p_habit"], a["dead_species"], a["dead_rate"], sel, CFG, CFG["n_boot"][mode],
+    cfg = dict(CFG, density_sd_feature=True) if v10 else CFG
+    res, *_ = core.analyze(a["pid"], a["X"], a["p_leaf"], a["p_habit"], a["dead_species"], a["dead_rate"], sel, cfg, CFG["n_boot"][mode],
                            precomputed={"store": store, "warmup": parts[4]["warmup"]})
     out = f"{_d(mode, st)}/results.json"; json.dump(res, open(out, "w"), indent=1, sort_keys=True, default=str)
     w0 = min(v["r2_regress_img"] for v in res["warmup_seen"].values())
@@ -246,6 +248,23 @@ def orchestrate_b(mode):
         log.append(f"rep_{bb}:identical={ok and md <= 1e-9}:maxdiff={md:.2e}"); print("rep", bb, ok, md, flush=True)
     return log
 
+@app.function(image=IMG, volumes={V: vol}, timeout=6 * 3600, memory=65536, cpu=8)
+def t4_v10(mode, feats_stage, tag: str = ""):
+    vol.reload(); st = f"t4v10_{feats_stage}{tag}"
+    key = _key("t4_v10", mode, {"t1": _in(mode, "t1"), "feats": _in(mode, feats_stage)})
+    if _valid(mode, st, key): return "SKIP"
+    return _t4_run(mode, feats_stage, st, key, v10=True)
+
+@app.function(image=IMG, volumes={V: vol}, timeout=6 * 3600)
+def orchestrate_v10(mode):
+    fs = ["t3", "t3_mae_vitl", "t3_clip_vitl"]
+    hs = [(f, t4_v10.spawn(mode, f), t4_v10.spawn(mode, f, "_rep")) for f in fs]; log = []
+    for f, h1, h2 in hs:
+        log.append(f"{f}:{h1.get()}/{h2.get()}"); vol.reload()
+        A_, B_ = (json.load(open(f"{_d(mode, 't4v10_' + f + x)}/results.json")) for x in ("", "_rep")); ok, md = _cmp(A_, B_)
+        log.append(f"rep_{f}:identical={ok and md <= 1e-9}:maxdiff={md:.2e}")
+    return log
+
 @app.function(image=IMG, volumes={V: vol}, timeout=600)
 def status(mode):
     import glob
@@ -259,4 +278,5 @@ def status(mode):
 def main(mode: str = "smoke", upto: str = "all", show: int = 0):
     if show: print(status.remote(mode)); return
     if upto == "b": print("RUNB", orchestrate_b.remote(mode)); return
+    if upto == "v10": print("RUNV10", orchestrate_v10.remote(mode)); return
     print("RUN", orchestrate.remote(mode, upto))

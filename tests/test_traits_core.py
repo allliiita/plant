@@ -201,6 +201,17 @@ def t_density_shrinkage(C):
     w_dense = C.apply_density_weights(mdl, np.array([[np.log1p(5), np.log1p(23)]])); w_sparse = C.apply_density_weights(mdl, np.array([[0.0, np.log1p(3)]]))
     assert (w_dense < w_sparse).all(), f"photo weight not higher where taxonomy is sparse: dense {w_dense}, sparse {w_sparse}"
 
+def t_v10_sd_feature(C):
+    """v10 path: runs, still beats uniform weight in the density scenario; SD feature never uses the species' own label"""
+    cfg = dict(CFG, density_sd_feature=True)
+    res, *_ = C.analyze(*synth_density(), cfg, n_boot=50)
+    for t in T: assert res["Species"][f"pooled|{t}"]["d_blend_minus_single_w"][0] > 0.02, f"v10 lost density gain ({t})"
+    pid, X, pl, ph, dsp, dr, sel = synth_density(); tax = sel.drop_duplicates("Species").set_index("Species")
+    Y = np.log(tax[[f"{t}_median" for t in T]].values); tr = np.ones(len(Y), bool); tr[::3] = False
+    assert tr[1], "index 1 must be a training species"
+    a = C.sd_feature(Y, tax, tr); Y2 = Y.copy(); Y2[1] += 5.0; b = C.sd_feature(Y2, tax, tr)
+    assert np.allclose(a[1], b[1]), "SD feature of a training species depends on its own label"
+
 def t_conformal_mondrian(C):
     res, *_ = C.analyze(*synth_density(seed=1), CFG, n_boot=20)
     cf = res["Species"]["conformal"]["alpha=0.1"]["blend"]
@@ -235,7 +246,7 @@ def t_duplicate_pid_rejected(C):
     raise AssertionError("duplicate pids accepted")
 
 TESTS = [t_select_rules, t_select_hashseed, t_fetch_resume_identical, t_fetch_transient_retried, t_fetch_stale_and_legacy, t_exclusion,
-         t_impute_no_leak, t_folds_links, t_known_answer_taxonomy_only, t_known_answer_signal, t_known_answer_complementary, t_small_and_varied, t_density_shrinkage, t_conformal_mondrian, t_parallel_equivalence, t_analysis_deterministic, t_duplicate_pid_rejected]
+         t_impute_no_leak, t_folds_links, t_known_answer_taxonomy_only, t_known_answer_signal, t_known_answer_complementary, t_small_and_varied, t_density_shrinkage, t_v10_sd_feature, t_conformal_mondrian, t_parallel_equivalence, t_analysis_deterministic, t_duplicate_pid_rejected]
 
 def run(C, tests=TESTS, quiet=False):
     fails = []
@@ -260,8 +271,9 @@ MUTATIONS = {
     "M13 incremental without imputation covariate": ('pr, _, _ = fit_predict(tr, te, level, Y, Zsp); P_inc += pr', 'pr, _, _ = fit_predict(tr, te, level, Y); P_inc += pr'),
     "M14 bootstrap on tiny strata": ('        if m.sum() < 10: return [None, None, None, None]               # too few species: not estimated\n        y = Y[:, j]; ea', '        y = Y[:, j]; ea'),
     "M15 stacking compared against itself": ('"d_inc_minus_img": boot_diff(S["inc"], S["img"], m, j),', '"d_inc_minus_img": boot_diff(S["img"], S["img"], m, j),'),
-    "M16 weights ignore density": ('Wte = apply_density_weights(th, D_te[te]); W1', 'Wte = apply_density_weights(th1, D_te[te]); W1'),
+    "M16 weights ignore density": ('Wte = apply_density_weights(th, D_te[te], Dt_te[te] if use_sd else None); W1', 'Wte = apply_density_weights(th1, D_te[te]); W1'),
     "M17 mondrian calibrates pooled": ('cal = (fo != f) & ((cat == c) if mode == "mondrian" else True)', 'cal = (fo != f)'),
+    "M18 SD feature includes own label": ('S1 = pd.Series(lab).map(s1).fillna(0).values - np.where(train_mask, Y[:, j], 0)', 'S1 = pd.Series(lab).map(s1).fillna(0).values'),
     "M12 transient treated as deleted": ('rr = map_fn(getter, [chunk[i] for i in bad])', 'rr = [(chunk[i], None, "deleted") for i in bad]'),
 }
 
