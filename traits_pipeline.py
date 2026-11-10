@@ -7,12 +7,13 @@ vol = modal.Volume.from_name("plantid-vol2", create_if_missing=True)
 V = "/v"
 IMG = (modal.Image.debian_slim(python_version="3.11")
        .pip_install("torch==2.5.1", "torchvision==0.20.1", "timm==1.0.20", "huggingface_hub==0.34.4", "numpy==1.26.4",
-                    "pandas==2.2.3", "pyarrow==17.0.0", "pillow==10.4.0", "scipy==1.13.1")
+                    "pandas==2.2.3", "pyarrow==17.0.0", "pillow==10.4.0", "scipy==1.13.1", "open_clip_torch==2.29.0")
        .add_local_python_source("traits_core"))
 TRAITS = ["Height", "LeafArea", "SLA", "Leaf_N"]
 CFG = {"min_photos": 30, "n_photos": 30, "conf_min": 90, "shard": 500, "threads": 48, "retry_rounds": 3, "min_photos_after_fetch": 20,
        "max_excluded_frac": 0.05, "subset_species": {"smoke": 60, "pilot": 240}, "min_species": {"smoke": 50, "pilot": 200, "full": 2000},
        "alphas": [10 ** (x / 2) for x in range(-2, 9)], "n_boot": {"full": 2000, "pilot": 500, "smoke": 100}, "backbone": "vit_base_patch16_224.augreg_in1k"}
+CFG_B = {"mae_vitl": ["timm", "vit_large_patch16_224.mae"], "clip_vitl": ["open_clip", "ViT-L-14", "openai"]}   # separate: base-stage keys unchanged
 
 def _h(o): return hashlib.sha256(json.dumps(o, sort_keys=True, default=str).encode()).hexdigest()[:16]
 def _fsha(p):
@@ -171,6 +172,64 @@ def orchestrate(mode, upto="all"):
     log.append(f"t4_rep:{r}:identical={same}:maxdiff={md:.2e}:structure={ok}"); print("t4_rep identical", same, md, flush=True)
     return log
 
+
+# ------------------------------------------------------------------ v8-B: alternative backbones (same photos, same core analysis)
+@app.function(image=IMG, volumes={V: vol}, gpu="A10G", timeout=3 * 3600, memory=32768)
+def t3_bb(mode, bb):
+    vol.reload()
+    import torch, numpy as np, pandas as pd, glob, io, pyarrow.parquet as pq, traits_core as core
+    from PIL import Image
+    torch.manual_seed(0); torch.backends.cudnn.deterministic = True; torch.backends.cudnn.benchmark = False
+    torch.backends.cuda.matmul.allow_tf32 = False; torch.backends.cudnn.allow_tf32 = False
+    st = f"t3_{bb}"; key = _key("t3_bb", mode, {"t3": _in(mode, "t3"), "bb": CFG_B[bb]})
+    if _valid(mode, st, key): return "SKIP"
+    with np.load(f"{_d(mode,'t3')}/feats.npz", allow_pickle=True) as z: base = {k: z[k] for k in z.files}
+    want = list(base["pid"]); B = {}
+    for p in sorted(glob.glob(f"{_d(mode,'t2')}/tier*_shard_*.parquet")):
+        t = pq.read_table(p).to_pydict(); B.update({a: b for a, b, c in zip(t["pid"], t["bytes"], t["status"]) if c == "ok"})
+    assert all(w in B for w in want), "photo bytes missing"
+    kind, *spec = CFG_B[bb]
+    if kind == "timm":
+        import timm
+        net = timm.create_model(spec[0], pretrained=True, num_classes=0); pre = timm.data.create_transform(**timm.data.resolve_data_config({}, model=net)); fwd = net
+    else:
+        import open_clip
+        net, _, pre = open_clip.create_model_and_transforms(spec[0], pretrained=spec[1]); fwd = net.encode_image
+    net = net.cuda().eval().float()
+    class DS(torch.utils.data.Dataset):
+        def __len__(self_): return len(want)
+        def __getitem__(self_, i): return pre(Image.open(io.BytesIO(B[want[i]])).convert("RGB"))
+    F = []
+    with torch.no_grad():
+        for x in torch.utils.data.DataLoader(DS(), batch_size=64, num_workers=4, shuffle=False): F.append(fwd(x.cuda()).float().cpu())
+    F = torch.cat(F).numpy().astype(np.float32)
+    out = f"{_d(mode, st)}/feats.npz"; np.savez(out, **{**base, "X": F})
+    gates = [_gate("finite", bool(np.isfinite(F).all()), np.isfinite(F).all()), _gate("n_rows", len(F), len(F) == len(want)), _gate("nonconstant", float(F.std(0).mean()), F.std(0).mean() > 1e-6)]
+    _write(mode, st, key, [out], gates, {"dim": int(F.shape[1]), "n_images": len(F)}); return "PASS"
+
+@app.function(image=IMG, volumes={V: vol}, timeout=6 * 3600, memory=65536, cpu=8)
+def t4_bb(mode, bb, tag: str = ""):
+    vol.reload()
+    import numpy as np, pandas as pd, traits_core as core
+    st = f"t4_{bb}{tag}"; key = _key("t4_bb", mode, {"t1": _in(mode, "t1"), "t3": _in(mode, f"t3_{bb}")})
+    if _valid(mode, st, key): return "SKIP"
+    with np.load(f"{_d(mode, 't3_' + bb)}/feats.npz", allow_pickle=True) as z: a = {k: z[k] for k in z.files}
+    sel = pd.read_parquet(f"{_d(mode,'t1')}/sel.parquet"); t0 = time.time()
+    res, *_ = core.analyze(a["pid"], a["X"], a["p_leaf"], a["p_habit"], a["dead_species"], a["dead_rate"], sel, CFG, CFG["n_boot"][mode])
+    out = f"{_d(mode, st)}/results.json"; json.dump(res, open(out, "w"), indent=1, sort_keys=True, default=str)
+    w0 = min(v["r2_regress_img"] for v in res["warmup_seen"].values())
+    _write(mode, st, key, [out], [_gate("warmup_seen_regression_r2>0", round(w0, 4), w0 > 0)], {"n_species": res["n_species"], "seconds": round(time.time() - t0, 1)}); return "PASS"
+
+@app.function(image=IMG, volumes={V: vol}, timeout=20 * 3600)
+def orchestrate_b(mode):
+    log = []
+    for bb in CFG_B:
+        for nm, call in (("t3", lambda: t3_bb.remote(mode, bb)), ("t4", lambda: t4_bb.remote(mode, bb)), ("t4_rep", lambda: t4_bb.remote(mode, bb, "_rep"))):
+            r = call(); log.append(f"{nm}_{bb}:{r}"); print(nm, bb, r, flush=True); vol.reload()
+        A_, B_ = (json.load(open(f"{_d(mode, 't4_' + bb + x)}/results.json")) for x in ("", "_rep")); ok, md = _cmp(A_, B_)
+        log.append(f"rep_{bb}:identical={ok and md <= 1e-9}:maxdiff={md:.2e}"); print("rep", bb, ok, md, flush=True)
+    return log
+
 @app.function(image=IMG, volumes={V: vol}, timeout=600)
 def status(mode):
     import glob
@@ -183,4 +242,5 @@ def status(mode):
 @app.local_entrypoint()
 def main(mode: str = "smoke", upto: str = "all", show: int = 0):
     if show: print(status.remote(mode)); return
+    if upto == "b": print("RUNB", orchestrate_b.remote(mode)); return
     print("RUN", orchestrate.remote(mode, upto))

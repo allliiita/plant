@@ -220,7 +220,8 @@ Selection-bias checks (mandatory): dead-rate vs trait Spearman on full set; sens
 A (EXPLORATORY, post hoc on ImageNet ViT-B): comparison "stacking (imputation + photo features) − photo-only" (d_inc_minus_img) at every CV level/stratum.
   Motivated by the v7 results; reported as exploratory for this backbone.
 B (CONFIRMATORY, written before any result on these backbones): repeat the full v7 analysis with frozen features from
-  (i) DINOv2 ViT-L/14 (self-supervised, no labels) and (ii) OpenAI CLIP ViT-L/14 (image-text, no species-level supervision targets).
+  (i) MAE ViT-L/16 (masked-reconstruction SSL, no labels) and (ii) OpenAI CLIP ViT-L/14 (image-text contrastive, no species-level supervision targets).
+  [amended before any B result: DINOv2 replaced by MAE because the project excludes BioCLIP/DINO models]
   Same photos (t2 of the full run), same splits, same code. Pre-registered predictions, per backbone, per trait:
   P-B1 genus-imputed stratum: photo-only − genus imputation ΔR² < 0 (CI upper < 0) for Height and Leaf_N.
   P-B2 stacking − photo-only > 0 (CI lower > 0) at the Species level (pooled) for all four traits.
