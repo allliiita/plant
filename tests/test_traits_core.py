@@ -145,6 +145,8 @@ def t_known_answer_taxonomy_only(C):
         assert d[0] < 0.03 and d[2] < 0.06, f"taxonomy-only features beat genus imputation ({t}: {d})"
         di = res["Species"][f"genus_imputed|{t}"]["d_inc_minus_imp"]
         assert di[0] < 0.03, f"taxonomy-only features add beyond imputation ({t}: {di})"
+        dg = res["Species"][f"genus_imputed|{t}"]["d_inc_minus_img"]
+        assert dg[0] > -0.03, f"stacking worse than photo-only ({t}: {dg})"
 
 def t_known_answer_signal(C):
     res, *_ = C.analyze(*synth_analysis("signal"), CFG, n_boot=200)
@@ -159,6 +161,7 @@ def t_known_answer_complementary(C):
     for t in T:
         e = res["Species"][f"genus_imputed|{t}"]
         assert e["d_inc_minus_imp"][1] > 0.1, f"stacking misses complementary signal ({t}: {e['d_inc_minus_imp']})"
+        assert e["d_inc_minus_img"][1] > 0.1, f"stacking not better than photo-only when photos lack genus info ({t}: {e['d_inc_minus_img']})"
         assert e["r2_inc"] > e["r2_img"] + 0.1, f"stacking not better than image-only when images lack genus info ({t})"
 
 def t_small_and_varied(C):
@@ -207,6 +210,7 @@ MUTATIONS = {
     "M11 duplicate pids accepted": ('assert len(set(pid)) == len(pid), "duplicate pids in features"', 'pass'),
     "M13 incremental without imputation covariate": ('pr, _ = fit_predict(tr, te, level, Y, Zsp); P_inc += pr', 'pr, _ = fit_predict(tr, te, level, Y); P_inc += pr'),
     "M14 bootstrap on tiny strata": ('        if m.sum() < 10: return [None, None, None, None]               # too few species: not estimated\n', ''),
+    "M15 stacking compared against itself": ('"d_inc_minus_img": boot_diff(S["inc"], S["img"], m, j)}', '"d_inc_minus_img": boot_diff(S["img"], S["img"], m, j)}'),
     "M12 transient treated as deleted": ('rr = map_fn(getter, [chunk[i] for i in bad])', 'rr = [(chunk[i], None, "deleted") for i in bad]'),
 }
 

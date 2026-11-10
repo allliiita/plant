@@ -207,7 +207,8 @@ def analyze(pid, X, pl, ph, dead_species, dead_rate, sel, cfg, n_boot):
             if m.sum() < 10: continue
             for j, t in enumerate(TRAITS):
                 e = {"n": int(m.sum()), "r2_imp": r2(S["imp"], m, j), "r2_img": r2(S["img"], m, j), "r2_inc": r2(S["inc"], m, j),
-                     "d_img_minus_imp": boot_diff(S["img"], S["imp"], m, j), "d_inc_minus_imp": boot_diff(S["inc"], S["imp"], m, j)}
+                     "d_img_minus_imp": boot_diff(S["img"], S["imp"], m, j), "d_inc_minus_imp": boot_diff(S["inc"], S["imp"], m, j),
+                     "d_inc_minus_img": boot_diff(S["inc"], S["img"], m, j)}
                 if sn in ("pooled", "genus_imputed"):
                     wk = "img_whabit" if t == "Height" else "img_wleaf"; tk = "img_top_habit" if t == "Height" else "img_top_leaf"
                     e["d_weighted_minus_unweighted"] = boot_diff(S[wk], S["img"], m, j); e["d_top10_minus_unweighted"] = boot_diff(S[tk], S["img"], m, j)

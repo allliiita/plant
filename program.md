@@ -215,3 +215,15 @@ Changes: tier-2 uses ALL remaining photos of short species (seeded order; ranks 
 gate: excluded fraction ≤5% (else stop). Report excluded vs retained mean log traits.
 Selection-bias checks (mandatory): dead-rate vs trait Spearman on full set; sensitivity = primary stratum restricted to species with tier-1 dead rate ≤ median
 (same out-of-fold predictions, no refit). If any |ρ| > 0.1, the report contains a dedicated selection-bias paragraph.
+
+## v8 (2026-11-10) — taxonomy-informed stacking as method; confirmation on new backbones
+A (EXPLORATORY, post hoc on ImageNet ViT-B): comparison "stacking (imputation + photo features) − photo-only" (d_inc_minus_img) at every CV level/stratum.
+  Motivated by the v7 results; reported as exploratory for this backbone.
+B (CONFIRMATORY, written before any result on these backbones): repeat the full v7 analysis with frozen features from
+  (i) DINOv2 ViT-L/14 (self-supervised, no labels) and (ii) OpenAI CLIP ViT-L/14 (image-text, no species-level supervision targets).
+  Same photos (t2 of the full run), same splits, same code. Pre-registered predictions, per backbone, per trait:
+  P-B1 genus-imputed stratum: photo-only − genus imputation ΔR² < 0 (CI upper < 0) for Height and Leaf_N.
+  P-B2 stacking − photo-only > 0 (CI lower > 0) at the Species level (pooled) for all four traits.
+  P-B3 stacking − imputation > 0 (CI lower > 0) at the Species level (pooled) for all four traits.
+  P-B4 decay: photo-only − imputation increases monotonically from Species → genus → family held out (point estimates) for Height, LeafArea, SLA.
+  A prediction is "confirmed" only if it holds for BOTH new backbones. Report all, including failures.
