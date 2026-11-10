@@ -228,3 +228,20 @@ B (CONFIRMATORY, written before any result on these backbones): repeat the full 
   P-B3 stacking − imputation > 0 (CI lower > 0) at the Species level (pooled) for all four traits.
   P-B4 decay: photo-only − imputation increases monotonically from Species → genus → family held out (point estimates) for Height, LeafArea, SLA.
   A prediction is "confirmed" only if it holds for BOTH new backbones. Report all, including failures.
+
+## v9 (2026-11-10) — empirical-Bayes density-conditioned shrinkage + taxonomy-stratified CV+ (written before any v9 result)
+Design: ImageNet ViT-B = DEVELOPMENT backbone (results already seen → exploratory). MAE ViT-L and CLIP ViT-L = CONFIRMATION backbones (no result seen).
+Method (fixed parametrization): ŷ = w·photo + (1−w)·taxonomic imputation, w = σ(a + b·z(log(1+n_congeners_train)) + c·z(log(1+n_confamilials_train))),
+  z = standardization on training species; (a,b,c) per trait by L-BFGS-B (init 0, bounds ±10) on INNER out-of-fold photo predictions and inner-fold imputation
+  of training species only. No MLP. Ablation = uniform weight (intercept only).
+Conformal: cross-conformal CV+ (calibration residuals only from species in other outer folds), Mondrian by density category (genus / family / order-or-global
+  imputation; fallback to pooled calibration if <20 calibration species) vs pooled. Report for α=0.05 and α=0.10: nominal 1−α, CV+ guarantee 1−2α,
+  empirical coverage and mean width, per stratum and CV level. Strata with n<50: described, not judged.
+Confirmatory criteria (both MAE and CLIP must satisfy; Species-level CV, pooled, each trait, genus-clustered bootstrap 95% CI):
+  C1 density-shrinkage − uniform-weight shrinkage ΔR² > 0 (CI lower > 0)   [co-primary: without it "density conditioning" is not claimed]
+  C2 density-shrinkage − photo-only ΔR² > 0 (CI lower > 0)
+  C3 density-shrinkage − imputation ΔR² > 0 (CI lower > 0)
+  C4 Mondrian CV+ at α=0.05: empirical coverage ≥ 0.90 in every stratum with n ≥ 50; pooled CV+ coverage < Mondrian in the sparsest stratum.
+If C1 fails but C2/C3 hold → claim reduces to "taxonomy+photo stacking/shrinkage helps", no density claim.
+Not claimed: any theoretical coverage bound beyond the standard CV+ 1−2α guarantee (no ε(d) theorem unless proven separately).
+Offline: suite 16/16; mutations M16 (density ignored) and M17 (Mondrian pooled) caught by their targeted tests.

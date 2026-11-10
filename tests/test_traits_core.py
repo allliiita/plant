@@ -174,6 +174,45 @@ def t_small_and_varied(C):
         assert v[0] is None or len(v) == 4
     json.dumps(res, default=str)
 
+
+def synth_density(seed=0, imgs=6):
+    """mixed density: 40 genera with 6 species (dense; tight genera) + 120 singleton genera in 30 families (sparse; family mean poor).
+    Photos: y + N(0, 0.5) in 4 dims -> photo moderately good everywhere; imputation excellent in dense, poor in sparse."""
+    rng = np.random.default_rng(seed); rows = []; feats = []
+    def add(name, g, fam, y):
+        for i in range(imgs):
+            rows.append({"pid": f"{name}_{i}", "Species": name, "genus": g, "family": fam, "order": f"O{hash(fam) % 3}", "link_group": name,
+                         **{f"{t}_median": float(np.exp(v)) for t, v in zip(T, y)}})
+            feats.append(np.r_[y + rng.normal(0, 1.5, 4), rng.normal(size=12)])
+    for g in range(40):
+        ge = rng.normal(0, 1.0, 4)
+        for s in range(6): add(f"D{g} s{s}", f"D{g}", f"DF{g // 4}", ge + rng.normal(0, 0.15, 4))
+    for g in range(120): add(f"S{g} x", f"S{g}", f"SF{g // 4}", rng.normal(0, 1.0, 4))
+    sel = pd.DataFrame(rows); n = len(sel); sp = sorted(sel.Species.unique())
+    return sel.pid.values, np.array(feats), np.full(n, 0.5), np.full(n, 0.5), np.array(sp), np.zeros(len(sp)), sel
+
+def t_density_shrinkage(C):
+    res, store, *_ = C.analyze(*synth_density(), CFG, n_boot=100)
+    for t in T:
+        e = res["Species"][f"pooled|{t}"]
+        assert e["d_blend_minus_single_w"][0] > 0.02, f"density conditioning gives no gain ({t}: {e['d_blend_minus_single_w']})"
+        assert e["d_blend_minus_img"][0] > -0.01 and e["d_blend_minus_imp"][0] > -0.01, f"blend worse than a component ({t})"
+    wl = res["Species"]["density_weights_per_fold"][0]; mdl = {"theta": np.array(wl["theta_abc"]), "mu": np.array(wl["mu"]), "sd": np.array(wl["sd"])}
+    w_dense = C.apply_density_weights(mdl, np.array([[np.log1p(5), np.log1p(23)]])); w_sparse = C.apply_density_weights(mdl, np.array([[0.0, np.log1p(3)]]))
+    assert (w_dense < w_sparse).all(), f"photo weight not higher where taxonomy is sparse: dense {w_dense}, sparse {w_sparse}"
+
+def t_conformal_mondrian(C):
+    res, *_ = C.analyze(*synth_density(seed=1), CFG, n_boot=20)
+    cf = res["Species"]["conformal"]["alpha=0.1"]["blend"]
+    assert res["Species"]["conformal"]["alpha=0.05"]["cvplus_guarantee"] == 0.9
+    sparse = [c for c in cf["mondrian"] if c not in ("genus", "all")]
+    for j in range(4):
+        assert 0.84 <= cf["mondrian"]["all"]["coverage"][j] <= 0.96, f"mondrian overall coverage off: {cf['mondrian']['all']}"
+        for c in sparse + ["genus"]:
+            if cf["mondrian"][c]["n"] < 50: continue                          # small strata: sampling SE ~0.04-0.07, described not judged
+            assert 0.82 <= cf["mondrian"][c]["coverage"][j] <= 0.98, f"mondrian stratum {c} coverage off: {cf['mondrian'][c]}"
+    assert any(cf["pooled"][c]["coverage"][j] < 0.85 for c in sparse for j in range(4)), f"pooled conformal should under-cover sparse strata: {cf['pooled']}"
+
 def t_analysis_deterministic(C):
     a = json.dumps(C.analyze(*synth_analysis("signal", n_genus=30), CFG, n_boot=100)[0], sort_keys=True, default=str)
     b = json.dumps(C.analyze(*synth_analysis("signal", n_genus=30), CFG, n_boot=100)[0], sort_keys=True, default=str)
@@ -186,7 +225,7 @@ def t_duplicate_pid_rejected(C):
     raise AssertionError("duplicate pids accepted")
 
 TESTS = [t_select_rules, t_select_hashseed, t_fetch_resume_identical, t_fetch_transient_retried, t_fetch_stale_and_legacy, t_exclusion,
-         t_impute_no_leak, t_folds_links, t_known_answer_taxonomy_only, t_known_answer_signal, t_known_answer_complementary, t_small_and_varied, t_analysis_deterministic, t_duplicate_pid_rejected]
+         t_impute_no_leak, t_folds_links, t_known_answer_taxonomy_only, t_known_answer_signal, t_known_answer_complementary, t_small_and_varied, t_density_shrinkage, t_conformal_mondrian, t_analysis_deterministic, t_duplicate_pid_rejected]
 
 def run(C, tests=TESTS, quiet=False):
     fails = []
@@ -208,9 +247,11 @@ MUTATIONS = {
     "M9 legacy shards kept": ('if "status" not in pq.read_schema(p).names: os.remove(p)', 'pass'),
     "M10 no <20 exclusion": ('keep = sorted(cnt[cnt >= cfg["min_photos_after_fetch"]].index)', 'keep = sorted(cnt.index)'),
     "M11 duplicate pids accepted": ('assert len(set(pid)) == len(pid), "duplicate pids in features"', 'pass'),
-    "M13 incremental without imputation covariate": ('pr, _ = fit_predict(tr, te, level, Y, Zsp); P_inc += pr', 'pr, _ = fit_predict(tr, te, level, Y); P_inc += pr'),
+    "M13 incremental without imputation covariate": ('pr, _, _ = fit_predict(tr, te, level, Y, Zsp); P_inc += pr', 'pr, _, _ = fit_predict(tr, te, level, Y); P_inc += pr'),
     "M14 bootstrap on tiny strata": ('        if m.sum() < 10: return [None, None, None, None]               # too few species: not estimated\n', ''),
-    "M15 stacking compared against itself": ('"d_inc_minus_img": boot_diff(S["inc"], S["img"], m, j)}', '"d_inc_minus_img": boot_diff(S["img"], S["img"], m, j)}'),
+    "M15 stacking compared against itself": ('"d_inc_minus_img": boot_diff(S["inc"], S["img"], m, j),', '"d_inc_minus_img": boot_diff(S["img"], S["img"], m, j),'),
+    "M16 weights ignore density": ('Wte = apply_density_weights(th, D_te[te]); W1', 'Wte = apply_density_weights(th1, D_te[te]); W1'),
+    "M17 mondrian calibrates pooled": ('cal = (fo != f) & ((cat == c) if mode == "mondrian" else True)', 'cal = (fo != f)'),
     "M12 transient treated as deleted": ('rr = map_fn(getter, [chunk[i] for i in bad])', 'rr = [(chunk[i], None, "deleted") for i in bad]'),
 }
 

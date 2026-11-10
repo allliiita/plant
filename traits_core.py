@@ -140,6 +140,57 @@ def impute(Y, tax, tr_mask):
         pred[fill] = v[fill]; used[fill] = lv
     g = np.isnan(pred[:, 0]); pred[g] = Y[tr_mask].mean(0) if tr_mask.sum() else 0.0; return pred, used
 
+def _cat(level_used):
+    """density category from the imputation level a species falls back to"""
+    return {"genus": "genus", "family": "family"}.get(level_used, "order_or_global")
+
+def density_features(tax, train_mask):
+    """log(1 + #training congeners), log(1 + #training confamilials), excluding the species itself"""
+    g = tax.genus.values; f = tax.family.values
+    cg = pd.Series(g[train_mask]).value_counts(); cf = pd.Series(f[train_mask]).value_counts()
+    ng = pd.Series(g).map(cg).fillna(0).values - train_mask; nf = pd.Series(f).map(cf).fillna(0).values - train_mask
+    return np.stack([np.log1p(np.clip(ng, 0, None)), np.log1p(np.clip(nf, 0, None))], 1)
+
+def fit_density_weights(Ytr, Pimg, Pimp, Dtr, single=False):
+    """per trait: w = sigmoid(a + b*D1 + c*D2) minimizing squared error of w*photo + (1-w)*imputation on TRAINING species
+    (inner out-of-fold predictions). single=True: intercept only (uniform-weight ablation). Deterministic (L-BFGS-B from 0)."""
+    from scipy.optimize import minimize
+    mu, sd = Dtr.mean(0), Dtr.std(0) + 1e-9                              # standardize density features (conditioning)
+    Z = np.c_[np.ones(len(Dtr)), (Dtr - mu) / sd] if not single else np.ones((len(Dtr), 1)); th = []
+    for j in range(Ytr.shape[1]):
+        dlt = Pimg[:, j] - Pimp[:, j]; r0 = Ytr[:, j] - Pimp[:, j]
+        def fg(t):
+            w = 1 / (1 + np.exp(-(Z @ t))); e = r0 - w * dlt
+            return (e ** 2).mean(), (-2 * (e * dlt * w * (1 - w)) @ Z) / len(e)
+        th.append(minimize(fg, np.zeros(Z.shape[1]), jac=True, method="L-BFGS-B", bounds=[(-10, 10)] * Z.shape[1]).x)
+    return {"theta": np.array(th), "mu": mu, "sd": sd}                    # theta: traits x params
+
+def apply_density_weights(m, D):
+    th = m["theta"]; Z = np.c_[np.ones(len(D)), (D - m["mu"]) / m["sd"]] if th.shape[1] == 3 else np.ones((len(D), 1))
+    return 1 / (1 + np.exp(-(Z @ th.T)))                                 # species x traits
+
+def conformal_report(Y, S, alpha=0.1, methods=("blend", "img", "imp", "inc"), min_cal=20):
+    """cross-conformal (CV+-style; finite-sample guarantee >= 1-2*alpha): calibration residuals come only from species in OTHER outer folds
+    (their own out-of-fold predictions). Mondrian = calibrate within the same density category; pooled = all categories."""
+    cat = np.array([_cat(x) for x in S["used"]]); fo = S["fold"]; out = {}
+    for meth in methods:
+        P = S[meth]; R_ = np.abs(Y - P); res = {}
+        for mode in ("mondrian", "pooled"):
+            cover = np.zeros(Y.shape, bool); width = np.zeros(Y.shape)
+            for f in np.unique(fo):
+                te = fo == f
+                for c in np.unique(cat[te]):
+                    tm = te & (cat == c); cal = (fo != f) & ((cat == c) if mode == "mondrian" else True)
+                    if mode == "mondrian" and cal.sum() < min_cal: cal = fo != f
+                    n = cal.sum(); k = int(np.ceil((1 - alpha) * (n + 1)))
+                    q = np.sort(R_[cal], axis=0)[min(k, n) - 1] if n > 0 else np.full(Y.shape[1], np.inf)   # no calibration data: uninformative interval
+                    cover[tm] = R_[tm] <= q; width[tm] = 2 * q
+            res[mode] = {c: {"n": int((cat == c).sum()), "coverage": [round(float(x), 4) for x in cover[cat == c].mean(0)], "width": [round(float(x), 4) for x in width[cat == c].mean(0)]}
+                         for c in sorted(set(cat))}
+            res[mode]["all"] = {"n": int(len(cat)), "coverage": [round(float(x), 4) for x in cover.mean(0)], "width": [round(float(x), 4) for x in width.mean(0)]}
+        out[meth] = res
+    return out
+
 def analyze(pid, X, pl, ph, dead_species, dead_rate, sel, cfg, n_boot):
     assert len(set(pid)) == len(pid), "duplicate pids in features"
     X = X.astype(np.float64)
@@ -155,33 +206,47 @@ def analyze(pid, X, pl, ph, dead_species, dead_rate, sel, cfg, n_boot):
         """Zsp: optional species-level covariates appended to image features (stacking with imputation)."""
         tri = trS[si]; tei = teS[si]; XX = X if Zsp is None else np.hstack([X, Zsp[si]])
         mu, sd = XX[tri].mean(0), XX[tri].std(0) + 1e-6; Xs = (XX - mu) / sd
-        inner = np.where(trS, make_folds(tax, sp, level, seed=1), -1); err = {a: 0.0 for a in A}
+        inner = np.where(trS, make_folds(tax, sp, level, seed=1), -1); err = {a: 0.0 for a in A}; oof = {a: np.full(target.shape, np.nan) for a in A}
         for f in range(5):
             itr = trS & (inner != f); ite = trS & (inner == f)
             if ite.sum() == 0 or itr.sum() == 0: continue
             mi = itr[si]; mt = ite[si]; W = ridge_fit(Xs[mi], target[si[mi]], A)
             for a, (w, b) in W.items():
                 pim = np.zeros((len(Xs), target.shape[1])); pim[mt] = Xs[mt] @ w + b
-                err[a] += ((species_mean(pim, mt.astype(float))[ite] - target[ite]) ** 2).sum()
+                ps_ = species_mean(pim, mt.astype(float))[ite]; err[a] += ((ps_ - target[ite]) ** 2).sum(); oof[a][ite] = ps_
         a_best = min(err, key=err.get); w, b = ridge_fit(Xs[tri], target[si[tri]], [a_best])[a_best]
-        pim = np.zeros((len(Xs), target.shape[1])); pim[tei] = Xs[tei] @ w + b; return pim, a_best
+        pim = np.zeros((len(Xs), target.shape[1])); pim[tei] = Xs[tei] @ w + b; return pim, a_best, oof[a_best]
     res = {"n_species": len(sp), "n_images": int(len(X))}; store = {}
     for level in ("Species", "genus", "family", "order"):
         fo = make_folds(tax, sp, level); P_imp = np.zeros_like(Y); used = np.empty(len(sp), dtype=object)
+        P_blend = np.zeros_like(Y); P_blend1 = np.zeros_like(Y); W_log = []
         P_img = np.zeros((len(X), Y.shape[1])); P_inc = np.zeros_like(P_img); alphas = []
         for f in range(5):
             te = fo == f; tr = ~te
+            if te.sum() == 0: continue                                         # fewer groups than folds at coarse levels
             pi, u = impute(Y, tax, tr); P_imp[te] = pi[te]; used[te] = u[te]
-            pim, a = fit_predict(tr, te, level, Y); P_img += pim; alphas.append(a)
+            pim, a, oof_img = fit_predict(tr, te, level, Y); P_img += pim; alphas.append(a)
             # incremental (stacking): image features + imputation as covariate; training species get inner-fold imputation (never their own label)
-            inner = make_folds(tax, sp, level, seed=1); Zsp = np.zeros_like(Y); Zsp[te] = pi[te]
+            inner = make_folds(tax, sp, level, seed=1); Zsp = np.zeros_like(Y); Zsp[te] = pi[te]; u_in = np.empty(len(sp), dtype=object)
             for k in range(5):
                 ik = tr & (inner == k)
                 if ik.sum() == 0: continue
-                if (tr & (inner != k)).sum() == 0: Zsp[ik] = 0.0; continue          # no inner-training species: covariate carries no information
-                pk, _ = impute(Y, tax, tr & (inner != k)); Zsp[ik] = pk[ik]
-            pr, _ = fit_predict(tr, te, level, Y, Zsp); P_inc += pr
+                if (tr & (inner != k)).sum() == 0: Zsp[ik] = 0.0; u_in[ik] = "global"; continue          # no inner-training species: covariate carries no information
+                pk, uk = impute(Y, tax, tr & (inner != k)); Zsp[ik] = pk[ik]; u_in[ik] = uk[ik]
+            pr, _, _ = fit_predict(tr, te, level, Y, Zsp); P_inc += pr
+            # density-conditioned shrinkage: weight on photo prediction per imputation-density category, learned on training species only
+            img_te = species_mean(pim, te[si].astype(float)); ok_tr = tr & ~np.isnan(oof_img[:, 0])
+            D_in = np.zeros((len(sp), 2))
+            for k in range(5):                                                 # training species: density w.r.t. their inner-training set
+                ik = tr & (inner == k)
+                if ik.sum(): D_in[ik] = density_features(tax, tr & (inner != k))[ik]
+            D_te = density_features(tax, tr)                                   # test species: density w.r.t. outer training set
+            th = fit_density_weights(Y[ok_tr], oof_img[ok_tr], Zsp[ok_tr], D_in[ok_tr]); th1 = fit_density_weights(Y[ok_tr], oof_img[ok_tr], Zsp[ok_tr], D_in[ok_tr], single=True)
+            Wte = apply_density_weights(th, D_te[te]); W1 = apply_density_weights(th1, D_te[te])
+            P_blend[te] = Wte * img_te[te] + (1 - Wte) * pi[te]; P_blend1[te] = W1 * img_te[te] + (1 - W1) * pi[te]
+            W_log.append({"theta_abc": np.round(th["theta"], 3).tolist(), "mu": np.round(th["mu"], 4).tolist(), "sd": np.round(th["sd"], 4).tolist(), "theta_single": np.round(th1["theta"], 3).tolist()})
         S = {"imp": P_imp, "img": species_mean(P_img), "inc": species_mean(P_inc), "used": used, "alphas": alphas,
+             "blend": P_blend, "blend1": P_blend1, "weights": W_log, "fold": fo,
              "img_wleaf": species_mean(P_img, pl), "img_whabit": species_mean(P_img, ph)}
         for nm, pr_ in (("img_top_leaf", pl), ("img_top_habit", ph)):
             w = np.zeros(len(X))
@@ -208,11 +273,15 @@ def analyze(pid, X, pl, ph, dead_species, dead_rate, sel, cfg, n_boot):
             for j, t in enumerate(TRAITS):
                 e = {"n": int(m.sum()), "r2_imp": r2(S["imp"], m, j), "r2_img": r2(S["img"], m, j), "r2_inc": r2(S["inc"], m, j),
                      "d_img_minus_imp": boot_diff(S["img"], S["imp"], m, j), "d_inc_minus_imp": boot_diff(S["inc"], S["imp"], m, j),
-                     "d_inc_minus_img": boot_diff(S["inc"], S["img"], m, j)}
+                     "d_inc_minus_img": boot_diff(S["inc"], S["img"], m, j), "r2_blend": r2(S["blend"], m, j),
+                     "d_blend_minus_img": boot_diff(S["blend"], S["img"], m, j), "d_blend_minus_imp": boot_diff(S["blend"], S["imp"], m, j),
+                     "d_blend_minus_inc": boot_diff(S["blend"], S["inc"], m, j), "d_blend_minus_single_w": boot_diff(S["blend"], S["blend1"], m, j)}
                 if sn in ("pooled", "genus_imputed"):
                     wk = "img_whabit" if t == "Height" else "img_wleaf"; tk = "img_top_habit" if t == "Height" else "img_top_leaf"
                     e["d_weighted_minus_unweighted"] = boot_diff(S[wk], S["img"], m, j); e["d_top10_minus_unweighted"] = boot_diff(S[tk], S["img"], m, j)
                 R[f"{sn}|{t}"] = e
+        R["density_weights_per_fold"] = S["weights"]
+        R["conformal"] = {f"alpha={a_}": {"nominal": 1 - a_, "cvplus_guarantee": 1 - 2 * a_, **conformal_report(Y, S, alpha=a_)} for a_ in (0.05, 0.10)}
         R["imputation_level_counts"] = {k: int(v) for k, v in pd.Series(S["used"]).value_counts().items()}; R["alphas"] = S["alphas"]; res[level] = R
     # warm-up (seen species): nearest-centroid lookup vs direct regression, image level
     rng2 = np.random.default_rng(0); ff = np.zeros(len(X), int)
